@@ -53,18 +53,19 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				zenith: {
-					50: '#edfaff',
-					100: '#d6f2ff',
-					200: '#b5e9ff',
-					300: '#83ddff',
-					400: '#48c7ff',
-					500: '#1eadff',
-					600: '#0a8dff',
-					700: '#0a73ff',
-					800: '#105bcf',
-					900: '#154fa6',
-					950: '#12306a'
+				neon: {
+					green: '#aaff00',
+					50: '#f2ffe6',
+					100: '#e5ffc9',
+					200: '#c7ff8a',
+					300: '#aaff00', // Main neon green
+					400: '#88cc00',
+					500: '#6b9900',
+					600: '#527300',
+					700: '#3e5800',
+					800: '#283800',
+					900: '#141c00',
+					950: '#0a0e00'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
