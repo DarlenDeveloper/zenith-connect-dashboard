@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
@@ -11,12 +12,15 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
+import Conversations from "./pages/Conversations";
+import Subscription from "./pages/Subscription";
+import Requests from "./pages/Requests";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 // Components
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { Toaster } from "./components/ui/sonner";
 
 const queryClient = new QueryClient();
@@ -67,6 +71,38 @@ function App() {
       element: (
         <ProtectedRoute>
           <Products />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/conversations",
+      element: (
+        <ProtectedRoute>
+          <Conversations />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/subscription",
+      element: (
+        <ProtectedRoute>
+          <Subscription />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/requests",
+      element: (
+        <ProtectedRoute>
+          <Requests />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/profile",
+      element: (
+        <ProtectedRoute>
+          <Dashboard />
         </ProtectedRoute>
       ),
     },
