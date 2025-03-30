@@ -16,10 +16,10 @@ const ZenithLogo = ({ className }: ZenithLogoProps) => {
         xmlns="http://www.w3.org/2000/svg"
         className="mr-2"
       >
-        <rect width="32" height="32" rx="8" fill="currentColor" />
+        <rect width="32" height="32" rx="8" fill="#9efa06" />
         <path
           d="M8 10H24M8 22H24M19 10L13 22"
-          stroke="white"
+          stroke="black"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
