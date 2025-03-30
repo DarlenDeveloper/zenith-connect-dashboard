@@ -1,45 +1,55 @@
-# React + TypeScript Project
 
-A modern web application built with React, TypeScript, and shadcn-ui components.
+# Zenith AI by KAIA Group
 
-## Technologies Used
+A cutting-edge AI-powered customer care solution built with modern web technologies. Our platform leverages artificial intelligence to revolutionize customer service operations.
 
-This project is built with:
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## About KAIA Group
+
+KAIA Group specializes in developing innovative AI solutions that transform business operations. Zenith AI represents our flagship product in the customer service automation space.
+
+## Tech Stack
+
+Built with industry-leading technologies:
+- React 18 with TypeScript
+- Vite for blazing-fast development
+- shadcn/ui for beautiful, accessible components
+- Tailwind CSS for utility-first styling
+- Supabase for secure authentication and data storage
 
 ## Development
 
-To start the development server:
+To start working on Zenith AI:
 
-1. Click the "Run" button at the top of your Replit workspace
-2. The development server will start automatically
-3. You can view your application in the webview
+1. Click the "Run" button in your Replit workspace
+2. The development server starts automatically
+3. View your changes in real-time in the webview
 
-## Project Structure
+## Project Architecture
 
-- `/src` - Source code
-  - `/components` - React components
-  - `/contexts` - React contexts
-  - `/hooks` - Custom React hooks
-  - `/lib` - Utility functions
-  - `/pages` - Page components
+```
+src/
+├── components/    # Reusable UI components
+├── contexts/     # React context providers
+├── hooks/        # Custom React hooks
+├── lib/          # Utility functions
+├── pages/        # Application routes
+└── integrations/ # External service integrations
+```
 
+## Key Features
+
+- AI-powered conversation handling
+- Real-time customer analytics
+- Multi-channel support integration
+- Enterprise-grade security
+- Customizable workflows
+- Advanced analytics dashboard
 
 ## Deployment
 
-You can deploy your application directly through Replit:
+Deploy directly through Replit:
+1. Use the Deploy button in your workspace
+2. Follow the deployment prompts
+3. Your instance will be live on a Replit URL
 
-1. Click the "Deploy" button in your workspace
-2. Follow the prompts to publish your site
-3. Your application will be live and accessible via a Replit URL
-
-## Features
-
-- Modern React with TypeScript
-- Component library with shadcn-ui
-- Utility-first styling with Tailwind CSS
-- Fast development with Vite
+## Built with 💪 by KAIA Group
