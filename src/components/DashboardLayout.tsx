@@ -8,6 +8,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ZenithLogo from "@/components/ZenithLogo";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -62,16 +63,16 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <aside 
         className={`
           fixed inset-y-0 left-0 z-50 lg:static lg:z-auto
-          w-48 shrink-0 border-r border-gray-200 bg-black
+          w-48 shrink-0 border-r border-gray-200 bg-[#aaff00]
           transform transition-transform duration-200 ease-in-out
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="flex flex-col h-full text-white">
+        <div className="flex flex-col h-full text-black">
           {/* Logo */}
-          <div className="h-16 flex items-center px-4 border-b border-gray-800">
+          <div className="h-16 flex items-center px-4 border-b border-[#99e600]">
             <Link to="/dashboard" className="flex items-center">
-              <div className="font-bold text-2xl text-[#9efa06]">made.</div>
+              <ZenithLogo className="text-black" />
             </Link>
           </div>
 
@@ -84,12 +85,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 className={`
                   flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium
                   ${item.active 
-                    ? "bg-[#1a1a1a] text-[#9efa06]" 
-                    : "text-gray-300 hover:bg-[#1a1a1a] hover:text-white"
+                    ? "bg-[#99e600] text-black" 
+                    : "text-black hover:bg-[#99e600]"
                   }
                 `}
               >
-                <span className={`${item.active ? "text-[#9efa06]" : "text-gray-400"}`}>
+                <span className="text-black">
                   {item.icon}
                 </span>
                 <span>{item.name}</span>
@@ -98,10 +99,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </nav>
 
           {/* Logout Button */}
-          <div className="p-4 mt-auto border-t border-gray-800">
+          <div className="p-4 mt-auto border-t border-[#99e600]">
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-gray-400 hover:text-white hover:bg-[#1a1a1a]"
+              className="w-full justify-start text-black hover:bg-[#99e600]"
               onClick={handleLogout}
             >
               <LogOut size={20} className="mr-3" />
