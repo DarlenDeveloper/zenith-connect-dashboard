@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
-  LayoutDashboard, MessageSquare, CreditCard, User, 
+  LayoutDashboard, MessageSquare, CreditCard, 
   Settings, LogOut, InboxIcon, Menu, PanelLeft
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -47,7 +47,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={20} />, active: location.pathname === "/dashboard" },
     { name: "Conversations", path: "/conversations", icon: <MessageSquare size={20} />, active: location.pathname === "/conversations" },
     { name: "Subscription", path: "/subscription", icon: <CreditCard size={20} />, active: location.pathname === "/subscription" },
-    { name: "Profile", path: "/profile", icon: <User size={20} />, active: location.pathname === "/profile" },
     { name: "Settings", path: "/settings", icon: <Settings size={20} />, active: location.pathname === "/settings" },
     { name: "Requests", path: "/requests", icon: <InboxIcon size={20} />, active: location.pathname === "/requests" },
   ];

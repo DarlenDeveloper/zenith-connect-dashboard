@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import "./App.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -44,7 +44,7 @@ function App() {
   const routes = [
     {
       path: "/",
-      element: <Index />,
+      element: <Navigate to="/dashboard" replace />,
     },
     {
       path: "/login",
@@ -95,14 +95,6 @@ function App() {
       element: (
         <ProtectedRoute>
           <Requests />
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path: "/profile",
-      element: (
-        <ProtectedRoute>
-          <Dashboard />
         </ProtectedRoute>
       ),
     },
