@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, MessageSquare, CreditCard, User, 
-  Settings, LogOut, InboxIcon
+  Settings, LogOut, InboxIcon, Menu
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     navigate("/login");
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   const navItems: NavItem[] = [
     { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={20} />, active: location.pathname === "/dashboard" },
     { name: "Conversations", path: "/conversations", icon: <MessageSquare size={20} />, active: location.pathname === "/conversations" },
@@ -63,16 +67,16 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <aside 
         className={`
           fixed inset-y-0 left-0 z-50 lg:static lg:z-auto
-          w-48 shrink-0 border-r border-gray-200 bg-[#aaff00]
+          w-48 shrink-0 border-r border-gray-200 bg-black
           transform transition-transform duration-200 ease-in-out
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <div className="flex flex-col h-full text-black">
+        <div className="flex flex-col h-full text-white">
           {/* Logo */}
-          <div className="h-16 flex items-center px-4 border-b border-[#99e600]">
+          <div className="h-16 flex items-center px-4 border-b border-gray-800">
             <Link to="/dashboard" className="flex items-center">
-              <ZenithLogo className="text-black" />
+              <ZenithLogo className="text-white" />
             </Link>
           </div>
 
@@ -85,12 +89,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 className={`
                   flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium
                   ${item.active 
-                    ? "bg-[#99e600] text-black" 
-                    : "text-black hover:bg-[#99e600]"
+                    ? "bg-[#1a1a1a] text-[#9efa06]" 
+                    : "text-gray-300 hover:bg-[#1a1a1a] hover:text-white"
                   }
                 `}
               >
-                <span className="text-black">
+                <span className={`${item.active ? "text-[#9efa06]" : "text-gray-400"}`}>
                   {item.icon}
                 </span>
                 <span>{item.name}</span>
@@ -99,10 +103,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </nav>
 
           {/* Logout Button */}
-          <div className="p-4 mt-auto border-t border-[#99e600]">
+          <div className="p-4 mt-auto border-t border-gray-800">
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-black hover:bg-[#99e600]"
+              className="w-full justify-start text-gray-400 hover:text-white hover:bg-[#1a1a1a]"
               onClick={handleLogout}
             >
               <LogOut size={20} className="mr-3" />
@@ -114,6 +118,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Sidebar toggle button - always visible on mobile, visible when sidebar is closed on desktop */}
+        <div className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-white px-4 lg:px-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="lg:hidden"
+            aria-label="Toggle Menu"
+          >
+            <Menu size={24} />
+          </Button>
+          <div className="lg:hidden ml-auto"></div>
+        </div>
         {children}
       </div>
     </div>
