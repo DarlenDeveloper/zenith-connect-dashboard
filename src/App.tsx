@@ -18,10 +18,16 @@ import Requests from "./pages/Requests";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import PaymentRequired from "./pages/PaymentRequired";
+import CallHistory from "./pages/CallHistory";
+import AIVoiceSettings from "./pages/AIVoiceSettings";
+import Analytics from "./pages/Analytics";
+import Scripts from "./pages/Scripts";
 
 // Components
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Toaster } from "./components/ui/sonner";
+import PaymentRequiredRoute from "./components/PaymentRequiredRoute";
 
 const queryClient = new QueryClient();
 
@@ -59,10 +65,20 @@ function App() {
       element: <ForgotPassword />,
     },
     {
+      path: "/payment-required",
+      element: (
+        <ProtectedRoute>
+          <PaymentRequired />
+        </ProtectedRoute>
+      ),
+    },
+    {
       path: "/dashboard",
       element: (
         <ProtectedRoute>
-          <Dashboard />
+          <PaymentRequiredRoute>
+            <Dashboard />
+          </PaymentRequiredRoute>
         </ProtectedRoute>
       ),
     },
@@ -70,7 +86,9 @@ function App() {
       path: "/products",
       element: (
         <ProtectedRoute>
-          <Products />
+          <PaymentRequiredRoute>
+            <Products />
+          </PaymentRequiredRoute>
         </ProtectedRoute>
       ),
     },
@@ -78,7 +96,9 @@ function App() {
       path: "/conversations",
       element: (
         <ProtectedRoute>
-          <Conversations />
+          <PaymentRequiredRoute>
+            <Conversations />
+          </PaymentRequiredRoute>
         </ProtectedRoute>
       ),
     },
@@ -94,7 +114,9 @@ function App() {
       path: "/requests",
       element: (
         <ProtectedRoute>
-          <Requests />
+          <PaymentRequiredRoute>
+            <Requests />
+          </PaymentRequiredRoute>
         </ProtectedRoute>
       ),
     },
@@ -102,7 +124,9 @@ function App() {
       path: "/notifications",
       element: (
         <ProtectedRoute>
-          <Notifications />
+          <PaymentRequiredRoute>
+            <Notifications />
+          </PaymentRequiredRoute>
         </ProtectedRoute>
       ),
     },
@@ -110,7 +134,49 @@ function App() {
       path: "/settings",
       element: (
         <ProtectedRoute>
-          <Settings />
+          <PaymentRequiredRoute>
+            <Settings />
+          </PaymentRequiredRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/call-history",
+      element: (
+        <ProtectedRoute>
+          <PaymentRequiredRoute>
+            <CallHistory />
+          </PaymentRequiredRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/ai-voice-settings",
+      element: (
+        <ProtectedRoute>
+          <PaymentRequiredRoute>
+            <AIVoiceSettings />
+          </PaymentRequiredRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/analytics",
+      element: (
+        <ProtectedRoute>
+          <PaymentRequiredRoute>
+            <Analytics />
+          </PaymentRequiredRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/scripts",
+      element: (
+        <ProtectedRoute>
+          <PaymentRequiredRoute>
+            <Scripts />
+          </PaymentRequiredRoute>
         </ProtectedRoute>
       ),
     },
