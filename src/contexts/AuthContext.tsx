@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +8,7 @@ interface AuthUser {
   email: string;
   name: string;
   organizationName: string;
+  hasSubscription?: boolean;
 }
 
 interface AuthContextType {
@@ -47,16 +47,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  // Initialize auth state from Supabase
   useEffect(() => {
-    // First, set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         setSession(currentSession);
         setSupabaseUser(currentSession?.user ?? null);
         
         if (currentSession?.user) {
-          // Get user profile from Supabase once authenticated
           setTimeout(() => {
             getUserProfile(currentSession.user.id);
           }, 0);
@@ -66,7 +63,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // Then check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setSupabaseUser(currentSession?.user ?? null);
@@ -83,22 +79,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  // Get user profile from metadata or create a default one
   const getUserProfile = async (userId: string) => {
     try {
-      // Try to get the user metadata from auth.users
       const { data: userData, error: userError } = await supabase.auth.getUser();
       
       if (userError) throw userError;
       
-      // Create a user profile object
       const userMetadata = userData.user.user_metadata || {};
       
       const authUser: AuthUser = {
         id: userId,
         email: userData.user.email || "",
         name: userMetadata.name || userData.user.email?.split('@')[0] || "Zenith User",
-        organizationName: userMetadata.organizationName || "Zenith Inc."
+        organizationName: userMetadata.organizationName || "Zenith Inc.",
+        hasSubscription: userMetadata.hasSubscription || false
       };
       
       setUser(authUser);
@@ -145,7 +139,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     
     try {
-      // Validate required fields
       if (!userData.email || !userData.password || !userData.name || !userData.organizationName) {
         throw new Error("All fields are required");
       }
@@ -154,7 +147,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error("You must agree to the terms and conditions");
       }
 
-      // Register with Supabase auth
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,

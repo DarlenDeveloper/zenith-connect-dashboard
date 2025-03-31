@@ -12,7 +12,7 @@ const PaymentRequiredRoute = ({ children }: PaymentRequiredRouteProps) => {
   
   // Simulate payment check - in a real app, you would check against a subscription API
   // This is a placeholder for demonstration purposes
-  const hasActiveSubscription = user?.metadata?.hasSubscription || false;
+  const hasActiveSubscription = user?.hasSubscription || false;
   
   if (!hasActiveSubscription) {
     return <Navigate to="/payment-required" replace />;
