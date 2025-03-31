@@ -25,26 +25,27 @@ const PaymentRequired = () => {
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full">
-        <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center justify-between px-6 shadow-sm sticky top-0 z-10">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-medium">Payment Required</h1>
+        <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center justify-between px-6 shadow-md sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            <ShieldAlert className="h-5 w-5 text-yellow-500" />
+            <h1 className="text-xl font-semibold">Payment Required</h1>
           </div>
           <Button 
             variant="outline" 
             onClick={() => navigate("/subscription")}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1.5 border-gray-300 hover:bg-gray-50 transition-colors"
             size="sm"
           >
-            <CreditCard className="h-4 w-4" />
+            <CreditCard className="h-4 w-4 text-gray-600" />
             View Plans
           </Button>
         </header>
         
         <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
           <div className="max-w-3xl mx-auto">
-            <Card className="mb-8 shadow-md border-0">
-              <CardHeader className="text-center pb-2">
-                <div className="bg-yellow-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+            <Card className="mb-8 shadow-lg border-0 overflow-hidden">
+              <CardHeader className="text-center pb-2 bg-gradient-to-r from-gray-50 to-white">
+                <div className="bg-yellow-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-md">
                   <ShieldAlert size={36} className="text-yellow-500" />
                 </div>
                 <h2 className="text-2xl font-bold mb-1">Subscription Required</h2>
@@ -54,7 +55,7 @@ const PaymentRequired = () => {
                 <Separator className="mb-6" />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Starter Plan */}
-                  <Card className="border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow relative h-full flex flex-col">
+                  <Card className="border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 relative h-full flex flex-col">
                     <CardHeader className="pb-2">
                       <h3 className="font-semibold text-lg">Starter</h3>
                       <div className="text-3xl font-bold mb-2">$19<span className="text-sm font-normal text-gray-500">/month</span></div>
@@ -78,7 +79,7 @@ const PaymentRequired = () => {
                     </CardContent>
                     <CardFooter className="pt-2">
                       <Button 
-                        className="w-full" 
+                        className="w-full bg-gray-800 hover:bg-black text-white" 
                         onClick={() => navigate("/subscription")}
                       >
                         Subscribe Now
@@ -87,7 +88,7 @@ const PaymentRequired = () => {
                   </Card>
                   
                   {/* Pro Plan */}
-                  <Card className="border-2 border-black rounded-lg shadow-md hover:shadow-lg transition-shadow relative h-full flex flex-col">
+                  <Card className="border-2 border-black rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 relative h-full flex flex-col transform hover:-translate-y-1">
                     <Badge className="absolute top-0 right-0 bg-black text-white rounded-bl-lg rounded-tr-lg px-3 py-1 font-medium" variant="default">
                       RECOMMENDED
                     </Badge>
@@ -127,7 +128,7 @@ const PaymentRequired = () => {
                   </Card>
                   
                   {/* Enterprise Plan */}
-                  <Card className="border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow relative h-full flex flex-col">
+                  <Card className="border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 relative h-full flex flex-col">
                     <CardHeader className="pb-2">
                       <h3 className="font-semibold text-lg">Enterprise</h3>
                       <div className="text-3xl font-bold mb-2">$199<span className="text-sm font-normal text-gray-500">/month</span></div>
@@ -156,7 +157,7 @@ const PaymentRequired = () => {
                     <CardFooter className="pt-2">
                       <Button 
                         variant="outline" 
-                        className="w-full"
+                        className="w-full border-gray-300 hover:bg-gray-50"
                         onClick={() => navigate("/subscription")}
                       >
                         Contact Sales
@@ -174,4 +175,3 @@ const PaymentRequired = () => {
 };
 
 export default PaymentRequired;
-
