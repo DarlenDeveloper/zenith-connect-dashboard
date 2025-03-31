@@ -10,8 +10,21 @@ const PaymentRequired = () => {
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full">
-        <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center px-6">
-          <h1 className="text-xl font-medium">Payment Required</h1>
+        <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center justify-between px-6">
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-semibold">Subscription Required</h1>
+            <div className="hidden md:flex h-6 px-2 py-1 bg-yellow-100 rounded-md items-center">
+              <span className="text-xs font-medium text-yellow-800">Upgrade Needed</span>
+            </div>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/subscription")}
+            className="flex items-center"
+          >
+            <CreditCard className="mr-2 h-4 w-4" />
+            View All Plans
+          </Button>
         </header>
         
         <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
@@ -43,7 +56,10 @@ const PaymentRequired = () => {
                     <span className="text-sm">Email support</span>
                   </li>
                 </ul>
-                <Button onClick={() => navigate("/subscription")}>
+                <Button 
+                  className="w-full" 
+                  onClick={() => navigate("/subscription")}
+                >
                   Subscribe Now
                 </Button>
               </div>
@@ -73,7 +89,10 @@ const PaymentRequired = () => {
                     <span className="text-sm">Custom AI training</span>
                   </li>
                 </ul>
-                <Button className="bg-black text-white hover:bg-gray-800" onClick={() => navigate("/subscription")}>
+                <Button 
+                  className="w-full bg-black text-white hover:bg-gray-800"
+                  onClick={() => navigate("/subscription")}
+                >
                   Subscribe Now
                 </Button>
               </div>
@@ -100,21 +119,14 @@ const PaymentRequired = () => {
                     <span className="text-sm">Custom integrations</span>
                   </li>
                 </ul>
-                <Button variant="outline" onClick={() => navigate("/subscription")}>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => navigate("/subscription")}
+                >
                   Contact Sales
                 </Button>
               </div>
-            </div>
-            
-            <div className="flex justify-center">
-              <Button 
-                variant="outline" 
-                onClick={() => navigate("/subscription")}
-                className="flex items-center"
-              >
-                <CreditCard className="mr-2 h-4 w-4" />
-                View All Subscription Options
-              </Button>
             </div>
           </div>
         </main>
