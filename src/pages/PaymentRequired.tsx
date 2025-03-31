@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -11,19 +10,17 @@ const PaymentRequired = () => {
     <DashboardLayout>
       <div className="flex flex-col h-full">
         <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center justify-between px-6">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold">Subscription Required</h1>
-            <div className="hidden md:flex h-6 px-2 py-1 bg-yellow-100 rounded-md items-center">
-              <span className="text-xs font-medium text-yellow-800">Upgrade Needed</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-medium">Payment Required</h1>
           </div>
           <Button 
             variant="outline" 
             onClick={() => navigate("/subscription")}
-            className="flex items-center"
+            className="flex items-center gap-2"
+            size="sm"
           >
-            <CreditCard className="mr-2 h-4 w-4" />
-            View All Plans
+            <CreditCard className="h-4 w-4" />
+            View Plans
           </Button>
         </header>
         
