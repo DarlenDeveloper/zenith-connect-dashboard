@@ -60,7 +60,7 @@ export const getSubscriptionStatus = async () => {
       .from('profiles')
       .select('has_subscription')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     

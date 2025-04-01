@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -6,11 +5,11 @@ import { Check, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { redirectToCheckout } from "@/lib/stripe";
 
-// Stripe price IDs for each plan (these would normally come from your backend)
+// Stripe price IDs for each plan
 const PRICE_IDS = {
-  starter: "price_1RDGX5PEXvlHYAZ3hDH3gCW5", // Replace with your actual price IDs from Stripe
-  pro: "price_1RDGX5PEXvlHYAZ3hDH3gCW5",
-  enterprise: "price_1RDGX5PEXvlHYAZ3hDH3gCW5" // For "Contact Sales" option
+  starter: "price_1RDGX5PEXvlHYAZ3hDH3gCW5", // $149/month plan
+  pro: "price_1RDGX5PEXvlHYAZ3hDH3gCW5", // $149/month plan
+  enterprise: "price_1RDGX5PEXvlHYAZ3hDH3gCW5" // Contact Sales option
 };
 
 const SubscriptionPage = () => {
