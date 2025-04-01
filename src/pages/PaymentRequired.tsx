@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,8 @@ import {
   Mail,
   HeadphonesIcon,
   MessagesSquare,
-  Settings2
+  Settings2,
+  AlertCircle
 } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -21,31 +21,38 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { redirectToCheckout } from "@/lib/stripe";
 import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-// Stripe price IDs for each plan (these would normally come from your backend)
+const TEST_CARD_NUMBER = "4242 4242 4242 4242";
+
 const PRICE_IDS = {
-  starter: "price_1RDGX5PEXvlHYAZ3hDH3gCW5", // Using the provided test price ID
+  starter: "price_1RDGX5PEXvlHYAZ3hDH3gCW5",
   pro: "price_1RDGX5PEXvlHYAZ3hDH3gCW5",
-  enterprise: "price_1RDGX5PEXvlHYAZ3hDH3gCW5" // For "Contact Sales" option
+  enterprise: "price_1RDGX5PEXvlHYAZ3hDH3gCW5"
 };
 
 const PaymentRequired = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   
   const handleSubscription = async (plan: 'starter' | 'pro' | 'enterprise') => {
     try {
       setIsLoading({ ...isLoading, [plan]: true });
+      setCheckoutError(null);
       
-      // Redirect to Stripe Checkout
       const result = await redirectToCheckout(PRICE_IDS[plan]);
       
       if (result?.error) {
-        toast.error('Failed to initiate checkout. Please try again.');
+        const errorMessage = result.error.message || 'Failed to initiate checkout. Please try again.';
+        setCheckoutError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error('Error starting checkout:', error);
-      toast.error('Something went wrong. Please try again later.');
+      const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again later.';
+      setCheckoutError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading({ ...isLoading, [plan]: false });
     }
@@ -72,6 +79,27 @@ const PaymentRequired = () => {
         
         <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
           <div className="max-w-3xl mx-auto">
+            {checkoutError && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error starting checkout</AlertTitle>
+                <AlertDescription>
+                  {checkoutError}
+                  <p className="mt-2 text-sm">
+                    This is a test environment. Please make sure you have set up products and prices in your Stripe dashboard.
+                  </p>
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            <Alert className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Test Mode</AlertTitle>
+              <AlertDescription>
+                This is using Stripe test mode. Use test card {TEST_CARD_NUMBER} with any future expiration date and CVC.
+              </AlertDescription>
+            </Alert>
+            
             <Card className="mb-8 shadow-lg border-0 overflow-hidden">
               <CardHeader className="text-center pb-2 bg-gradient-to-r from-gray-50 to-white">
                 <div className="bg-yellow-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-md">

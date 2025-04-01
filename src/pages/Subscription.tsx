@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Check, CreditCard } from "lucide-react";
+import { Check, CreditCard, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { redirectToCheckout } from "@/lib/stripe";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+// Test mode notice
+const TEST_CARD_NUMBER = "4242 4242 4242 4242";
 
 // Stripe price IDs for each plan
 const PRICE_IDS = {
@@ -14,20 +18,26 @@ const PRICE_IDS = {
 
 const SubscriptionPage = () => {
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const handleSubscription = async (plan: 'starter' | 'pro' | 'enterprise') => {
     try {
       setIsLoading({ ...isLoading, [plan]: true });
+      setCheckoutError(null);
       
       // Redirect to Stripe Checkout
       const result = await redirectToCheckout(PRICE_IDS[plan]);
       
       if (result?.error) {
-        toast.error('Failed to initiate checkout. Please try again.');
+        const errorMessage = result.error.message || 'Failed to initiate checkout. Please try again.';
+        setCheckoutError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error('Error starting checkout:', error);
-      toast.error('Something went wrong. Please try again later.');
+      const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again later.';
+      setCheckoutError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading({ ...isLoading, [plan]: false });
     }
@@ -44,6 +54,27 @@ const SubscriptionPage = () => {
         {/* Main content */}
         <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
           <div className="max-w-4xl mx-auto">
+            {checkoutError && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error starting checkout</AlertTitle>
+                <AlertDescription>
+                  {checkoutError}
+                  <p className="mt-2 text-sm">
+                    This is a test environment. Please make sure you have set up products and prices in your Stripe dashboard.
+                  </p>
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            <Alert className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Test Mode</AlertTitle>
+              <AlertDescription>
+                This is using Stripe test mode. Use test card {TEST_CARD_NUMBER} with any future expiration date and CVC.
+              </AlertDescription>
+            </Alert>
+            
             {/* Current Plan */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
               <h2 className="text-lg font-semibold mb-4">Current Plan</h2>

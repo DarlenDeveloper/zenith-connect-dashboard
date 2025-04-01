@@ -24,6 +24,8 @@ export const redirectToCheckout = async (priceId: string) => {
       throw new Error('You must be logged in to subscribe');
     }
 
+    console.log(`Initiating checkout with price ID: ${priceId}`);
+    
     // Create Stripe checkout session
     const { error } = await stripe.redirectToCheckout({
       lineItems: [
