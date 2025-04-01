@@ -95,15 +95,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError) throw userError;
       
-      const authUser: AuthUser = {
-        id: userId,
-        email: userData.user.email || "",
-        name: profileData.name || userData.user.email?.split('@')[0] || "Zenith User",
-        organizationName: profileData.organization_name || "Zenith Inc.",
-        hasSubscription: profileData.has_subscription || false
-      };
-      
-      setUser(authUser);
+      if (profileData) {
+        const authUser: AuthUser = {
+          id: userId,
+          email: userData.user.email || "",
+          name: profileData.name || userData.user.email?.split('@')[0] || "Zenith User",
+          organizationName: profileData.organization_name || "Zenith Inc.",
+          hasSubscription: profileData.has_subscription || false
+        };
+        
+        setUser(authUser);
+      } else {
+        // Handle case where profile data is null
+        const authUser: AuthUser = {
+          id: userId,
+          email: userData.user.email || "",
+          name: userData.user.email?.split('@')[0] || "Zenith User",
+          organizationName: "Zenith Inc.",
+          hasSubscription: false
+        };
+        
+        setUser(authUser);
+      }
     } catch (error) {
       console.error("Error getting user profile:", error);
       toast({
