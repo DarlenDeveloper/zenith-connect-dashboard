@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -81,18 +82,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getUserProfile = async (userId: string) => {
     try {
+      // Fetch profile data from the profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (profileError) throw profileError;
+      
+      // Fetch user data from auth
       const { data: userData, error: userError } = await supabase.auth.getUser();
-      
       if (userError) throw userError;
-      
-      const userMetadata = userData.user.user_metadata || {};
       
       const authUser: AuthUser = {
         id: userId,
         email: userData.user.email || "",
-        name: userMetadata.name || userData.user.email?.split('@')[0] || "Zenith User",
-        organizationName: userMetadata.organizationName || "Zenith Inc.",
-        hasSubscription: userMetadata.hasSubscription || false
+        name: profileData.name || userData.user.email?.split('@')[0] || "Zenith User",
+        organizationName: profileData.organization_name || "Zenith Inc.",
+        hasSubscription: profileData.has_subscription || false
       };
       
       setUser(authUser);
