@@ -8,9 +8,9 @@ import { redirectToCheckout } from "@/lib/stripe";
 
 // Stripe price IDs for each plan (these would normally come from your backend)
 const PRICE_IDS = {
-  starter: "price_starter123", // Replace with your actual price IDs from Stripe
-  pro: "price_pro123",
-  enterprise: "price_enterprise123"
+  starter: "price_1RDGX5PEXvlHYAZ3hDH3gCW5", // Replace with your actual price IDs from Stripe
+  pro: "price_1RDGX5PEXvlHYAZ3hDH3gCW5",
+  enterprise: "price_1RDGX5PEXvlHYAZ3hDH3gCW5" // For "Contact Sales" option
 };
 
 const SubscriptionPage = () => {
@@ -52,7 +52,7 @@ const SubscriptionPage = () => {
               <div className="flex items-center justify-between py-4 border-b border-gray-200">
                 <div>
                   <h3 className="font-medium text-lg">Pro Plan</h3>
-                  <p className="text-gray-500">$49/month, billed monthly</p>
+                  <p className="text-gray-500">$149/month, billed monthly</p>
                 </div>
                 <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                   Active
@@ -98,7 +98,7 @@ const SubscriptionPage = () => {
                 {/* Starter Plan */}
                 <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-md transition-all h-full flex flex-col">
                   <h3 className="font-medium text-lg mb-2">Starter</h3>
-                  <div className="text-2xl font-bold mb-4">$19<span className="text-sm font-normal text-gray-500">/month</span></div>
+                  <div className="text-2xl font-bold mb-4">$149<span className="text-sm font-normal text-gray-500">/month</span></div>
                   
                   <ul className="space-y-2 mb-6 flex-grow">
                     <li className="flex items-start">
@@ -132,7 +132,7 @@ const SubscriptionPage = () => {
                   </div>
                   
                   <h3 className="font-medium text-lg mb-2">Pro</h3>
-                  <div className="text-2xl font-bold mb-4">$49<span className="text-sm font-normal text-gray-500">/month</span></div>
+                  <div className="text-2xl font-bold mb-4">$149<span className="text-sm font-normal text-gray-500">/month</span></div>
                   
                   <ul className="space-y-2 mb-6 flex-grow">
                     <li className="flex items-start">
@@ -159,7 +159,7 @@ const SubscriptionPage = () => {
                 {/* Enterprise Plan */}
                 <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-md transition-all h-full flex flex-col">
                   <h3 className="font-medium text-lg mb-2">Enterprise</h3>
-                  <div className="text-2xl font-bold mb-4">$199<span className="text-sm font-normal text-gray-500">/month</span></div>
+                  <div className="text-2xl font-bold mb-4">Contact Sales<span className="text-sm font-normal text-gray-500"></span></div>
                   
                   <ul className="space-y-2 mb-6 flex-grow">
                     <li className="flex items-start">
@@ -190,7 +190,7 @@ const SubscriptionPage = () => {
                     onClick={() => handleSubscription('enterprise')}
                     disabled={isLoading.enterprise}
                   >
-                    {isLoading.enterprise ? 'Processing...' : 'Upgrade'}
+                    {isLoading.enterprise ? 'Processing...' : 'Contact Sales'}
                   </Button>
                 </div>
               </div>

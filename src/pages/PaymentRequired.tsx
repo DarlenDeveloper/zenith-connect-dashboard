@@ -24,9 +24,9 @@ import { toast } from "sonner";
 
 // Stripe price IDs for each plan (these would normally come from your backend)
 const PRICE_IDS = {
-  starter: "price_starter123", // Replace with your actual price IDs from Stripe
-  pro: "price_pro123",
-  enterprise: "price_enterprise123"
+  starter: "price_1RDGX5PEXvlHYAZ3hDH3gCW5", // Using the provided test price ID
+  pro: "price_1RDGX5PEXvlHYAZ3hDH3gCW5",
+  enterprise: "price_1RDGX5PEXvlHYAZ3hDH3gCW5" // For "Contact Sales" option
 };
 
 const PaymentRequired = () => {
@@ -87,7 +87,7 @@ const PaymentRequired = () => {
                   <Card className="border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 relative h-full flex flex-col">
                     <CardHeader className="pb-2">
                       <h3 className="font-semibold text-lg">Starter</h3>
-                      <div className="text-3xl font-bold mb-2">$19<span className="text-sm font-normal text-gray-500">/month</span></div>
+                      <div className="text-3xl font-bold mb-2">$149<span className="text-sm font-normal text-gray-500">/month</span></div>
                       <p className="text-gray-600 text-sm">Perfect for small businesses</p>
                     </CardHeader>
                     <CardContent className="py-2 flex-grow">
@@ -124,7 +124,7 @@ const PaymentRequired = () => {
                     </Badge>
                     <CardHeader className="pb-2">
                       <h3 className="font-semibold text-lg">Pro</h3>
-                      <div className="text-3xl font-bold mb-2">$49<span className="text-sm font-normal text-gray-500">/month</span></div>
+                      <div className="text-3xl font-bold mb-2">$149<span className="text-sm font-normal text-gray-500">/month</span></div>
                       <p className="text-gray-600 text-sm">For growing businesses</p>
                     </CardHeader>
                     <CardContent className="py-2 flex-grow">
@@ -162,7 +162,7 @@ const PaymentRequired = () => {
                   <Card className="border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 relative h-full flex flex-col">
                     <CardHeader className="pb-2">
                       <h3 className="font-semibold text-lg">Enterprise</h3>
-                      <div className="text-3xl font-bold mb-2">$199<span className="text-sm font-normal text-gray-500">/month</span></div>
+                      <div className="text-3xl font-bold mb-2">Contact Sales</div>
                       <p className="text-gray-600 text-sm">For large organizations</p>
                     </CardHeader>
                     <CardContent className="py-2 flex-grow">
