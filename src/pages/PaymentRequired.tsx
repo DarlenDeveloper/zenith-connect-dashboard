@@ -18,9 +18,38 @@ import {
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { redirectToCheckout } from "@/lib/stripe";
+import { toast } from "sonner";
+
+// Stripe price IDs for each plan (these would normally come from your backend)
+const PRICE_IDS = {
+  starter: "price_starter123", // Replace with your actual price IDs from Stripe
+  pro: "price_pro123",
+  enterprise: "price_enterprise123"
+};
 
 const PaymentRequired = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
+  
+  const handleSubscription = async (plan: 'starter' | 'pro' | 'enterprise') => {
+    try {
+      setIsLoading({ ...isLoading, [plan]: true });
+      
+      // Redirect to Stripe Checkout
+      const result = await redirectToCheckout(PRICE_IDS[plan]);
+      
+      if (result?.error) {
+        toast.error('Failed to initiate checkout. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error starting checkout:', error);
+      toast.error('Something went wrong. Please try again later.');
+    } finally {
+      setIsLoading({ ...isLoading, [plan]: false });
+    }
+  };
   
   return (
     <DashboardLayout>
@@ -79,10 +108,11 @@ const PaymentRequired = () => {
                     </CardContent>
                     <CardFooter className="pt-2">
                       <Button 
-                        className="w-full bg-gray-800 hover:bg-black text-white" 
-                        onClick={() => navigate("/subscription")}
+                        className="w-full bg-gray-800 hover:bg-black text-white"
+                        onClick={() => handleSubscription('starter')}
+                        disabled={isLoading.starter}
                       >
-                        Subscribe Now
+                        {isLoading.starter ? 'Processing...' : 'Subscribe Now'}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -120,9 +150,10 @@ const PaymentRequired = () => {
                     <CardFooter className="pt-2">
                       <Button 
                         className="w-full bg-black text-white hover:bg-gray-800"
-                        onClick={() => navigate("/subscription")}
+                        onClick={() => handleSubscription('pro')}
+                        disabled={isLoading.pro}
                       >
-                        Subscribe Now
+                        {isLoading.pro ? 'Processing...' : 'Subscribe Now'}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -158,9 +189,10 @@ const PaymentRequired = () => {
                       <Button 
                         variant="outline" 
                         className="w-full border-gray-300 hover:bg-gray-50"
-                        onClick={() => navigate("/subscription")}
+                        onClick={() => handleSubscription('enterprise')}
+                        disabled={isLoading.enterprise}
                       >
-                        Contact Sales
+                        {isLoading.enterprise ? 'Processing...' : 'Contact Sales'}
                       </Button>
                     </CardFooter>
                   </Card>

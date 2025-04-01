@@ -1,15 +1,44 @@
 
-import React from "react";
+import React, { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Check, CreditCard } from "lucide-react";
+import { toast } from "sonner";
+import { redirectToCheckout } from "@/lib/stripe";
+
+// Stripe price IDs for each plan (these would normally come from your backend)
+const PRICE_IDS = {
+  starter: "price_starter123", // Replace with your actual price IDs from Stripe
+  pro: "price_pro123",
+  enterprise: "price_enterprise123"
+};
 
 const SubscriptionPage = () => {
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
+
+  const handleSubscription = async (plan: 'starter' | 'pro' | 'enterprise') => {
+    try {
+      setIsLoading({ ...isLoading, [plan]: true });
+      
+      // Redirect to Stripe Checkout
+      const result = await redirectToCheckout(PRICE_IDS[plan]);
+      
+      if (result?.error) {
+        toast.error('Failed to initiate checkout. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error starting checkout:', error);
+      toast.error('Something went wrong. Please try again later.');
+    } finally {
+      setIsLoading({ ...isLoading, [plan]: false });
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full">
         {/* Header */}
-        <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center px-6 justify-between">
+        <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center px-6 justify-between shadow-sm sticky top-0 z-10">
           <h1 className="text-xl font-medium">Subscription</h1>
         </header>
 
@@ -65,13 +94,13 @@ const SubscriptionPage = () => {
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
               <h2 className="text-lg font-semibold mb-4">Available Plans</h2>
               
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Starter Plan */}
-                <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all">
+                <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-md transition-all h-full flex flex-col">
                   <h3 className="font-medium text-lg mb-2">Starter</h3>
                   <div className="text-2xl font-bold mb-4">$19<span className="text-sm font-normal text-gray-500">/month</span></div>
                   
-                  <ul className="space-y-2 mb-6">
+                  <ul className="space-y-2 mb-6 flex-grow">
                     <li className="flex items-start">
                       <Check size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
                       <span className="text-sm">Up to 5 AI conversations</span>
@@ -86,11 +115,18 @@ const SubscriptionPage = () => {
                     </li>
                   </ul>
                   
-                  <Button variant="outline" className="w-full">Downgrade</Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={() => handleSubscription('starter')}
+                    disabled={isLoading.starter}
+                  >
+                    {isLoading.starter ? 'Processing...' : 'Downgrade'}
+                  </Button>
                 </div>
                 
                 {/* Pro Plan (Current) */}
-                <div className="border-2 border-black rounded-lg p-5 relative">
+                <div className="border-2 border-black rounded-lg p-5 relative h-full flex flex-col shadow-md">
                   <div className="absolute top-0 right-0 bg-black text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
                     CURRENT
                   </div>
@@ -98,7 +134,7 @@ const SubscriptionPage = () => {
                   <h3 className="font-medium text-lg mb-2">Pro</h3>
                   <div className="text-2xl font-bold mb-4">$49<span className="text-sm font-normal text-gray-500">/month</span></div>
                   
-                  <ul className="space-y-2 mb-6">
+                  <ul className="space-y-2 mb-6 flex-grow">
                     <li className="flex items-start">
                       <Check size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
                       <span className="text-sm">Unlimited AI conversations</span>
@@ -121,11 +157,11 @@ const SubscriptionPage = () => {
                 </div>
                 
                 {/* Enterprise Plan */}
-                <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-sm transition-all">
+                <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-md transition-all h-full flex flex-col">
                   <h3 className="font-medium text-lg mb-2">Enterprise</h3>
                   <div className="text-2xl font-bold mb-4">$199<span className="text-sm font-normal text-gray-500">/month</span></div>
                   
-                  <ul className="space-y-2 mb-6">
+                  <ul className="space-y-2 mb-6 flex-grow">
                     <li className="flex items-start">
                       <Check size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
                       <span className="text-sm">Everything in Pro</span>
@@ -148,7 +184,14 @@ const SubscriptionPage = () => {
                     </li>
                   </ul>
                   
-                  <Button variant="outline" className="w-full">Upgrade</Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => handleSubscription('enterprise')}
+                    disabled={isLoading.enterprise}
+                  >
+                    {isLoading.enterprise ? 'Processing...' : 'Upgrade'}
+                  </Button>
                 </div>
               </div>
             </div>
