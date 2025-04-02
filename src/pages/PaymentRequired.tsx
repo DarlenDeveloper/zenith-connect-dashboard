@@ -25,12 +25,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const TEST_CARD_NUMBER = "4242 4242 4242 4242";
 
-// Updated price IDs with correct price
-// Use a price ID that exists in your Stripe account
+// Updated with correct price ID
 const PRICE_IDS = {
-  starter: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV",
-  pro: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV",
-  enterprise: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV"
+  starter: "price_1R8SJ2PEXvlHYAZ3oUpo24IN",
+  pro: "price_1R8SJ2PEXvlHYAZ3oUpo24IN",
+  enterprise: "price_1R8SJ2PEXvlHYAZ3oUpo24IN"
 };
 
 const PaymentRequired = () => {

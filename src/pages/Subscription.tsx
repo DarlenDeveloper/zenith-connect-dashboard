@@ -9,13 +9,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 // Test mode notice
 const TEST_CARD_NUMBER = "4242 4242 4242 4242";
 
-// Stripe product ID and prices (using the correct product ID)
+// Stripe product ID and prices with the correct price ID
 const PRODUCT_ID = "prod_S2XN2kBxHKYfsa";
-// Use a price ID that exists in your Stripe account, associated with the product ID above
+// Use the correct price ID provided
 const PRICE_IDS = {
-  starter: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV", 
-  pro: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV", 
-  enterprise: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV" 
+  starter: "price_1R8SJ2PEXvlHYAZ3oUpo24IN", 
+  pro: "price_1R8SJ2PEXvlHYAZ3oUpo24IN", 
+  enterprise: "price_1R8SJ2PEXvlHYAZ3oUpo24IN" 
 };
 
 const SubscriptionPage = () => {
