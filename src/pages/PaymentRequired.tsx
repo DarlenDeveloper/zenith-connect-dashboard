@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -27,10 +26,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 const TEST_CARD_NUMBER = "4242 4242 4242 4242";
 
 // Updated price IDs with correct price
+// Use a price ID that exists in your Stripe account
 const PRICE_IDS = {
-  starter: "price_1RdwdRPEXvlHYAZ3HRCyZXRR",
-  pro: "price_1RdwdRPEXvlHYAZ3HRCyZXRR",
-  enterprise: "price_1RdwdRPEXvlHYAZ3HRCyZXRR"
+  starter: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV",
+  pro: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV",
+  enterprise: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV"
 };
 
 const PaymentRequired = () => {

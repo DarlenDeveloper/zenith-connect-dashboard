@@ -27,24 +27,32 @@ export const redirectToCheckout = async (priceId: string) => {
     console.log(`Initiating checkout with price ID: ${priceId}`);
     
     // Create Stripe checkout session
-    const response = await stripe.redirectToCheckout({
-      lineItems: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      successUrl: `${window.location.origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${window.location.origin}/subscription`,
-      clientReferenceId: user.id, // Include user ID for the webhook
+    const response = await fetch('https://hytudwviatqbtwnlqsdl.supabase.co/functions/v1/create-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+      },
+      body: JSON.stringify({
+        priceId,
+        successUrl: `${window.location.origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}/subscription`,
+        clientReferenceId: user.id,
+      })
     });
     
-    // If there is an error, alert the user
-    if (response.error) {
-      console.log('Error redirecting to checkout:', response.error);
-      return { error: response.error };
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error from checkout endpoint:', errorData);
+      return { error: new Error(errorData.error || 'Failed to initiate checkout') };
     }
+    
+    const { url } = await response.json();
+    
+    // Redirect to checkout
+    window.location.href = url;
+    return { success: true };
+    
   } catch (error) {
     console.error('Checkout error:', error);
     return { error };

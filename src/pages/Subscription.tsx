@@ -11,12 +11,11 @@ const TEST_CARD_NUMBER = "4242 4242 4242 4242";
 
 // Stripe product ID and prices (using the correct product ID)
 const PRODUCT_ID = "prod_S2XN2kBxHKYfsa";
+// Use a price ID that exists in your Stripe account, associated with the product ID above
 const PRICE_IDS = {
-  // Use the same price ID for all plans for now - you can create different price points in Stripe
-  // and update these accordingly if you want different pricing tiers
-  starter: "price_1RdwdRPEXvlHYAZ3HRCyZXRR", // $99.99/month plan
-  pro: "price_1RdwdRPEXvlHYAZ3HRCyZXRR", // $99.99/month plan
-  enterprise: "price_1RdwdRPEXvlHYAZ3HRCyZXRR" // $99.99/month for enterprise too (or you can create a custom price)
+  starter: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV", 
+  pro: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV", 
+  enterprise: "price_1RqRqBPEXvlHYAZ3PzZ6i2mV" 
 };
 
 const SubscriptionPage = () => {
