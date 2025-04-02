@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -25,10 +26,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const TEST_CARD_NUMBER = "4242 4242 4242 4242";
 
+// Updated price IDs with correct price
 const PRICE_IDS = {
-  starter: "price_1RDGX5PEXvlHYAZ3hDH3gCW5",
-  pro: "price_1RDGX5PEXvlHYAZ3hDH3gCW5",
-  enterprise: "price_1RDGX5PEXvlHYAZ3hDH3gCW5"
+  starter: "price_1RdwdRPEXvlHYAZ3HRCyZXRR",
+  pro: "price_1RdwdRPEXvlHYAZ3HRCyZXRR",
+  enterprise: "price_1RdwdRPEXvlHYAZ3HRCyZXRR"
 };
 
 const PaymentRequired = () => {
@@ -115,7 +117,7 @@ const PaymentRequired = () => {
                   <Card className="border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 relative h-full flex flex-col">
                     <CardHeader className="pb-2">
                       <h3 className="font-semibold text-lg">Starter</h3>
-                      <div className="text-3xl font-bold mb-2">$149<span className="text-sm font-normal text-gray-500">/month</span></div>
+                      <div className="text-3xl font-bold mb-2">$99.99<span className="text-sm font-normal text-gray-500">/month</span></div>
                       <p className="text-gray-600 text-sm">Perfect for small businesses</p>
                     </CardHeader>
                     <CardContent className="py-2 flex-grow">
@@ -152,7 +154,7 @@ const PaymentRequired = () => {
                     </Badge>
                     <CardHeader className="pb-2">
                       <h3 className="font-semibold text-lg">Pro</h3>
-                      <div className="text-3xl font-bold mb-2">$149<span className="text-sm font-normal text-gray-500">/month</span></div>
+                      <div className="text-3xl font-bold mb-2">$99.99<span className="text-sm font-normal text-gray-500">/month</span></div>
                       <p className="text-gray-600 text-sm">For growing businesses</p>
                     </CardHeader>
                     <CardContent className="py-2 flex-grow">

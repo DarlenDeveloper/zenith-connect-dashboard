@@ -27,7 +27,7 @@ export const redirectToCheckout = async (priceId: string) => {
     console.log(`Initiating checkout with price ID: ${priceId}`);
     
     // Create Stripe checkout session
-    const { error } = await stripe.redirectToCheckout({
+    const response = await stripe.redirectToCheckout({
       lineItems: [
         {
           price: priceId,
@@ -41,9 +41,9 @@ export const redirectToCheckout = async (priceId: string) => {
     });
     
     // If there is an error, alert the user
-    if (error) {
-      console.log('Error redirecting to checkout:', error);
-      return { error };
+    if (response.error) {
+      console.log('Error redirecting to checkout:', response.error);
+      return { error: response.error };
     }
   } catch (error) {
     console.error('Checkout error:', error);

@@ -9,11 +9,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 // Test mode notice
 const TEST_CARD_NUMBER = "4242 4242 4242 4242";
 
-// Stripe price IDs for each plan
+// Stripe product ID and prices (using the correct product ID)
+const PRODUCT_ID = "prod_S2XN2kBxHKYfsa";
 const PRICE_IDS = {
-  starter: "price_1RDGX5PEXvlHYAZ3hDH3gCW5", // $149/month plan
-  pro: "price_1RDGX5PEXvlHYAZ3hDH3gCW5", // $149/month plan
-  enterprise: "price_1RDGX5PEXvlHYAZ3hDH3gCW5" // Contact Sales option
+  // Use the same price ID for all plans for now - you can create different price points in Stripe
+  // and update these accordingly if you want different pricing tiers
+  starter: "price_1RdwdRPEXvlHYAZ3HRCyZXRR", // $99.99/month plan
+  pro: "price_1RdwdRPEXvlHYAZ3HRCyZXRR", // $99.99/month plan
+  enterprise: "price_1RdwdRPEXvlHYAZ3HRCyZXRR" // $99.99/month for enterprise too (or you can create a custom price)
 };
 
 const SubscriptionPage = () => {
@@ -82,7 +85,7 @@ const SubscriptionPage = () => {
               <div className="flex items-center justify-between py-4 border-b border-gray-200">
                 <div>
                   <h3 className="font-medium text-lg">Pro Plan</h3>
-                  <p className="text-gray-500">$149/month, billed monthly</p>
+                  <p className="text-gray-500">$99.99/month, billed monthly</p>
                 </div>
                 <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                   Active
@@ -128,7 +131,7 @@ const SubscriptionPage = () => {
                 {/* Starter Plan */}
                 <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-md transition-all h-full flex flex-col">
                   <h3 className="font-medium text-lg mb-2">Starter</h3>
-                  <div className="text-2xl font-bold mb-4">$149<span className="text-sm font-normal text-gray-500">/month</span></div>
+                  <div className="text-2xl font-bold mb-4">$99.99<span className="text-sm font-normal text-gray-500">/month</span></div>
                   
                   <ul className="space-y-2 mb-6 flex-grow">
                     <li className="flex items-start">
@@ -162,7 +165,7 @@ const SubscriptionPage = () => {
                   </div>
                   
                   <h3 className="font-medium text-lg mb-2">Pro</h3>
-                  <div className="text-2xl font-bold mb-4">$149<span className="text-sm font-normal text-gray-500">/month</span></div>
+                  <div className="text-2xl font-bold mb-4">$99.99<span className="text-sm font-normal text-gray-500">/month</span></div>
                   
                   <ul className="space-y-2 mb-6 flex-grow">
                     <li className="flex items-start">
