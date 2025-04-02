@@ -1,5 +1,4 @@
 
-
 import { loadStripe } from "@stripe/stripe-js";
 import { STRIPE_PUBLISHABLE_KEY } from "./env";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,4 +82,3 @@ export const getSubscriptionStatus = async () => {
     return { hasSubscription: false, error };
   }
 };
-

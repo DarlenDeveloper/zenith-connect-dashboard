@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -93,7 +94,7 @@ const SubscriptionPage = () => {
               
               <div className="py-4">
                 <p className="text-gray-600 mb-2">Your next billing date is <strong>July 24, 2023</strong></p>
-                <div className="flex gap-3 mt-3">
+                <div className="flex flex-wrap gap-3 mt-3">
                   <Button variant="outline">Change Plan</Button>
                   <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">Cancel Subscription</Button>
                 </div>
@@ -130,7 +131,7 @@ const SubscriptionPage = () => {
                 {/* Starter Plan */}
                 <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 hover:shadow-md transition-all h-full flex flex-col">
                   <h3 className="font-medium text-lg mb-2">Starter</h3>
-                  <div className="text-2xl font-bold mb-4">$99.99<span className="text-sm font-normal text-gray-500">/month</span></div>
+                  <div className="text-2xl font-bold mb-4">$25.00<span className="text-sm font-normal text-gray-500">/month</span></div>
                   
                   <ul className="space-y-2 mb-6 flex-grow">
                     <li className="flex items-start">
@@ -150,10 +151,9 @@ const SubscriptionPage = () => {
                   <Button 
                     variant="outline" 
                     className="w-full" 
-                    onClick={() => handleSubscription('starter')}
-                    disabled={isLoading.starter}
+                    disabled={true}
                   >
-                    {isLoading.starter ? 'Processing...' : 'Downgrade'}
+                    Coming Soon
                   </Button>
                 </div>
                 

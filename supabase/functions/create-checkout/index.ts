@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 import Stripe from "https://esm.sh/stripe@12.4.0";
 
 // Get environment variables
-const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY") || "";
+const STRIPE_SECRET_KEY = "sk_test_51R8SCVPEXvlHYAZ3cAzinkmoat6YUimFQAbdwRoOjoJigVvjhh6yqULQB1dydP3lPVk9higueiQfEKER9bu8RYb000ehROKWCy";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
