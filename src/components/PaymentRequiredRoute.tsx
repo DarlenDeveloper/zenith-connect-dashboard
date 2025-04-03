@@ -1,6 +1,6 @@
 
 import { ReactNode, useEffect, useState } from "react";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -14,6 +14,22 @@ const PaymentRequiredRoute = ({ children }: PaymentRequiredRouteProps) => {
   const [hasSubscription, setHasSubscription] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Check for payment success query parameter and show toast if present
+    const searchParams = new URLSearchParams(location.search);
+    const subscriptionStatus = searchParams.get('subscription');
+    
+    if (subscriptionStatus === 'success') {
+      toast.success('Subscription activated successfully! Welcome to the premium plan.');
+      
+      // Remove the query parameter after showing the toast
+      const url = new URL(window.location.href);
+      url.searchParams.delete('subscription');
+      navigate(url.pathname, { replace: true });
+    }
+  }, [location.search, navigate]);
   
   useEffect(() => {
     const checkSubscription = async () => {

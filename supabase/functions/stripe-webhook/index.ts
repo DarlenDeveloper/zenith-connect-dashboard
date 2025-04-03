@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 import Stripe from "https://esm.sh/stripe@12.4.0";
@@ -112,7 +111,7 @@ serve(async (req) => {
 
         break;
       }
-
+      
       case "customer.subscription.updated": {
         const subscription = event.data.object;
         const customerId = subscription.customer;

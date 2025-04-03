@@ -26,6 +26,9 @@ export const redirectToCheckout = async (priceId: string) => {
 
     console.log(`Initiating checkout with price ID: ${priceId}`);
     
+    // Get the current origin for proper redirection
+    const origin = window.location.origin;
+    
     // Create Stripe checkout session
     const response = await fetch('https://hytudwviatqbtwnlqsdl.supabase.co/functions/v1/create-checkout', {
       method: 'POST',
@@ -35,8 +38,8 @@ export const redirectToCheckout = async (priceId: string) => {
       },
       body: JSON.stringify({
         priceId,
-        successUrl: `${window.location.origin}/dashboard?subscription=success`,
-        cancelUrl: `${window.location.origin}/subscription`,
+        successUrl: `${origin}/dashboard?subscription=success`,
+        cancelUrl: `${origin}/subscription`,
         clientReferenceId: user.id,
       })
     });
