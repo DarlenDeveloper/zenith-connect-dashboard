@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 import Stripe from "https://esm.sh/stripe@12.4.0";
@@ -39,7 +40,7 @@ serve(async (req) => {
     // Verify the webhook signature
     let event;
     try {
-      event = stripe.webhooks.constructEvent(body,  signature, STRIPE_WEBHOOK_SECRET);
+      event = stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET);
     } catch (err) {
       console.error(`Webhook signature verification failed: ${err.message}`);
       return new Response(`Webhook signature verification failed: ${err.message}`, { status: 400 });
@@ -64,9 +65,26 @@ serve(async (req) => {
 
         // Get subscription details to get the end period
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
-        // Update customer_subscriptions table
+        
+        // Insert into our new user_subscriptions table
         const { error: subscriptionError } = await supabase
+          .from("user_subscriptions")
+          .upsert({
+            user_id: clientReferenceId,
+            stripe_customer_id: customerId,
+            stripe_subscription_id: subscriptionId,
+            status: subscription.status,
+            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          });
+
+        if (subscriptionError) {
+          console.error("Error updating subscription:", subscriptionError);
+          return new Response(`Error updating subscription: ${subscriptionError.message}`, { status: 500 });
+        }
+
+        // For backward compatibility, also update the customer_subscriptions table
+        const { error: oldSubscriptionError } = await supabase
           .from("customer_subscriptions")
           .upsert({
             user_id: clientReferenceId,
@@ -77,9 +95,8 @@ serve(async (req) => {
             current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
           });
 
-        if (subscriptionError) {
-          console.error("Error updating subscription:", subscriptionError);
-          return new Response(`Error updating subscription: ${subscriptionError.message}`, { status: 500 });
+        if (oldSubscriptionError) {
+          console.error("Error updating old subscription table:", oldSubscriptionError);
         }
 
         // Update profiles.has_subscription to true
@@ -102,20 +119,55 @@ serve(async (req) => {
         
         // Find the user associated with this customer
         const { data: customerData, error: customerError } = await supabase
-          .from("customer_subscriptions")
+          .from("user_subscriptions")
           .select("user_id")
           .eq("stripe_customer_id", customerId)
-          .single();
+          .maybeSingle();
 
-        if (customerError || !customerData) {
+        if (customerError) {
           console.error("Error finding customer:", customerError);
-          return new Response(`Error finding customer: ${customerError?.message || "Customer not found"}`, { status: 400 });
+          return new Response(`Error finding customer: ${customerError.message}`, { status: 400 });
         }
 
-        const userId = customerData.user_id;
+        const userId = customerData?.user_id;
+        
+        if (!userId) {
+          // Try to find in the old table
+          const { data: oldCustomerData, error: oldCustomerError } = await supabase
+            .from("customer_subscriptions")
+            .select("user_id")
+            .eq("stripe_customer_id", customerId)
+            .maybeSingle();
+            
+          if (oldCustomerError || !oldCustomerData) {
+            console.error("Error finding customer in any table");
+            return new Response("Customer not found in any table", { status: 400 });
+          }
+          
+          // Found in old table, use that user ID
+          userId = oldCustomerData.user_id;
+        }
 
-        // Update subscription in database
+        // Update subscription in new database
         const { error: updateError } = await supabase
+          .from("user_subscriptions")
+          .upsert({
+            user_id: userId,
+            stripe_customer_id: customerId,
+            stripe_subscription_id: subscription.id,
+            status: subscription.status,
+            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (updateError) {
+          console.error("Error updating subscription:", updateError);
+          return new Response(`Error updating subscription: ${updateError.message}`, { status: 500 });
+        }
+
+        // For backward compatibility
+        const { error: oldUpdateError } = await supabase
           .from("customer_subscriptions")
           .update({
             status: subscription.status,
@@ -123,9 +175,8 @@ serve(async (req) => {
           })
           .eq("stripe_customer_id", customerId);
 
-        if (updateError) {
-          console.error("Error updating subscription:", updateError);
-          return new Response(`Error updating subscription: ${updateError.message}`, { status: 500 });
+        if (oldUpdateError) {
+          console.error("Error updating old subscription table:", oldUpdateError);
         }
 
         // If subscription is no longer active, update profile
@@ -150,27 +201,88 @@ serve(async (req) => {
         
         // Find the user associated with this customer
         const { data: customerData, error: customerError } = await supabase
-          .from("customer_subscriptions")
+          .from("user_subscriptions")
           .select("user_id")
           .eq("stripe_customer_id", customerId)
-          .single();
+          .maybeSingle();
 
-        if (customerError || !customerData) {
+        if (customerError) {
           console.error("Error finding customer:", customerError);
-          return new Response(`Error finding customer: ${customerError?.message || "Customer not found"}`, { status: 400 });
+          
+          // Try the old table
+          const { data: oldCustomerData, error: oldCustomerError } = await supabase
+            .from("customer_subscriptions")
+            .select("user_id")
+            .eq("stripe_customer_id", customerId)
+            .maybeSingle();
+            
+          if (oldCustomerError || !oldCustomerData) {
+            return new Response("Customer not found in any table", { status: 400 });
+          }
+          
+          // Update the subscription status in all tables
+          const { error: updateError } = await supabase
+            .from("user_subscriptions")
+            .upsert({
+              user_id: oldCustomerData.user_id,
+              stripe_customer_id: customerId, 
+              status: "canceled",
+              updated_at: new Date().toISOString()
+            });
+            
+          if (updateError) {
+            console.error("Error updating subscription:", updateError);
+          }
+          
+          const { error: oldUpdateError } = await supabase
+            .from("customer_subscriptions")
+            .update({ status: "canceled" })
+            .eq("stripe_customer_id", customerId);
+            
+          if (oldUpdateError) {
+            console.error("Error updating old subscription:", oldUpdateError);
+          }
+          
+          // Update profile subscription status
+          const { error: profileError } = await supabase
+            .from("profiles")
+            .update({ has_subscription: false })
+            .eq("id", oldCustomerData.user_id);
+
+          if (profileError) {
+            console.error("Error updating profile:", profileError);
+          }
+          
+          return new Response(JSON.stringify({ received: true }), {
+            headers: { "Content-Type": "application/json" },
+            status: 200,
+          });
         }
 
         const userId = customerData.user_id;
 
-        // Update subscription status
+        // Update subscription status in new table
         const { error: updateError } = await supabase
-          .from("customer_subscriptions")
-          .update({ status: "canceled" })
+          .from("user_subscriptions")
+          .update({ 
+            status: "canceled",
+            updated_at: new Date().toISOString()
+          })
           .eq("stripe_customer_id", customerId);
 
         if (updateError) {
           console.error("Error updating subscription:", updateError);
           return new Response(`Error updating subscription: ${updateError.message}`, { status: 500 });
+        }
+
+        // Update old table too
+        const { error: oldUpdateError } = await supabase
+          .from("customer_subscriptions")
+          .update({ status: "canceled" })
+          .eq("stripe_customer_id", customerId);
+
+        if (oldUpdateError) {
+          console.error("Error updating old subscription:", oldUpdateError);
         }
 
         // Update profile subscription status

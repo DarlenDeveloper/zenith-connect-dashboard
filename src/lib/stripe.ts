@@ -65,43 +65,47 @@ export const getSubscriptionStatus = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { hasSubscription: false };
 
-    // Query the profiles table for subscription status
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('has_subscription, id')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (error) throw error;
+    // Use our SQL function to check if subscription is active
+    const { data: isActive, error: functionError } = await supabase.rpc(
+      'is_subscription_active',
+      { user_uuid: user.id }
+    );
     
-    // If subscription isn't found in profile, check the customer_subscriptions table directly
-    if (!data?.has_subscription) {
-      const { data: subData, error: subError } = await supabase
-        .from('customer_subscriptions')
-        .select('status, current_period_end')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
+    if (functionError) {
+      console.error('Error calling subscription function:', functionError);
+      
+      // Fallback to checking the profile directly
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('has_subscription')
+        .eq('id', user.id)
         .maybeSingle();
+
+      if (error) throw error;
       
-      if (subError) throw subError;
-      
-      // Check if subscription is active and not expired
-      if (subData && subData.status === 'active' && 
-          new Date(subData.current_period_end || '') > new Date()) {
+      return { 
+        hasSubscription: data?.has_subscription || false 
+      };
+    }
+    
+    // If the function says the subscription is active but profile doesn't reflect it,
+    // update the profile
+    if (isActive) {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('has_subscription')
+        .eq('id', user.id)
+        .maybeSingle();
         
-        // Update profile has_subscription to true since it's active
+      if (profileData && !profileData.has_subscription) {
         await supabase
           .from('profiles')
           .update({ has_subscription: true })
           .eq('id', user.id);
-          
-        return { hasSubscription: true };
       }
     }
     
-    return { 
-      hasSubscription: data?.has_subscription || false 
-    };
+    return { hasSubscription: isActive };
   } catch (error) {
     console.error('Error checking subscription status:', error);
     return { hasSubscription: false, error };

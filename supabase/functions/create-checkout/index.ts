@@ -69,15 +69,15 @@ serve(async (req) => {
       );
     }
 
-    // Check if the user already has an active subscription
-    const { data: subscription } = await supabase
-      .from("customer_subscriptions")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("status", "active")
-      .maybeSingle();
+    // Check if the user already has an active subscription using our SQL function
+    const { data: isActive, error: subscriptionError } = await supabase.rpc(
+      'is_subscription_active',
+      { user_uuid: user.id }
+    );
 
-    if (subscription) {
+    if (subscriptionError) {
+      console.error("Error checking subscription status:", subscriptionError);
+    } else if (isActive) {
       // User already has an active subscription, redirect to dashboard
       return new Response(
         JSON.stringify({ 
@@ -92,14 +92,25 @@ serve(async (req) => {
 
     // Check if the user already has a customer ID in Stripe
     const { data: customerData } = await supabase
-      .from("customer_subscriptions")
+      .from("user_subscriptions")
       .select("stripe_customer_id")
       .eq("user_id", user.id)
       .maybeSingle();
 
     let customerId = customerData?.stripe_customer_id;
 
-    // If no customer ID exists, look up the customer by email or create a new one
+    // If no customer ID in new table, check old table
+    if (!customerId) {
+      const { data: oldCustomerData } = await supabase
+        .from("customer_subscriptions")
+        .select("stripe_customer_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+        
+      customerId = oldCustomerData?.stripe_customer_id;
+    }
+    
+    // If still no customer ID, look up or create a new one
     if (!customerId) {
       const { data: customers } = await stripe.customers.list({
         email: user.email,
@@ -134,7 +145,6 @@ serve(async (req) => {
       success_url: successUrl || `${req.headers.get("origin")}/dashboard?subscription=success`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/subscription`,
       client_reference_id: clientReferenceId || user.id,
-      // Don't show test mode UI elements
       payment_method_types: ['card'],
       allow_promotion_codes: true,
     });

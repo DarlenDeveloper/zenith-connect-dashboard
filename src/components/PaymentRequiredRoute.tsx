@@ -2,7 +2,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSubscriptionStatus } from "@/lib/stripe";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface PaymentRequiredRouteProps {
@@ -24,14 +24,26 @@ const PaymentRequiredRoute = ({ children }: PaymentRequiredRouteProps) => {
           return;
         }
         
-        const { hasSubscription, error } = await getSubscriptionStatus();
+        // Use our database function to check if the subscription is active
+        const { data, error } = await supabase.rpc('is_subscription_active', {
+          user_uuid: user.id
+        });
         
         if (error) {
-          toast.error("Failed to check subscription status");
-          console.error(error);
+          console.error("Error checking subscription status:", error);
+          toast.error("Failed to verify subscription status");
+          setHasSubscription(false);
+        } else {
+          setHasSubscription(data);
+          
+          // If subscription is active but profile isn't updated, fix it
+          if (data && !user.hasSubscription) {
+            await supabase
+              .from('profiles')
+              .update({ has_subscription: true })
+              .eq('id', user.id);
+          }
         }
-        
-        setHasSubscription(hasSubscription);
       } catch (error) {
         console.error("Error checking subscription:", error);
         setHasSubscription(false);
