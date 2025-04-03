@@ -35,7 +35,7 @@ export const redirectToCheckout = async (priceId: string) => {
       },
       body: JSON.stringify({
         priceId,
-        successUrl: `${window.location.origin}/dashboard`,
+        successUrl: `${window.location.origin}/dashboard?subscription=success`,
         cancelUrl: `${window.location.origin}/subscription`,
         clientReferenceId: user.id,
       })
@@ -68,11 +68,36 @@ export const getSubscriptionStatus = async () => {
     // Query the profiles table for subscription status
     const { data, error } = await supabase
       .from('profiles')
-      .select('has_subscription')
+      .select('has_subscription, id')
       .eq('id', user.id)
       .maybeSingle();
 
     if (error) throw error;
+    
+    // If subscription isn't found in profile, check the customer_subscriptions table directly
+    if (!data?.has_subscription) {
+      const { data: subData, error: subError } = await supabase
+        .from('customer_subscriptions')
+        .select('status, current_period_end')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .maybeSingle();
+      
+      if (subError) throw subError;
+      
+      // Check if subscription is active and not expired
+      if (subData && subData.status === 'active' && 
+          new Date(subData.current_period_end || '') > new Date()) {
+        
+        // Update profile has_subscription to true since it's active
+        await supabase
+          .from('profiles')
+          .update({ has_subscription: true })
+          .eq('id', user.id);
+          
+        return { hasSubscription: true };
+      }
+    }
     
     return { 
       hasSubscription: data?.has_subscription || false 

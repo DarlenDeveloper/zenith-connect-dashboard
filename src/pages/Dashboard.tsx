@@ -1,6 +1,7 @@
-
-import { useState } from "react";
+import React, { useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LineChart,
@@ -36,6 +37,19 @@ import { Button } from "@/components/ui/button";
 const Dashboard = () => {
   const { user } = useAuth();
   const [timeRange, setTimeRange] = useState("week");
+  const [searchParams] = useSearchParams();
+  const subscriptionStatus = searchParams.get('subscription');
+  
+  useEffect(() => {
+    if (subscriptionStatus === 'success') {
+      toast.success('Subscription activated successfully! Welcome to the premium plan.');
+      
+      // Remove the query parameter after showing the toast
+      const url = new URL(window.location.href);
+      url.searchParams.delete('subscription');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [subscriptionStatus]);
 
   // Mock data
   const salesData = [

@@ -1,6 +1,6 @@
 
 import { ReactNode, useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getSubscriptionStatus } from "@/lib/stripe";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ const PaymentRequiredRoute = ({ children }: PaymentRequiredRouteProps) => {
   const { user } = useAuth();
   const [hasSubscription, setHasSubscription] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
   
   useEffect(() => {
     const checkSubscription = async () => {
@@ -40,7 +41,7 @@ const PaymentRequiredRoute = ({ children }: PaymentRequiredRouteProps) => {
     };
     
     checkSubscription();
-  }, [user]);
+  }, [user, location.pathname]); // Re-check when the path changes
   
   if (isLoading) {
     return null; // Show loading state or spinner

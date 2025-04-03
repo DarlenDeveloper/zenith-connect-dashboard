@@ -69,6 +69,27 @@ serve(async (req) => {
       );
     }
 
+    // Check if the user already has an active subscription
+    const { data: subscription } = await supabase
+      .from("customer_subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (subscription) {
+      // User already has an active subscription, redirect to dashboard
+      return new Response(
+        JSON.stringify({ 
+          url: successUrl || `${req.headers.get("origin")}/dashboard?subscription=existing` 
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
     // Check if the user already has a customer ID in Stripe
     const { data: customerData } = await supabase
       .from("customer_subscriptions")
@@ -110,9 +131,12 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: successUrl || `${req.headers.get("origin")}/dashboard`,
+      success_url: successUrl || `${req.headers.get("origin")}/dashboard?subscription=success`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/subscription`,
       client_reference_id: clientReferenceId || user.id,
+      // Don't show test mode UI elements
+      payment_method_types: ['card'],
+      allow_promotion_codes: true,
     });
 
     // Return the session URL
