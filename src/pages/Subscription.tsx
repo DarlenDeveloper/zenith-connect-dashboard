@@ -7,9 +7,6 @@ import { toast } from "sonner";
 import { redirectToCheckout } from "@/lib/stripe";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-// Test mode notice
-const TEST_CARD_NUMBER = "4242 4242 4242 4242";
-
 // Stripe product ID and prices with the correct price ID
 const PRODUCT_ID = "prod_S2XN2kBxHKYfsa";
 // Use the correct price ID provided
@@ -61,22 +58,9 @@ const SubscriptionPage = () => {
               <Alert variant="destructive" className="mb-6">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error starting checkout</AlertTitle>
-                <AlertDescription>
-                  {checkoutError}
-                  <p className="mt-2 text-sm">
-                    This is a test environment. Please make sure you have set up products and prices in your Stripe dashboard.
-                  </p>
-                </AlertDescription>
+                <AlertDescription>{checkoutError}</AlertDescription>
               </Alert>
             )}
-            
-            <Alert className="mb-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Test Mode</AlertTitle>
-              <AlertDescription>
-                This is using Stripe test mode. Use test card {TEST_CARD_NUMBER} with any future expiration date and CVC.
-              </AlertDescription>
-            </Alert>
             
             {/* Current Plan */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">

@@ -24,8 +24,6 @@ import { redirectToCheckout } from "@/lib/stripe";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-const TEST_CARD_NUMBER = "4242 4242 4242 4242";
-
 // Updated with correct price ID
 const PRICE_IDS = {
   starter: "price_1R8SJ2PEXvlHYAZ3oUpo24IN",
@@ -85,22 +83,9 @@ const PaymentRequired = () => {
               <Alert variant="destructive" className="mb-6">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error starting checkout</AlertTitle>
-                <AlertDescription>
-                  {checkoutError}
-                  <p className="mt-2 text-sm">
-                    This is a test environment. Please make sure you have set up products and prices in your Stripe dashboard.
-                  </p>
-                </AlertDescription>
+                <AlertDescription>{checkoutError}</AlertDescription>
               </Alert>
             )}
-            
-            <Alert className="mb-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Test Mode</AlertTitle>
-              <AlertDescription>
-                This is using Stripe test mode. Use test card {TEST_CARD_NUMBER} with any future expiration date and CVC.
-              </AlertDescription>
-            </Alert>
             
             <Card className="mb-8 shadow-lg border-0 overflow-hidden">
               <CardHeader className="text-center pb-2 bg-gradient-to-r from-gray-50 to-white">

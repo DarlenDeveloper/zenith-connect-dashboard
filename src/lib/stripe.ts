@@ -35,7 +35,7 @@ export const redirectToCheckout = async (priceId: string) => {
       },
       body: JSON.stringify({
         priceId,
-        successUrl: `${window.location.origin}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+        successUrl: `${window.location.origin}/dashboard`,
         cancelUrl: `${window.location.origin}/subscription`,
         clientReferenceId: user.id,
       })

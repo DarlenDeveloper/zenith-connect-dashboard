@@ -110,7 +110,7 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: successUrl || `${req.headers.get("origin")}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: successUrl || `${req.headers.get("origin")}/dashboard`,
       cancel_url: cancelUrl || `${req.headers.get("origin")}/subscription`,
       client_reference_id: clientReferenceId || user.id,
     });
