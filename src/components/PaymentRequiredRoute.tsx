@@ -27,6 +27,12 @@ const PaymentRequiredRoute = ({ children }: PaymentRequiredRouteProps) => {
       // Remove the query parameter after showing the toast
       searchParams.delete('subscription');
       navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
+    } else if (subscriptionStatus === 'existing') {
+      toast.info('You already have an active subscription.');
+      
+      // Remove the query parameter after showing the toast
+      searchParams.delete('subscription');
+      navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
     }
   }, [location.search, navigate, location.pathname]);
   

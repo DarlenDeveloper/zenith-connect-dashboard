@@ -53,6 +53,8 @@ serve(async (req) => {
       );
     }
 
+    console.log("Function invoked by user:", user.id);
+
     // Parse the request body
     const { plan, amount, successUrl, cancelUrl, userId, userEmail } = await req.json();
     
@@ -65,6 +67,8 @@ serve(async (req) => {
         }
       );
     }
+
+    console.log(`Creating payment for plan ${plan} with amount ${amount}`);
 
     // Check if the user already has an active subscription using our SQL function
     const { data: isActive, error: subscriptionError } = await supabase.rpc(
@@ -112,6 +116,8 @@ serve(async (req) => {
       },
     };
 
+    console.log("Sending request to Flutterwave API");
+    
     // Make request to Flutterwave API
     const flutterwaveResponse = await fetch(
       "https://api.flutterwave.com/v3/payments",
@@ -126,6 +132,7 @@ serve(async (req) => {
     );
 
     const flutterwaveData = await flutterwaveResponse.json();
+    console.log("Flutterwave API response status:", flutterwaveResponse.status);
 
     if (!flutterwaveResponse.ok) {
       console.error("Flutterwave API error:", flutterwaveData);
@@ -142,7 +149,7 @@ serve(async (req) => {
     }
 
     // Store transaction reference in database for verification later
-    await supabase
+    const { error: upsertError } = await supabase
       .from('user_subscriptions')
       .upsert({
         user_id: userId,
@@ -153,6 +160,10 @@ serve(async (req) => {
       }, {
         onConflict: 'user_id'
       });
+      
+    if (upsertError) {
+      console.error("Error storing transaction:", upsertError);
+    }
 
     console.log("Payment link created:", flutterwaveData.data.link);
 

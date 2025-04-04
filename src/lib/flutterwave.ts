@@ -34,6 +34,13 @@ export const redirectToFlutterwavePayment = async (plan: string, amount: number)
     
     const { paymentLink } = response.data;
     
+    if (!paymentLink) {
+      console.error('No payment link received from API');
+      return { error: new Error('No payment link received') };
+    }
+    
+    console.log('Redirecting to payment page:', paymentLink);
+    
     // Redirect to payment page
     window.location.href = paymentLink;
     return { success: true };
