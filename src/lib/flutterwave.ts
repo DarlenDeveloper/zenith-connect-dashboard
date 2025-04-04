@@ -15,7 +15,28 @@ export const redirectToFlutterwavePayment = async (plan: string, amount: number)
     // Get the current origin for proper redirection
     const origin = window.location.origin;
     
-    // Create Flutterwave payment session
+    // For development environment, simulate a successful payment
+    if (window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')) {
+      console.log('Development environment detected, simulating successful payment');
+      
+      // Update the user's subscription status directly
+      // This is only for development purposes
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ has_subscription: true })
+        .eq('id', user.id);
+        
+      if (updateError) {
+        console.error('Error updating profile:', updateError);
+        return { error: new Error('Failed to update subscription status') };
+      }
+      
+      // Redirect to success page
+      window.location.href = `${origin}/dashboard?subscription=success`;
+      return { success: true };
+    }
+    
+    // For production, create Flutterwave payment session
     const response = await supabase.functions.invoke('create-flutterwave-payment', {
       body: {
         plan,
