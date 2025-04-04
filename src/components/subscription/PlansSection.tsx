@@ -1,16 +1,16 @@
 
 import React, { useState } from "react";
 import { toast } from "sonner";
-import { redirectToCheckout } from "@/lib/stripe";
+import { redirectToFlutterwavePayment } from "@/lib/flutterwave";
 import PlanCard from "./PlanCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
-// Define price IDs
-const PRICE_IDS = {
-  starter: "price_1R8SJ2PEXvlHYAZ3oUpo24IN", 
-  pro: "price_1R8SJ2PEXvlHYAZ3oUpo24IN", 
-  enterprise: "price_1R8SJ2PEXvlHYAZ3oUpo24IN" 
+// Define plan prices
+const PLANS = {
+  starter: { price: 25 },
+  pro: { price: 99.99 },
+  enterprise: { price: 299.99 }
 };
 
 interface PlansSectionProps {
@@ -26,16 +26,16 @@ const PlansSection = ({ currentPlan = "pro" }: PlansSectionProps) => {
       setIsLoading({ ...isLoading, [plan]: true });
       setCheckoutError(null);
       
-      // Redirect to Stripe Checkout
-      const result = await redirectToCheckout(PRICE_IDS[plan]);
+      // Redirect to Flutterwave Payment
+      const result = await redirectToFlutterwavePayment(plan, PLANS[plan].price);
       
       if (result?.error) {
-        const errorMessage = result.error.message || 'Failed to initiate checkout. Please try again.';
+        const errorMessage = result.error.message || 'Failed to initiate payment. Please try again.';
         setCheckoutError(errorMessage);
         toast.error(errorMessage);
       }
     } catch (error) {
-      console.error('Error starting checkout:', error);
+      console.error('Error starting payment:', error);
       const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again later.';
       setCheckoutError(errorMessage);
       toast.error(errorMessage);
@@ -51,7 +51,7 @@ const PlansSection = ({ currentPlan = "pro" }: PlansSectionProps) => {
       {checkoutError && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error starting checkout</AlertTitle>
+          <AlertTitle>Error starting payment</AlertTitle>
           <AlertDescription>{checkoutError}</AlertDescription>
         </Alert>
       )}
@@ -91,7 +91,7 @@ const PlansSection = ({ currentPlan = "pro" }: PlansSectionProps) => {
         {/* Enterprise Plan */}
         <PlanCard
           title="Enterprise"
-          price="Contact Sales"
+          price={<>$299.99<span className="text-sm font-normal text-gray-500">/month</span></>}
           features={[
             { text: "Everything in Pro" },
             { text: "Dedicated account manager" },
