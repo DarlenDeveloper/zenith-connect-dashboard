@@ -25,11 +25,10 @@ const PaymentRequiredRoute = ({ children }: PaymentRequiredRouteProps) => {
       toast.success('Subscription activated successfully! Welcome to the premium plan.');
       
       // Remove the query parameter after showing the toast
-      const url = new URL(window.location.href);
-      url.searchParams.delete('subscription');
-      navigate(url.pathname, { replace: true });
+      searchParams.delete('subscription');
+      navigate({ pathname: location.pathname, search: searchParams.toString() }, { replace: true });
     }
-  }, [location.search, navigate]);
+  }, [location.search, navigate, location.pathname]);
   
   useEffect(() => {
     const checkSubscription = async () => {
