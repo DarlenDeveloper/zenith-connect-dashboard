@@ -39,7 +39,7 @@ const PlanCard = ({
       } h-full flex flex-col`}
     >
       {isCurrent && (
-        <div className="absolute top-0 right-0 bg-black text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
+        <div className="absolute top-0 right-0 bg-black text-white text-xs font-bold px-3 py-1 rounded-md">
           CURRENT
         </div>
       )}

@@ -6,6 +6,7 @@ import PlanCard from "./PlanCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 // Define plan prices
 const PLANS = {
@@ -83,21 +84,26 @@ const PlansSection = ({ currentPlan = "" }: PlansSectionProps) => {
         />
         
         {/* Pro Plan */}
-        <PlanCard
-          title="Popular"
-          price={<>800,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
-          features={[
-            { text: "Unlimited AI conversations" },
-            { text: "Advanced analytics" },
-            { text: "Priority support" },
-            { text: "Custom AI training" }
-          ]}
-          buttonText={currentPlan === "pro" ? "Current Plan" : "Subscribe Now"}
-          onClick={currentPlan !== "pro" ? () => handleSubscription('pro') : undefined}
-          isLoading={isLoading.pro}
-          isCurrent={currentPlan === "pro"}
-          isDisabled={currentPlan === "pro"}
-        />
+        <div className="relative">
+          <Badge className="absolute top-2 right-2 bg-black text-white rounded-md px-3 py-1 font-medium z-10">
+            RECOMMENDED
+          </Badge>
+          <PlanCard
+            title="Popular"
+            price={<>800,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
+            features={[
+              { text: "Unlimited AI conversations" },
+              { text: "Advanced analytics" },
+              { text: "Priority support" },
+              { text: "Custom AI training" }
+            ]}
+            buttonText={currentPlan === "pro" ? "Current Plan" : "Subscribe Now"}
+            onClick={currentPlan !== "pro" ? () => handleSubscription('pro') : undefined}
+            isLoading={isLoading.pro}
+            isCurrent={currentPlan === "pro"}
+            isDisabled={currentPlan === "pro"}
+          />
+        </div>
         
         {/* Enterprise Plan */}
         <PlanCard
