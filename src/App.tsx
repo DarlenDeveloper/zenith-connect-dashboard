@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import "./App.css";
@@ -23,6 +22,7 @@ import CallHistory from "./pages/CallHistory";
 import AIVoiceSettings from "./pages/AIVoiceSettings";
 import Analytics from "./pages/Analytics";
 import Scripts from "./pages/Scripts";
+import ContactSales from "./pages/ContactSales";
 
 // Components
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -69,6 +69,14 @@ function App() {
       element: (
         <ProtectedRoute>
           <PaymentRequired />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/contact-sales",
+      element: (
+        <ProtectedRoute>
+          <ContactSales />
         </ProtectedRoute>
       ),
     },
@@ -186,12 +194,10 @@ function App() {
     },
   ];
 
-  const router = createBrowserRouter(routes);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <RouterProvider router={router} />
+        <RouterProvider router={createBrowserRouter(routes)} />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>

@@ -20,6 +20,7 @@ export const redirectToFlutterwavePayment = async (plan: string, amount: number)
       body: {
         plan,
         amount,
+        currency: "UGX", // Changed from USD to UGX
         successUrl: `${origin}/dashboard?subscription=success`,
         cancelUrl: `${origin}/subscription`,
         userId: user.id,

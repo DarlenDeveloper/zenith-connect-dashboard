@@ -52,7 +52,7 @@ serve(async (req) => {
     switch (event) {
       case "charge.completed": {
         if (data.status === "successful") {
-          const { customer, meta, tx_ref, amount } = data;
+          const { customer, meta, tx_ref, amount, currency } = data;
           const { user_id, plan } = meta || {};
           
           if (!user_id) {
@@ -66,12 +66,13 @@ serve(async (req) => {
             );
           }
 
-          // Calculate end date (1 month from now)
+          // Calculate end date based on the plan (1 month default)
           const startDate = new Date();
           const endDate = new Date();
           endDate.setMonth(endDate.getMonth() + 1);
 
           console.log(`Setting subscription for user ${user_id} valid until ${endDate.toISOString()}`);
+          console.log(`Payment of ${amount} ${currency} received for plan ${plan}`);
 
           // Update subscription status in database
           const { error: subscriptionError } = await supabase
@@ -105,8 +106,6 @@ serve(async (req) => {
         break;
       }
       
-      case "transfer.completed":
-      case "transfer.failed":
       default:
         // Handle other events or ignore them
         console.log(`Received unhandled event: ${event}`);

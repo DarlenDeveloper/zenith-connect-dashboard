@@ -42,8 +42,10 @@ const SubscriptionPage = () => {
           if (error) {
             console.error('Error fetching subscription details:', error);
           } else if (data) {
-            // Determine plan based on stored stripe_subscription_id prefix (could be enhanced)
-            if (data.stripe_subscription_id?.includes('pro')) {
+            // Determine plan based on stored stripe_subscription_id prefix
+            if (data.stripe_subscription_id?.includes('starter')) {
+              setCurrentPlan('starter');
+            } else if (data.stripe_subscription_id?.includes('pro')) {
               setCurrentPlan('pro');
             } else if (data.stripe_subscription_id?.includes('enterprise')) {
               setCurrentPlan('enterprise');
@@ -95,8 +97,16 @@ const SubscriptionPage = () => {
               <>
                 {/* Current Plan Section */}
                 <CurrentSubscriptionInfo 
-                  plan={currentPlan === 'pro' ? 'Pro Plan' : 'Enterprise Plan'}
-                  price={currentPlan === 'pro' ? '$99.99/month, billed monthly' : '$299.99/month, billed monthly'}
+                  plan={
+                    currentPlan === 'starter' ? 'Starter Plan' : 
+                    currentPlan === 'pro' ? 'Popular Plan' : 
+                    'Enterprise Plan'
+                  }
+                  price={
+                    currentPlan === 'starter' ? '300,000 UGX/month, billed monthly' : 
+                    currentPlan === 'pro' ? '800,000 UGX/month, billed monthly' : 
+                    'Custom pricing, billed monthly'
+                  }
                   nextBillingDate={nextBillingDate || 'Not available'}
                 />
                 

@@ -56,7 +56,7 @@ serve(async (req) => {
     console.log("Function invoked by user:", user.id);
 
     // Parse the request body
-    const { plan, amount, successUrl, cancelUrl, userId, userEmail } = await req.json();
+    const { plan, amount, currency = "UGX", successUrl, cancelUrl, userId, userEmail } = await req.json();
     
     if (!plan || !amount) {
       return new Response(
@@ -68,7 +68,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Creating payment for plan ${plan} with amount ${amount}`);
+    console.log(`Creating payment for plan ${plan} with amount ${amount} ${currency}`);
 
     // Check if the user already has an active subscription using our SQL function
     const { data: isActive, error: subscriptionError } = await supabase.rpc(
@@ -98,8 +98,8 @@ serve(async (req) => {
     const flutterwavePayload = {
       tx_ref: txRef,
       amount: amount,
-      currency: "USD",
-      payment_options: "card",
+      currency: currency, // Changed to use the currency parameter (defaults to UGX)
+      payment_options: "card,mobilemoney,ussd",
       redirect_url: successUrl,
       customer: {
         email: userEmail,
@@ -149,14 +149,19 @@ serve(async (req) => {
     }
 
     // Store transaction reference in database for verification later
+    // Calculate the end date based on the plan
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1); // Default to 1 month subscription
+
     const { error: upsertError } = await supabase
       .from('user_subscriptions')
       .upsert({
         user_id: userId,
         status: 'pending',
-        current_period_start: new Date(),
-        current_period_end: new Date(new Date().setMonth(new Date().getMonth() + 1)), // 1 month from now
-        stripe_subscription_id: txRef, // Using txRef as subscription id for now
+        current_period_start: startDate.toISOString(),
+        current_period_end: endDate.toISOString(),
+        stripe_subscription_id: txRef, // Using txRef as subscription id
       }, {
         onConflict: 'user_id'
       });

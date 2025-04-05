@@ -5,23 +5,31 @@ import { redirectToFlutterwavePayment } from "@/lib/flutterwave";
 import PlanCard from "./PlanCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Define plan prices
 const PLANS = {
-  starter: { price: 25 },
-  pro: { price: 99.99 },
-  enterprise: { price: 299.99 }
+  starter: { price: 300000 }, // 300k UGX
+  pro: { price: 800000 },     // 800k UGX
+  enterprise: { price: 1500000 } // 1.5M UGX
 };
 
 interface PlansSectionProps {
   currentPlan?: string;
 }
 
-const PlansSection = ({ currentPlan = "pro" }: PlansSectionProps) => {
+const PlansSection = ({ currentPlan = "" }: PlansSectionProps) => {
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleSubscription = async (plan: 'starter' | 'pro' | 'enterprise') => {
+    // For enterprise plan, redirect to contact form instead of payment
+    if (plan === 'enterprise') {
+      navigate('/contact-sales');
+      return;
+    }
+    
     try {
       setIsLoading({ ...isLoading, [plan]: true });
       setCheckoutError(null);
@@ -60,21 +68,24 @@ const PlansSection = ({ currentPlan = "pro" }: PlansSectionProps) => {
         {/* Starter Plan */}
         <PlanCard
           title="Starter"
-          price={<>$25.00<span className="text-sm font-normal text-gray-500">/month</span></>}
+          price={<>300,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
           features={[
             { text: "Up to 5 AI conversations" },
             { text: "Basic analytics" },
             { text: "Email support" }
           ]}
-          buttonText="Coming Soon"
-          buttonVariant="outline"
-          isDisabled={true}
+          buttonText="Subscribe Now"
+          buttonVariant="default"
+          onClick={() => handleSubscription('starter')}
+          isLoading={isLoading.starter}
+          isDisabled={currentPlan === "starter"}
+          isCurrent={currentPlan === "starter"}
         />
         
         {/* Pro Plan */}
         <PlanCard
-          title="Pro"
-          price={<>$99.99<span className="text-sm font-normal text-gray-500">/month</span></>}
+          title="Popular"
+          price={<>800,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
           features={[
             { text: "Unlimited AI conversations" },
             { text: "Advanced analytics" },
@@ -91,9 +102,9 @@ const PlansSection = ({ currentPlan = "pro" }: PlansSectionProps) => {
         {/* Enterprise Plan */}
         <PlanCard
           title="Enterprise"
-          price={<>$299.99<span className="text-sm font-normal text-gray-500">/month</span></>}
+          price={<>Contact Sales</>}
           features={[
-            { text: "Everything in Pro" },
+            { text: "Everything in Popular" },
             { text: "Dedicated account manager" },
             { text: "SSO authentication" },
             { text: "Custom integrations" },

@@ -26,9 +26,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Define plan prices
 const PLANS = {
-  starter: { price: 25 },
-  pro: { price: 99.99 },
-  enterprise: { price: 299.99 }
+  starter: { price: 300000 }, // 300k UGX
+  pro: { price: 800000 },     // 800k UGX
+  enterprise: { price: 1500000 } // 1.5M UGX (though this will redirect to contact form)
 };
 
 const PaymentRequired = () => {
@@ -37,6 +37,12 @@ const PaymentRequired = () => {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   
   const handleSubscription = async (plan: 'starter' | 'pro' | 'enterprise') => {
+    // For enterprise plan, redirect to contact form
+    if (plan === 'enterprise') {
+      navigate('/contact-sales');
+      return;
+    }
+    
     try {
       setIsLoading({ ...isLoading, [plan]: true });
       setCheckoutError(null);
@@ -102,7 +108,7 @@ const PaymentRequired = () => {
                   <Card className="border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 relative h-full flex flex-col">
                     <CardHeader className="pb-2">
                       <h3 className="font-semibold text-lg">Starter</h3>
-                      <div className="text-3xl font-bold mb-2">$25.00<span className="text-sm font-normal text-gray-500">/month</span></div>
+                      <div className="text-3xl font-bold mb-2">300,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></div>
                       <p className="text-gray-600 text-sm">Perfect for small businesses</p>
                     </CardHeader>
                     <CardContent className="py-2 flex-grow">
@@ -124,9 +130,10 @@ const PaymentRequired = () => {
                     <CardFooter className="pt-2">
                       <Button 
                         className="w-full bg-gray-800 hover:bg-black text-white"
-                        disabled={true}
+                        onClick={() => handleSubscription('starter')}
+                        disabled={isLoading.starter}
                       >
-                        Coming Soon
+                        {isLoading.starter ? 'Processing...' : 'Subscribe Now'}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -137,8 +144,8 @@ const PaymentRequired = () => {
                       RECOMMENDED
                     </Badge>
                     <CardHeader className="pb-2">
-                      <h3 className="font-semibold text-lg">Pro</h3>
-                      <div className="text-3xl font-bold mb-2">$99.99<span className="text-sm font-normal text-gray-500">/month</span></div>
+                      <h3 className="font-semibold text-lg">Popular</h3>
+                      <div className="text-3xl font-bold mb-2">800,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></div>
                       <p className="text-gray-600 text-sm">For growing businesses</p>
                     </CardHeader>
                     <CardContent className="py-2 flex-grow">
