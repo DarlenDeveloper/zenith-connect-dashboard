@@ -71,6 +71,8 @@ serve(async (req) => {
           const endDate = new Date();
           endDate.setMonth(endDate.getMonth() + 1);
 
+          console.log(`Setting subscription for user ${user_id} valid until ${endDate.toISOString()}`);
+
           // Update subscription status in database
           const { error: subscriptionError } = await supabase
             .from('user_subscriptions')
@@ -98,7 +100,7 @@ serve(async (req) => {
             console.error("Error updating profile:", profileError);
           }
 
-          console.log(`Payment successful for user ${user_id}, plan: ${plan}`);
+          console.log(`Payment successful for user ${user_id}, plan: ${plan}, valid until: ${endDate.toISOString()}`);
         }
         break;
       }

@@ -1,14 +1,84 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import CurrentSubscriptionInfo from "@/components/subscription/CurrentSubscriptionInfo";
 import PaymentMethodInfo from "@/components/subscription/PaymentMethodInfo";
 import PlansSection from "@/components/subscription/PlansSection";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 const SubscriptionPage = () => {
-  // Current subscription is hardcoded for now
-  // In a real app, this would come from your API or context
-  const currentPlan = "pro";
+  const { user } = useAuth();
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const [nextBillingDate, setNextBillingDate] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchSubscriptionDetails = async () => {
+      if (!user) return;
+      
+      try {
+        // Check if subscription is active
+        const { data: isActive, error: functionError } = await supabase.rpc(
+          'is_subscription_active',
+          { user_uuid: user.id }
+        );
+        
+        if (functionError) {
+          console.error('Error checking subscription status:', functionError);
+          setIsLoading(false);
+          return;
+        }
+        
+        if (isActive) {
+          // Fetch subscription details
+          const { data, error } = await supabase
+            .from('user_subscriptions')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching subscription details:', error);
+          } else if (data) {
+            // Determine plan based on stored stripe_subscription_id prefix (could be enhanced)
+            if (data.stripe_subscription_id?.includes('pro')) {
+              setCurrentPlan('pro');
+            } else if (data.stripe_subscription_id?.includes('enterprise')) {
+              setCurrentPlan('enterprise');
+            } else {
+              setCurrentPlan('pro'); // Default to pro if can't determine
+            }
+            
+            // Format the next billing date
+            if (data.current_period_end) {
+              const endDate = new Date(data.current_period_end);
+              setNextBillingDate(format(endDate, 'MMMM d, yyyy'));
+            }
+          }
+        } else {
+          setCurrentPlan(null);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchSubscriptionDetails();
+  }, [user]);
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-screen">
+          <span className="loading loading-dots loading-lg"></span>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -21,18 +91,22 @@ const SubscriptionPage = () => {
         {/* Main content */}
         <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
           <div className="max-w-4xl mx-auto">
-            {/* Current Plan Section */}
-            <CurrentSubscriptionInfo 
-              plan="Pro Plan"
-              price="$99.99/month, billed monthly"
-              nextBillingDate="July 24, 2023"
-            />
-            
-            {/* Payment Method Section */}
-            <PaymentMethodInfo />
+            {currentPlan ? (
+              <>
+                {/* Current Plan Section */}
+                <CurrentSubscriptionInfo 
+                  plan={currentPlan === 'pro' ? 'Pro Plan' : 'Enterprise Plan'}
+                  price={currentPlan === 'pro' ? '$99.99/month, billed monthly' : '$299.99/month, billed monthly'}
+                  nextBillingDate={nextBillingDate || 'Not available'}
+                />
+                
+                {/* Payment Method Section */}
+                <PaymentMethodInfo />
+              </>
+            ) : null}
             
             {/* Available Plans Section */}
-            <PlansSection currentPlan={currentPlan} />
+            <PlansSection currentPlan={currentPlan || undefined} />
           </div>
         </main>
       </div>
