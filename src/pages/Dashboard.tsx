@@ -3,41 +3,30 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend
 } from "recharts";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  ArrowUpRight,
-  ArrowDownRight,
-  Users,
-  MessageSquare,
+  MoreHorizontal,
+  Calendar,
   Clock,
-  Bot,
-  ShoppingBag,
-  DollarSign,
-  TrendingUp,
-  Package
+  CircleDot,
+  Info
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [timeRange, setTimeRange] = useState("week");
   const [searchParams] = useSearchParams();
   const subscriptionStatus = searchParams.get('subscription');
   
@@ -45,7 +34,6 @@ const Dashboard = () => {
     if (subscriptionStatus === 'success') {
       toast.success('Subscription activated successfully! Welcome to the premium plan.');
       
-      // Remove the query parameter after showing the toast
       const url = new URL(window.location.href);
       url.searchParams.delete('subscription');
       window.history.replaceState({}, '', url.toString());
@@ -53,270 +41,267 @@ const Dashboard = () => {
   }, [subscriptionStatus]);
 
   // Mock data
-  const salesData = [
-    { name: "Mon", value: 12500 },
-    { name: "Tue", value: 18200 },
-    { name: "Wed", value: 15800 },
-    { name: "Thu", value: 22000 },
-    { name: "Fri", value: 26500 },
-    { name: "Sat", value: 19800 },
-    { name: "Sun", value: 17300 }
+  const revenueData = [
+    { day: "Feb 14", value: 12000 },
+    { day: "Feb 15", value: 14000 },
+    { day: "Feb 16", value: 11000 },
+    { day: "Feb 17", value: 16000 },
+    { day: "Feb 18", value: 18000 },
+    { day: "Feb 19", value: 16500 },
+    { day: "Feb 20", value: 19000 },
   ];
-  
-  const productData = [
-    { name: "Hydrate", value: 35 },
-    { name: "Illuminate", value: 28 },
-    { name: "Acne+", value: 22 },
-    { name: "Mecca", value: 15 }
-  ];
-  
-  const PRODUCT_COLORS = ['#3498db', '#2ecc71', '#f1c40f', '#e74c3c'];
-
-  const channelData = [
-    { name: "Website", value: 58 },
-    { name: "Retail", value: 25 },
-    { name: "Wholesale", value: 17 }
-  ];
-  
-  const CHANNEL_COLORS = ['#aaff00', '#00a0e9', '#6366f1'];
 
   // Stats cards data
-  const statsData = [
+  const statsCards = [
     {
-      title: "Total Sales",
-      value: "$136,240",
-      change: "+12.5%",
-      increasing: true,
-      icon: <DollarSign className="h-5 w-5 text-black" />
+      icon: <div className="bg-blue-100 p-2 rounded-md text-blue-600"><CircleDot className="h-5 w-5" /></div>,
+      value: "143,624",
+      label: "Your bank balance",
+      color: "text-blue-600"
     },
     {
-      title: "Products",
-      value: "45",
-      change: "+8%",
-      increasing: true,
-      icon: <ShoppingBag className="h-5 w-5 text-black" />
+      icon: <div className="bg-orange-100 p-2 rounded-md text-orange-600"><Info className="h-5 w-5" /></div>,
+      value: "12",
+      label: "Uncategorized transactions",
+      color: "text-orange-600"
     },
     {
-      title: "Active Customers",
-      value: "2,893",
-      change: "+15.3%",
-      increasing: true,
-      icon: <Users className="h-5 w-5 text-black" />
+      icon: <div className="bg-green-100 p-2 rounded-md text-green-600"><CircleDot className="h-5 w-5" /></div>,
+      value: "7",
+      label: "Employees working today",
+      color: "text-green-600"
     },
     {
-      title: "Growth Rate",
-      value: "24%",
-      change: "+5.4%",
-      increasing: true,
-      icon: <TrendingUp className="h-5 w-5 text-black" />
+      icon: <div className="bg-purple-100 p-2 rounded-md text-purple-600"><CircleDot className="h-5 w-5" /></div>,
+      value: "$3,287.49",
+      label: "This week's card spending",
+      color: "text-purple-600"
     }
   ];
 
-  // Recent orders
-  const recentOrders = [
+  // Activity metrics
+  const activityMetrics = [
     {
-      id: "ORD-001",
-      product: "Hydrate Replenish",
-      customer: "Sarah Johnson",
-      date: "Today, 10:45 AM",
-      amount: "$89.00",
-      status: "completed"
+      label: "New clients",
+      value: "54",
+      change: "+18.7%",
+      isPositive: true
     },
     {
-      id: "ORD-002",
-      product: "Illumination Mask",
-      customer: "David Williams",
-      date: "Today, 09:12 AM",
-      amount: "$64.00",
-      status: "processing"
-    },
-    {
-      id: "ORD-003",
-      product: "Act+ Acne Hair Mask",
-      customer: "Maria Garcia",
-      date: "Yesterday, 4:23 PM",
-      amount: "$112.50",
-      status: "completed"
-    },
-    {
-      id: "ORD-004",
-      product: "Mecca Cosmetica",
-      customer: "Robert Chen",
-      date: "Yesterday, 1:45 PM",
-      amount: "$78.25",
-      status: "completed"
-    },
-    {
-      id: "ORD-005",
-      product: "Hylamide Glow",
-      customer: "Jennifer Lee",
-      date: "Jul 24, 2023",
-      amount: "$55.99",
-      status: "processing"
+      label: "Invoices overdue",
+      value: "6",
+      change: "+2.7%",
+      isPositive: false
     }
   ];
+
+  // Recent emails
+  const recentEmails = [
+    {
+      avatar: "/lovable-uploads/87a6871f-932d-4e71-b214-5e06fd2d0882.png", // Using uploaded image as placeholder
+      name: "Hannah Morgan",
+      subject: "Meeting scheduled",
+      time: "1:24 PM"
+    },
+    {
+      avatar: "/lovable-uploads/87a6871f-932d-4e71-b214-5e06fd2d0882.png",
+      name: "Megan Clark",
+      subject: "Update on marketing campaign",
+      time: "12:32 PM"
+    },
+    {
+      avatar: "/lovable-uploads/87a6871f-932d-4e71-b214-5e06fd2d0882.png",
+      name: "Brandon Williams",
+      subject: "Design 2.0 is about to launch",
+      time: "Yesterday at 8:57 PM"
+    },
+    {
+      avatar: "/lovable-uploads/87a6871f-932d-4e71-b214-5e06fd2d0882.png",
+      name: "Reid Smith",
+      subject: "My friend Julie loves Doppr!",
+      time: "Yesterday at 8:49 PM"
+    }
+  ];
+
+  // Todo items
+  const todoItems = [
+    {
+      task: "Run payroll",
+      time: "Mar 4 at 6:00 pm"
+    },
+    {
+      task: "Review time off request",
+      time: "Mar 3 at 6:00 pm"
+    },
+    {
+      task: "Sign board resolution",
+      time: "Mar 12 at 6:00 pm"
+    },
+    {
+      task: "Finish onboarding Tony",
+      time: "Jun 14 at 6:00 pm"
+    }
+  ];
+
+  // Board meeting
+  const boardMeeting = {
+    date: "Feb 22 at 6:00 PM",
+    description: "You have been invited to attend a meeting of the board directors."
+  };
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-semibold">Welcome back, {user?.name?.split(' ')[0] || 'User'}</h1>
-            <p className="text-muted-foreground">Here's what's happening with your products today.</p>
-          </div>
-          <Tabs defaultValue={timeRange} onValueChange={setTimeRange} className="w-auto">
-            <TabsList className="bg-gray-100">
-              <TabsTrigger value="day">Day</TabsTrigger>
-              <TabsTrigger value="week">Week</TabsTrigger>
-              <TabsTrigger value="month">Month</TabsTrigger>
-              <TabsTrigger value="year">Year</TabsTrigger>
-            </TabsList>
-          </Tabs>
+      <div className="p-6 max-w-7xl mx-auto w-full">
+        {/* Greeting header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">Good morning, {user?.name?.split(' ')[0] || 'User'}!</h1>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {statsData.map((stat, index) => (
-            <Card key={index} className="border border-gray-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                    <div className="flex items-baseline mt-1">
-                      <h3 className="text-2xl font-bold">{stat.value}</h3>
-                      <span 
-                        className={`ml-2 text-sm font-medium flex items-center ${
-                          stat.increasing ? 'text-green-500' : 'text-red-500'
-                        }`}
-                      >
-                        {stat.increasing ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
-                        {stat.change}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="p-2 rounded-md bg-gray-100">
-                    {stat.icon}
-                  </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {statsCards.map((stat, index) => (
+            <Card key={index} className="bg-gray-50 border-0">
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  {stat.icon}
+                  <MoreHorizontal className="h-5 w-5 text-gray-400" />
+                </div>
+                <div className="mt-2">
+                  <h3 className={`text-2xl font-bold ${stat.color}`}>{stat.value}</h3>
+                  <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Sales Chart */}
-          <Card className="col-span-2 border border-gray-200">
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Sales Overview</CardTitle>
-                  <CardDescription>Daily sales revenue</CardDescription>
-                </div>
-                <Button variant="outline" size="sm">
-                  View Report
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={salesData} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value) => [`$${value}`, 'Revenue']}
-                    contentStyle={{ background: '#fff', border: '1px solid #e2e8f0' }}
-                  />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]} fill="#aaff00" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        {/* Activity Metrics & Revenue Chart */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {/* Activity Metrics */}
+          <div className="space-y-4">
+            {activityMetrics.map((metric, index) => (
+              <Card key={index} className="bg-gray-50 border-0">
+                <CardContent className="p-4">
+                  <h3 className="text-sm text-gray-500 mb-2">{metric.label}</h3>
+                  <div className="flex items-end gap-2">
+                    <span className="text-4xl font-bold">{metric.value}</span>
+                    <span className={`text-xs font-medium rounded-md px-2 py-1 ${
+                      metric.isPositive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    }`}>
+                      {metric.change}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-          {/* Top Products */}
-          <Card className="border border-gray-200">
-            <CardHeader className="pb-2">
-              <CardTitle>Top Products</CardTitle>
-              <CardDescription>Most popular products by sales</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={productData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {productData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={PRODUCT_COLORS[index % PRODUCT_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+          {/* Revenue Chart */}
+          <Card className="col-span-2 bg-gray-50 border-0">
+            <CardContent className="p-4">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-sm text-gray-500">Revenue</h3>
+                <p className="text-xs text-gray-400">Last 7 days VS prior week</p>
+              </div>
+              <div className="h-44">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={revenueData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eaeaea" />
+                    <XAxis dataKey="day" axisLine={false} tickLine={false} />
+                    <YAxis axisLine={false} tickLine={false} />
+                    <Tooltip 
+                      contentStyle={{ background: 'white', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}
+                      formatter={(value) => [`$${value}`, 'Revenue']}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="#4F46E5" 
+                      strokeWidth={2}
+                      dot={{ stroke: '#4F46E5', strokeWidth: 2, r: 4 }}
+                      activeDot={{ stroke: '#4F46E5', strokeWidth: 2, r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Recent Orders */}
-        <Card className="border border-gray-200">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Recent Orders</CardTitle>
-                <CardDescription>Latest customer purchases</CardDescription>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Recent emails */}
+          <Card className="col-span-2 bg-gray-50 border-0">
+            <CardContent className="p-4">
+              <h3 className="text-sm font-medium mb-4">Recent emails</h3>
+              <div className="space-y-4">
+                {recentEmails.map((email, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={email.avatar} alt={email.name} />
+                        <AvatarFallback>{email.name[0]}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">{email.name}</p>
+                        <p className="text-xs text-gray-500">{email.subject}</p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-400">{email.time}</span>
+                  </div>
+                ))}
               </div>
-              <Button variant="outline" size="sm">
-                View All
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium">Order ID</th>
-                    <th className="text-left py-3 px-4 font-medium">Product</th>
-                    <th className="text-left py-3 px-4 font-medium">Customer</th>
-                    <th className="text-left py-3 px-4 font-medium">Date</th>
-                    <th className="text-left py-3 px-4 font-medium">Amount</th>
-                    <th className="text-left py-3 px-4 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} className="border-b last:border-0 hover:bg-gray-50">
-                      <td className="py-3 px-4 font-medium">{order.id}</td>
-                      <td className="py-3 px-4">{order.product}</td>
-                      <td className="py-3 px-4">{order.customer}</td>
-                      <td className="py-3 px-4 text-gray-500">{order.date}</td>
-                      <td className="py-3 px-4 font-medium">{order.amount}</td>
-                      <td className="py-3 px-4">
-                        <span 
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            order.status === 'completed' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-blue-100 text-blue-800'
-                          }`}
-                        >
-                          {order.status === 'completed' ? 'Completed' : 'Processing'}
-                        </span>
-                      </td>
-                    </tr>
+            </CardContent>
+          </Card>
+
+          {/* Right sidebar */}
+          <div className="space-y-4">
+            {/* Formation status */}
+            <Card className="bg-black text-white border-0">
+              <CardContent className="p-4">
+                <h3 className="font-medium mb-1">Formation status</h3>
+                <p className="text-xs text-gray-300 mb-2">In progress</p>
+                <Progress value={70} className="h-1.5 mb-1" />
+                <p className="text-xs text-gray-300 mb-2">Estimated processing</p>
+                <p className="text-sm">4-5 business days</p>
+                <Button variant="outline" className="w-full mt-4 text-white border-gray-600 hover:bg-gray-800">
+                  View status
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* To-do list */}
+            <Card className="bg-gray-50 border-0">
+              <CardContent className="p-4">
+                <h3 className="font-medium mb-4">Your to-Do list</h3>
+                <div className="space-y-3">
+                  {todoItems.map((item, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <div className="bg-gray-200 p-1.5 rounded-md mt-0.5">
+                        <Clock className="h-4 w-4 text-gray-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{item.task}</p>
+                        <p className="text-xs text-gray-500">{item.time}</p>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Board meeting */}
+            <Card className="bg-gray-900 text-white border-0">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="bg-green-500 rounded-full h-2 w-2"></div>
+                  <h3 className="font-medium">Board meeting</h3>
+                </div>
+                <p className="text-sm mb-2">{boardMeeting.date}</p>
+                <p className="text-xs text-gray-300">{boardMeeting.description}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );

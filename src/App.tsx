@@ -24,6 +24,11 @@ import Analytics from "./pages/Analytics";
 import Scripts from "./pages/Scripts";
 import ContactSales from "./pages/ContactSales";
 
+// Placeholder pages for new routes
+import Calendar from "./pages/Calendar";
+import Clients from "./pages/Clients";
+import Activity from "./pages/Activity";
+
 // Components
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Toaster } from "./components/ui/sonner";
@@ -184,6 +189,36 @@ function App() {
         <ProtectedRoute>
           <PaymentRequiredRoute>
             <Scripts />
+          </PaymentRequiredRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/calendar",
+      element: (
+        <ProtectedRoute>
+          <PaymentRequiredRoute>
+            <Calendar />
+          </PaymentRequiredRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/clients",
+      element: (
+        <ProtectedRoute>
+          <PaymentRequiredRoute>
+            <Clients />
+          </PaymentRequiredRoute>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/activity",
+      element: (
+        <ProtectedRoute>
+          <PaymentRequiredRoute>
+            <Activity />
           </PaymentRequiredRoute>
         </ProtectedRoute>
       ),
