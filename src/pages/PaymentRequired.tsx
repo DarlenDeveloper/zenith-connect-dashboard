@@ -140,7 +140,7 @@ const PaymentRequired = () => {
                   
                   {/* Pro Plan */}
                   <Card className="border-2 border-black rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 relative h-full flex flex-col transform hover:-translate-y-1">
-                    <Badge className="absolute top-0 right-0 bg-black text-white rounded-bl-lg rounded-tr-lg px-3 py-1 font-medium" variant="default">
+                    <Badge className="absolute top-0 right-0 bg-black text-white rounded-md px-3 py-1 font-medium">
                       RECOMMENDED
                     </Badge>
                     <CardHeader className="pb-2">

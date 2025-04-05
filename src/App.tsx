@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import "./App.css";
@@ -32,7 +33,6 @@ import Activity from "./pages/Activity";
 // Components
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Toaster } from "./components/ui/sonner";
-import PaymentRequiredRoute from "./components/PaymentRequiredRoute";
 
 const queryClient = new QueryClient();
 
@@ -89,9 +89,7 @@ function App() {
       path: "/dashboard",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Dashboard />
-          </PaymentRequiredRoute>
+          <Dashboard />
         </ProtectedRoute>
       ),
     },
@@ -99,9 +97,7 @@ function App() {
       path: "/products",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Products />
-          </PaymentRequiredRoute>
+          <Products />
         </ProtectedRoute>
       ),
     },
@@ -109,9 +105,7 @@ function App() {
       path: "/conversations",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Conversations />
-          </PaymentRequiredRoute>
+          <Conversations />
         </ProtectedRoute>
       ),
     },
@@ -127,9 +121,7 @@ function App() {
       path: "/requests",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Requests />
-          </PaymentRequiredRoute>
+          <Requests />
         </ProtectedRoute>
       ),
     },
@@ -137,9 +129,7 @@ function App() {
       path: "/notifications",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Notifications />
-          </PaymentRequiredRoute>
+          <Notifications />
         </ProtectedRoute>
       ),
     },
@@ -147,9 +137,7 @@ function App() {
       path: "/settings",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Settings />
-          </PaymentRequiredRoute>
+          <Settings />
         </ProtectedRoute>
       ),
     },
@@ -157,9 +145,7 @@ function App() {
       path: "/call-history",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <CallHistory />
-          </PaymentRequiredRoute>
+          <CallHistory />
         </ProtectedRoute>
       ),
     },
@@ -167,9 +153,7 @@ function App() {
       path: "/ai-voice-settings",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <AIVoiceSettings />
-          </PaymentRequiredRoute>
+          <AIVoiceSettings />
         </ProtectedRoute>
       ),
     },
@@ -177,9 +161,7 @@ function App() {
       path: "/analytics",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Analytics />
-          </PaymentRequiredRoute>
+          <Analytics />
         </ProtectedRoute>
       ),
     },
@@ -187,9 +169,7 @@ function App() {
       path: "/scripts",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Scripts />
-          </PaymentRequiredRoute>
+          <Scripts />
         </ProtectedRoute>
       ),
     },
@@ -197,9 +177,7 @@ function App() {
       path: "/calendar",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Calendar />
-          </PaymentRequiredRoute>
+          <Calendar />
         </ProtectedRoute>
       ),
     },
@@ -207,9 +185,7 @@ function App() {
       path: "/clients",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Clients />
-          </PaymentRequiredRoute>
+          <Clients />
         </ProtectedRoute>
       ),
     },
@@ -217,9 +193,7 @@ function App() {
       path: "/activity",
       element: (
         <ProtectedRoute>
-          <PaymentRequiredRoute>
-            <Activity />
-          </PaymentRequiredRoute>
+          <Activity />
         </ProtectedRoute>
       ),
     },
