@@ -75,7 +75,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </Link>
           </SidebarHeader>
           
-          <SidebarContent className="py-2">
+          <SidebarContent className="py-2 no-scrollbar">
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
@@ -140,7 +140,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </header>
           
           {/* Page content */}
-          <div className="flex-1 overflow-auto bg-gray-100">
+          <div className="flex-1 overflow-auto bg-gray-100 no-scrollbar">
             {children}
           </div>
         </div>

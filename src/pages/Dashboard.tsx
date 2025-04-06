@@ -43,7 +43,7 @@ const Dashboard = () => {
     }
   }, [subscriptionStatus]);
 
-  // Mock data - all zeroed out as placeholders
+  // Mock data - all zeroed out as placeholders for real-time data later
   const callData = [
     { day: "Feb 14", value: 0 },
     { day: "Feb 15", value: 0 },
@@ -136,7 +136,7 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-6 max-w-7xl mx-auto w-full overflow-y-auto">
+      <div className="p-6 max-w-7xl mx-auto w-full overflow-y-auto no-scrollbar">
         {/* Greeting header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Hello, {user?.name || 'User'}!</h1>
@@ -145,7 +145,7 @@ const Dashboard = () => {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {statsCards.map((stat, index) => (
-            <Card key={index} className="bg-gray-900 border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card key={index} className="bg-gray-900 border-0 shadow-xl hover:shadow-2xl transition-all">
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2">
                   {stat.icon}
@@ -165,7 +165,7 @@ const Dashboard = () => {
           {/* Activity Metrics */}
           <div className="space-y-4">
             {activityMetrics.map((metric, index) => (
-              <Card key={index} className="bg-gray-900 border-0 shadow-lg">
+              <Card key={index} className="bg-gray-900 border-0 shadow-xl">
                 <CardContent className="p-4">
                   <h3 className="text-sm text-gray-400 mb-2">{metric.label}</h3>
                   <div className="flex items-end gap-2">
@@ -182,7 +182,7 @@ const Dashboard = () => {
           </div>
 
           {/* AI Call Data Chart */}
-          <Card className="col-span-2 bg-gray-900 border-0 shadow-lg">
+          <Card className="col-span-2 bg-gray-900 border-0 shadow-xl">
             <CardContent className="p-4">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-sm text-gray-300">AI Call Activity</h3>
@@ -215,7 +215,7 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Recent messages */}
-          <Card className="col-span-2 bg-gray-900 border-0 shadow-lg">
+          <Card className="col-span-2 bg-gray-900 border-0 shadow-xl">
             <CardContent className="p-4">
               <h3 className="text-sm font-medium mb-4 text-gray-300">Recent customer interactions</h3>
               <div className="space-y-4">
@@ -241,7 +241,7 @@ const Dashboard = () => {
           {/* Right sidebar */}
           <div className="space-y-4">
             {/* Setup status */}
-            <Card className="bg-black text-white border-0 shadow-lg">
+            <Card className="bg-black text-white border-0 shadow-xl">
               <CardContent className="p-4">
                 <h3 className="font-medium mb-1 text-gray-200">Setup status</h3>
                 <p className="text-xs text-gray-400 mb-2">Getting started</p>
@@ -255,7 +255,7 @@ const Dashboard = () => {
             </Card>
 
             {/* To-do list */}
-            <Card className="bg-gray-900 border-0 shadow-lg">
+            <Card className="bg-gray-900 border-0 shadow-xl">
               <CardContent className="p-4">
                 <h3 className="font-medium mb-4 text-gray-300">Your to-do list</h3>
                 <div className="space-y-3">
@@ -275,7 +275,7 @@ const Dashboard = () => {
             </Card>
 
             {/* Board meeting */}
-            <Card className="bg-gray-900 text-white border-0 shadow-lg">
+            <Card className="bg-gray-900 text-white border-0 shadow-xl">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="bg-blue-500 rounded-full h-2 w-2"></div>

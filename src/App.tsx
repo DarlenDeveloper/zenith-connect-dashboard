@@ -18,7 +18,6 @@ import Requests from "./pages/Requests";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import PaymentRequired from "./pages/PaymentRequired";
 import CallHistory from "./pages/CallHistory";
 import AIVoiceSettings from "./pages/AIVoiceSettings";
 import Analytics from "./pages/Analytics";
@@ -66,10 +65,6 @@ function App() {
     {
       path: "/forgot-password",
       element: <ForgotPassword />,
-    },
-    {
-      path: "/payment-required",
-      element: <PaymentRequired />,
     },
     {
       path: "/contact-sales",
