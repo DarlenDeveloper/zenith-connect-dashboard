@@ -12,7 +12,6 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
-import Conversations from "./pages/Conversations";
 import Subscription from "./pages/Subscription";
 import Requests from "./pages/Requests";
 import Notifications from "./pages/Notifications";
@@ -77,10 +76,6 @@ function App() {
     {
       path: "/products",
       element: <Products />,
-    },
-    {
-      path: "/conversations",
-      element: <Conversations />,
     },
     {
       path: "/subscription",

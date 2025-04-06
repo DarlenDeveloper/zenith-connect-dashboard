@@ -49,7 +49,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   const navItems: NavItem[] = [
     { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={18} />, active: location.pathname === "/dashboard" },
-    { name: "Conversations", path: "/conversations", icon: <MessageSquare size={18} />, active: location.pathname === "/conversations" },
     { name: "Call History", path: "/call-history", icon: <PhoneCall size={18} />, active: location.pathname === "/call-history" },
     { name: "Analytics", path: "/analytics", icon: <BarChart2 size={18} />, active: location.pathname === "/analytics" },
     { name: "Scripts", path: "/scripts", icon: <FileText size={18} />, active: location.pathname === "/scripts" },
@@ -67,7 +66,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="flex h-screen overflow-hidden w-full font-['Inter', sans-serif]">
         <Sidebar
           className="bg-black border-gray-800 border-r w-[220px]"
-          collapsible="icon"
+          collapsible="none"
         >
           <SidebarHeader className="h-14 flex items-center px-4 border-b border-gray-800">
             <Link to="/dashboard" className="flex items-center">
@@ -75,7 +74,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </Link>
           </SidebarHeader>
           
-          <SidebarContent className="py-2 no-scrollbar">
+          <SidebarContent className="py-2">
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
@@ -126,7 +125,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
           <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-white px-4 lg:px-6">
-            <SidebarTrigger className="text-gray-500" />
+            {isMobile && <SidebarTrigger className="text-gray-500" />}
             <div className="ml-auto flex items-center gap-3">
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Bell className="h-5 w-5" />
@@ -140,7 +139,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </header>
           
           {/* Page content */}
-          <div className="flex-1 overflow-auto bg-gray-100 no-scrollbar">
+          <div className="flex-1 overflow-auto bg-gray-100">
             {children}
           </div>
         </div>
