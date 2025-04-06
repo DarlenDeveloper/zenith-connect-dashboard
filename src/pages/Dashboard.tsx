@@ -136,7 +136,7 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-6 max-w-7xl mx-auto w-full overflow-y-auto no-scrollbar">
+      <div className="p-6 max-w-7xl mx-auto w-full no-scrollbar">
         {/* Greeting header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Hello, {user?.name || 'User'}!</h1>
@@ -145,7 +145,7 @@ const Dashboard = () => {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {statsCards.map((stat, index) => (
-            <Card key={index} className="bg-gray-900 border-0 shadow-xl hover:shadow-2xl transition-all">
+            <Card key={index} className="bg-gray-200 border-0 shadow-md hover:shadow-lg transition-all">
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-2">
                   {stat.icon}
@@ -153,7 +153,7 @@ const Dashboard = () => {
                 </div>
                 <div className="mt-2">
                   <h3 className={`text-2xl font-bold ${stat.color}`}>{stat.value}</h3>
-                  <p className="text-sm text-gray-400 mt-1">{stat.label}</p>
+                  <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
                 </div>
               </CardContent>
             </Card>
@@ -165,11 +165,11 @@ const Dashboard = () => {
           {/* Activity Metrics */}
           <div className="space-y-4">
             {activityMetrics.map((metric, index) => (
-              <Card key={index} className="bg-gray-900 border-0 shadow-xl">
+              <Card key={index} className="bg-gray-200 border-0 shadow-md">
                 <CardContent className="p-4">
-                  <h3 className="text-sm text-gray-400 mb-2">{metric.label}</h3>
+                  <h3 className="text-sm text-gray-600 mb-2">{metric.label}</h3>
                   <div className="flex items-end gap-2">
-                    <span className="text-4xl font-bold text-white">{metric.value}</span>
+                    <span className="text-4xl font-bold text-gray-800">{metric.value}</span>
                     <span className={`text-xs font-medium rounded-md px-2 py-1 ${
                       metric.isPositive ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
                     }`}>
@@ -182,20 +182,20 @@ const Dashboard = () => {
           </div>
 
           {/* AI Call Data Chart */}
-          <Card className="col-span-2 bg-gray-900 border-0 shadow-xl">
+          <Card className="col-span-2 bg-gray-200 border-0 shadow-md">
             <CardContent className="p-4">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-sm text-gray-300">AI Call Activity</h3>
-                <p className="text-xs text-gray-400">Last 7 days</p>
+                <h3 className="text-sm text-gray-700">AI Call Activity</h3>
+                <p className="text-xs text-gray-600">Last 7 days</p>
               </div>
               <div className="h-44">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={callData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ccc" />
                     <XAxis dataKey="day" axisLine={false} tickLine={false} stroke="#666" />
                     <YAxis axisLine={false} tickLine={false} stroke="#666" />
                     <Tooltip 
-                      contentStyle={{ background: '#333', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.2)', color: 'white', border: '1px solid #444' }}
+                      contentStyle={{ background: '#f8f8f8', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', color: '#333', border: '1px solid #ddd' }}
                       formatter={(value) => [`${value}`, 'Calls']}
                     />
                     <Line 
@@ -215,9 +215,9 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Recent messages */}
-          <Card className="col-span-2 bg-gray-900 border-0 shadow-xl">
+          <Card className="col-span-2 bg-gray-200 border-0 shadow-md">
             <CardContent className="p-4">
-              <h3 className="text-sm font-medium mb-4 text-gray-300">Recent customer interactions</h3>
+              <h3 className="text-sm font-medium mb-4 text-gray-700">Recent customer interactions</h3>
               <div className="space-y-4">
                 {recentEmails.map((email, index) => (
                   <div key={index} className="flex items-center justify-between">
@@ -227,11 +227,11 @@ const Dashboard = () => {
                         <AvatarFallback className="bg-indigo-900 text-indigo-300">{email.name[0]}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-sm font-medium text-gray-200">{email.name}</p>
-                        <p className="text-xs text-gray-400">{email.subject}</p>
+                        <p className="text-sm font-medium text-gray-800">{email.name}</p>
+                        <p className="text-xs text-gray-600">{email.subject}</p>
                       </div>
                     </div>
-                    <span className="text-xs text-gray-400">{email.time}</span>
+                    <span className="text-xs text-gray-500">{email.time}</span>
                   </div>
                 ))}
               </div>
@@ -241,32 +241,32 @@ const Dashboard = () => {
           {/* Right sidebar */}
           <div className="space-y-4">
             {/* Setup status */}
-            <Card className="bg-black text-white border-0 shadow-xl">
+            <Card className="bg-gray-200 text-gray-800 border-0 shadow-md">
               <CardContent className="p-4">
-                <h3 className="font-medium mb-1 text-gray-200">Setup status</h3>
-                <p className="text-xs text-gray-400 mb-2">Getting started</p>
-                <Progress value={0} className="h-1.5 mb-1 bg-gray-800" />
-                <p className="text-xs text-gray-400 mb-2">Estimated completion</p>
+                <h3 className="font-medium mb-1 text-gray-800">Setup status</h3>
+                <p className="text-xs text-gray-600 mb-2">Getting started</p>
+                <Progress value={0} className="h-1.5 mb-1 bg-gray-300" />
+                <p className="text-xs text-gray-600 mb-2">Estimated completion</p>
                 <p className="text-sm">Not started</p>
-                <Button variant="outline" className="w-full mt-4 text-white border-gray-600 hover:bg-gray-800">
+                <Button variant="outline" className="w-full mt-4 text-gray-700 border-gray-400 hover:bg-gray-300">
                   View guide
                 </Button>
               </CardContent>
             </Card>
 
             {/* To-do list */}
-            <Card className="bg-gray-900 border-0 shadow-xl">
+            <Card className="bg-gray-200 border-0 shadow-md">
               <CardContent className="p-4">
-                <h3 className="font-medium mb-4 text-gray-300">Your to-do list</h3>
+                <h3 className="font-medium mb-4 text-gray-700">Your to-do list</h3>
                 <div className="space-y-3">
                   {todoItems.map((item, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <div className="bg-gray-800 p-1.5 rounded-md mt-0.5">
-                        <Clock className="h-4 w-4 text-gray-400" />
+                      <div className="bg-gray-300 p-1.5 rounded-md mt-0.5">
+                        <Clock className="h-4 w-4 text-gray-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-200">{item.task}</p>
-                        <p className="text-xs text-gray-400">{item.time}</p>
+                        <p className="text-sm font-medium text-gray-800">{item.task}</p>
+                        <p className="text-xs text-gray-600">{item.time}</p>
                       </div>
                     </div>
                   ))}
@@ -275,14 +275,14 @@ const Dashboard = () => {
             </Card>
 
             {/* Board meeting */}
-            <Card className="bg-gray-900 text-white border-0 shadow-xl">
+            <Card className="bg-gray-200 text-gray-800 border-0 shadow-md">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="bg-blue-500 rounded-full h-2 w-2"></div>
-                  <h3 className="font-medium text-gray-200">AI Training</h3>
+                  <h3 className="font-medium text-gray-800">AI Training</h3>
                 </div>
-                <p className="text-sm mb-2 text-gray-300">Not scheduled</p>
-                <p className="text-xs text-gray-400">Schedule AI training sessions to improve customer interactions.</p>
+                <p className="text-sm mb-2 text-gray-700">Not scheduled</p>
+                <p className="text-xs text-gray-600">Schedule AI training sessions to improve customer interactions.</p>
               </CardContent>
             </Card>
           </div>

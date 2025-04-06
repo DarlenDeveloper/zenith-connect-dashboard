@@ -139,7 +139,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </header>
           
           {/* Page content */}
-          <div className="flex-1 overflow-auto bg-gray-100">
+          <div className="flex-1 overflow-auto bg-white">
             {children}
           </div>
         </div>
