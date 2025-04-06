@@ -92,6 +92,10 @@
     @apply border-border;
   }
 
+  html, body {
+    @apply overflow-hidden;
+  }
+
   body {
     @apply bg-background text-foreground font-['Inter',sans-serif];
     overflow-x: hidden;
@@ -100,21 +104,30 @@
 
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
   
   .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
   }
 }
 
-/* Remove unnecessary default scrollbars from components */
+/* Remove all scrollbars from the application */
+::-webkit-scrollbar {
+  display: none !important;
+}
+
+* {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 .scrollbar-none::-webkit-scrollbar {
-  display: none;
+  display: none !important;
 }
 
 .scrollbar-none {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }

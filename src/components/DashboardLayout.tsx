@@ -63,7 +63,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen overflow-hidden w-full font-['Inter', sans-serif]">
+      <div className="flex h-screen w-full overflow-hidden font-['Inter', sans-serif]">
         <Sidebar
           className="bg-black border-gray-800 border-r w-[220px]"
           collapsible="none"
@@ -122,7 +122,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </Sidebar>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden w-full">
           {/* Header */}
           <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-white px-4 lg:px-6">
             {isMobile && <SidebarTrigger className="text-gray-500" />}
@@ -139,7 +139,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </header>
           
           {/* Page content */}
-          <div className="flex-1 overflow-auto bg-white">
+          <div className="flex-1 w-full bg-white overflow-hidden">
             {children}
           </div>
         </div>
