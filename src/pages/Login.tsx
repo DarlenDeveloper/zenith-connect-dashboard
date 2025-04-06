@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -43,22 +42,22 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <ZenithLogo className="h-12 w-auto" />
+          <ZenithLogo className="h-12 w-auto text-black-bean-700" />
         </div>
         
-        <Card className="w-full shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
-            <CardDescription className="text-center">
+        <Card className="w-full shadow-xl border-0 rounded-lg">
+          <CardHeader className="pt-8">
+            <CardTitle className="text-2xl font-bold text-center text-gray-900">Welcome Back</CardTitle>
+            <CardDescription className="text-center text-gray-500">
               Sign in to access your Zenith Portal
             </CardDescription>
           </CardHeader>
           
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-8">
               {errorMessage && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
@@ -67,13 +66,13 @@ const Login = () => {
               )}
               
               {isEmailNotConfirmed && (
-                <Alert className="bg-amber-50 text-amber-800 border-amber-300">
+                <Alert className="bg-yellow-50 text-yellow-800 border-yellow-300">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
                     Your email address has not been confirmed yet. Please check your inbox for a confirmation email or 
                     <Button 
                       variant="link" 
-                      className="p-0 h-auto ml-1 text-amber-800 underline"
+                      className="p-0 h-auto ml-1 text-yellow-800 underline"
                       onClick={() => navigate("/forgot-password")}
                     >
                       request a new confirmation
@@ -83,7 +82,7 @@ const Login = () => {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-gray-700">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -97,10 +96,10 @@ const Login = () => {
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-gray-700">Password</Label>
                   <Link 
                     to="/forgot-password" 
-                    className="text-sm text-zenith-700 hover:text-zenith-800 font-medium"
+                    className="text-sm text-black-bean-600 hover:text-black-bean-700 font-medium"
                   >
                     Forgot password?
                   </Link>
@@ -117,7 +116,7 @@ const Login = () => {
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -126,20 +125,20 @@ const Login = () => {
               </div>
             </CardContent>
             
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
               <Button 
                 type="submit" 
-                className="w-full" 
+                className="w-full bg-black-bean-600 hover:bg-black-bean-700 text-white"
                 disabled={isLoading}
               >
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
               
-              <p className="text-center text-sm text-muted-foreground">
+              <p className="text-center text-sm text-gray-500">
                 Don't have an account?{" "}
                 <Link 
                   to="/signup" 
-                  className="text-zenith-700 hover:text-zenith-800 font-medium"
+                  className="text-black-bean-600 hover:text-black-bean-700 font-medium"
                 >
                   Sign up
                 </Link>

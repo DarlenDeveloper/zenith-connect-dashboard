@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { redirectToFlutterwavePayment } from "@/lib/flutterwave";
@@ -85,7 +84,7 @@ const PlansSection = ({ currentPlan = "" }: PlansSectionProps) => {
         
         {/* Pro Plan */}
         <div className="relative">
-          <Badge className="absolute top-2 right-2 bg-black text-white rounded-md px-3 py-1 font-medium z-10">
+          <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-black-bean-600 text-white rounded-md px-3 py-1 font-medium z-10">
             RECOMMENDED
           </Badge>
           <PlanCard

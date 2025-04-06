@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import "./App.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
+import SmallScreenWarning from "./components/SmallScreenWarning";
 
 // Pages
 import Index from "./pages/Index";
@@ -132,6 +132,7 @@ function App() {
       <AuthProvider>
         <RouterProvider router={createBrowserRouter(routes)} />
         <Toaster />
+        <SmallScreenWarning />
       </AuthProvider>
     </QueryClientProvider>
   );

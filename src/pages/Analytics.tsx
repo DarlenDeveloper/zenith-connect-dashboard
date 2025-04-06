@@ -1,38 +1,53 @@
-
 import React from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { BarChart2, Calendar, ArrowUpRight, ArrowDownRight, Clock, Users, Phone, MessageSquare } from "lucide-react";
-import { BarChart, LineChart, PieChart, AreaChart } from "recharts";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from "recharts";
 import { Card } from "@/components/ui/card";
 
 const Analytics = () => {
-  // Sample data for charts
+  // Sample data for charts - all zeros
   const callData = [
-    { name: "Jan", inbound: 65, outbound: 45 },
-    { name: "Feb", inbound: 78, outbound: 52 },
-    { name: "Mar", inbound: 82, outbound: 70 },
-    { name: "Apr", inbound: 70, outbound: 55 },
-    { name: "May", inbound: 85, outbound: 65 },
-    { name: "Jun", inbound: 90, outbound: 72 },
+    { name: "Jan", inbound: 0, outbound: 0 },
+    { name: "Feb", inbound: 0, outbound: 0 },
+    { name: "Mar", inbound: 0, outbound: 0 },
+    { name: "Apr", inbound: 0, outbound: 0 },
+    { name: "May", inbound: 0, outbound: 0 },
+    { name: "Jun", inbound: 0, outbound: 0 },
   ];
 
   const timeData = [
-    { name: "Mon", time: 240 },
-    { name: "Tue", time: 312 },
-    { name: "Wed", time: 285 },
-    { name: "Thu", time: 350 },
-    { name: "Fri", time: 270 },
-    { name: "Sat", time: 180 },
-    { name: "Sun", time: 120 },
+    { name: "Mon", time: 0 },
+    { name: "Tue", time: 0 },
+    { name: "Wed", time: 0 },
+    { name: "Thu", time: 0 },
+    { name: "Fri", time: 0 },
+    { name: "Sat", time: 0 },
+    { name: "Sun", time: 0 },
   ];
 
   const satisfactionData = [
-    { name: "Very Satisfied", value: 65 },
-    { name: "Satisfied", value: 25 },
-    { name: "Neutral", value: 7 },
-    { name: "Dissatisfied", value: 3 },
+    { name: "Very Satisfied", value: 0 },
+    { name: "Satisfied", value: 0 },
+    { name: "Neutral", value: 0 },
+    { name: "Dissatisfied", value: 0 },
   ];
+  
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
   return (
     <DashboardLayout>
@@ -60,7 +75,7 @@ const Analytics = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm text-gray-500">Total Calls</p>
-                  <h3 className="text-2xl font-bold mt-1">1,248</h3>
+                  <h3 className="text-2xl font-bold mt-1">0</h3>
                 </div>
                 <div className="bg-blue-100 rounded-full p-2">
                   <Phone className="h-5 w-5 text-blue-600" />
@@ -68,7 +83,7 @@ const Analytics = () => {
               </div>
               <div className="flex items-center mt-2 text-sm">
                 <ArrowUpRight className="text-green-500 mr-1 h-4 w-4" />
-                <span className="text-green-500 font-medium">12%</span>
+                <span className="text-green-500 font-medium">0%</span>
                 <span className="text-gray-500 ml-1">vs last month</span>
               </div>
             </Card>
@@ -77,7 +92,7 @@ const Analytics = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm text-gray-500">Resolution Rate</p>
-                  <h3 className="text-2xl font-bold mt-1">87%</h3>
+                  <h3 className="text-2xl font-bold mt-1">0%</h3>
                 </div>
                 <div className="bg-green-100 rounded-full p-2">
                   <MessageSquare className="h-5 w-5 text-green-600" />
@@ -85,7 +100,7 @@ const Analytics = () => {
               </div>
               <div className="flex items-center mt-2 text-sm">
                 <ArrowUpRight className="text-green-500 mr-1 h-4 w-4" />
-                <span className="text-green-500 font-medium">5%</span>
+                <span className="text-green-500 font-medium">0%</span>
                 <span className="text-gray-500 ml-1">vs last month</span>
               </div>
             </Card>
@@ -94,7 +109,7 @@ const Analytics = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm text-gray-500">Avg. Call Time</p>
-                  <h3 className="text-2xl font-bold mt-1">5:24</h3>
+                  <h3 className="text-2xl font-bold mt-1">0:00</h3>
                 </div>
                 <div className="bg-yellow-100 rounded-full p-2">
                   <Clock className="h-5 w-5 text-yellow-600" />
@@ -102,7 +117,7 @@ const Analytics = () => {
               </div>
               <div className="flex items-center mt-2 text-sm">
                 <ArrowDownRight className="text-green-500 mr-1 h-4 w-4" />
-                <span className="text-green-500 font-medium">8%</span>
+                <span className="text-green-500 font-medium">0%</span>
                 <span className="text-gray-500 ml-1">vs last month</span>
               </div>
             </Card>
@@ -111,7 +126,7 @@ const Analytics = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm text-gray-500">New Customers</p>
-                  <h3 className="text-2xl font-bold mt-1">342</h3>
+                  <h3 className="text-2xl font-bold mt-1">0</h3>
                 </div>
                 <div className="bg-purple-100 rounded-full p-2">
                   <Users className="h-5 w-5 text-purple-600" />
@@ -119,7 +134,7 @@ const Analytics = () => {
               </div>
               <div className="flex items-center mt-2 text-sm">
                 <ArrowUpRight className="text-green-500 mr-1 h-4 w-4" />
-                <span className="text-green-500 font-medium">18%</span>
+                <span className="text-green-500 font-medium">0%</span>
                 <span className="text-gray-500 ml-1">vs last month</span>
               </div>
             </Card>
@@ -132,9 +147,17 @@ const Analytics = () => {
                 <h3 className="font-medium">Call Volume</h3>
                 <Button variant="outline" size="sm">Monthly</Button>
               </div>
-              <BarChart width={500} height={300} data={callData}>
-                {/* Chart configuration would go here */}
-              </BarChart>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={callData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="inbound" fill="#4f46e5" name="Inbound" />
+                  <Bar dataKey="outbound" fill="#10b981" name="Outbound" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
             
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
@@ -142,9 +165,16 @@ const Analytics = () => {
                 <h3 className="font-medium">Call Duration</h3>
                 <Button variant="outline" size="sm">Weekly</Button>
               </div>
-              <LineChart width={500} height={300} data={timeData}>
-                {/* Chart configuration would go here */}
-              </LineChart>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={timeData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="time" stroke="#3b82f6" name="Minutes" />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
           
@@ -154,9 +184,26 @@ const Analytics = () => {
                 <h3 className="font-medium">Customer Satisfaction</h3>
                 <Button variant="outline" size="sm">All Time</Button>
               </div>
-              <PieChart width={300} height={300}>
-                {/* Chart configuration would go here */}
-              </PieChart>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={satisfactionData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name }) => name}
+                  >
+                    {satisfactionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
             
             <div className="md:col-span-2 bg-white rounded-lg border border-gray-200 shadow-sm p-4">
@@ -179,53 +226,53 @@ const Analytics = () => {
                       <td className="py-3 px-4">Customer Welcome</td>
                       <td className="py-3 px-4">
                         <div className="flex items-center">
-                          <span className="font-medium mr-2">94%</span>
+                          <span className="font-medium mr-2">0%</span>
                           <div className="bg-gray-200 h-1.5 w-24 rounded-full">
-                            <div className="bg-green-500 h-1.5 rounded-full" style={{ width: '94%' }}></div>
+                            <div className="bg-green-500 h-1.5 rounded-full" style={{ width: '0%' }}></div>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-4">2:45</td>
-                      <td className="py-3 px-4">324</td>
+                      <td className="py-3 px-4">0:00</td>
+                      <td className="py-3 px-4">0</td>
                     </tr>
                     <tr className="border-b border-gray-200">
                       <td className="py-3 px-4">Technical Support</td>
                       <td className="py-3 px-4">
                         <div className="flex items-center">
-                          <span className="font-medium mr-2">87%</span>
+                          <span className="font-medium mr-2">0%</span>
                           <div className="bg-gray-200 h-1.5 w-24 rounded-full">
-                            <div className="bg-green-500 h-1.5 rounded-full" style={{ width: '87%' }}></div>
+                            <div className="bg-green-500 h-1.5 rounded-full" style={{ width: '0%' }}></div>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-4">6:18</td>
-                      <td className="py-3 px-4">189</td>
+                      <td className="py-3 px-4">0:00</td>
+                      <td className="py-3 px-4">0</td>
                     </tr>
                     <tr className="border-b border-gray-200">
                       <td className="py-3 px-4">Payment Issues</td>
                       <td className="py-3 px-4">
                         <div className="flex items-center">
-                          <span className="font-medium mr-2">82%</span>
+                          <span className="font-medium mr-2">0%</span>
                           <div className="bg-gray-200 h-1.5 w-24 rounded-full">
-                            <div className="bg-green-500 h-1.5 rounded-full" style={{ width: '82%' }}></div>
+                            <div className="bg-green-500 h-1.5 rounded-full" style={{ width: '0%' }}></div>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-4">4:32</td>
-                      <td className="py-3 px-4">156</td>
+                      <td className="py-3 px-4">0:00</td>
+                      <td className="py-3 px-4">0</td>
                     </tr>
                     <tr>
                       <td className="py-3 px-4">Account Setup</td>
                       <td className="py-3 px-4">
                         <div className="flex items-center">
-                          <span className="font-medium mr-2">91%</span>
+                          <span className="font-medium mr-2">0%</span>
                           <div className="bg-gray-200 h-1.5 w-24 rounded-full">
-                            <div className="bg-green-500 h-1.5 rounded-full" style={{ width: '91%' }}></div>
+                            <div className="bg-green-500 h-1.5 rounded-full" style={{ width: '0%' }}></div>
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-4">3:54</td>
-                      <td className="py-3 px-4">142</td>
+                      <td className="py-3 px-4">0:00</td>
+                      <td className="py-3 px-4">0</td>
                     </tr>
                   </tbody>
                 </table>

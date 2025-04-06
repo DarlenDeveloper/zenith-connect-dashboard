@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,16 +28,16 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <ZenithLogo className="h-12 w-auto" />
+          <ZenithLogo className="h-12 w-auto text-black-bean-700" />
         </div>
         
-        <Card className="w-full shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Reset Your Password</CardTitle>
-            <CardDescription className="text-center">
+        <Card className="w-full shadow-xl border-0 rounded-lg">
+          <CardHeader className="pt-8">
+            <CardTitle className="text-2xl font-bold text-center text-gray-900">Reset Your Password</CardTitle>
+            <CardDescription className="text-center text-gray-500">
               {submitted 
                 ? "Check your email for a reset link" 
                 : "Enter your email and we'll send you instructions"}
@@ -46,19 +45,19 @@ const ForgotPassword = () => {
           </CardHeader>
           
           {submitted ? (
-            <CardContent className="space-y-4 text-center">
-              <p className="py-4">
+            <CardContent className="space-y-4 text-center px-8">
+              <p className="py-4 text-gray-800">
                 We've sent reset instructions to <strong>{email}</strong>
               </p>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-gray-500 text-sm">
                 If you don't see the email, check your spam folder or make sure you entered the correct email address.
               </p>
             </CardContent>
           ) : (
             <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 px-8">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email" className="text-gray-700">Email Address</Label>
                   <Input
                     id="email"
                     type="email"
@@ -71,12 +70,8 @@ const ForgotPassword = () => {
                 </div>
               </CardContent>
               
-              <CardFooter className="flex flex-col space-y-4">
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
+              <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
+                <Button type="submit" className="w-full bg-black-bean-600 hover:bg-black-bean-700 text-white" disabled={isLoading}>
                   {isLoading ? "Sending..." : "Send reset instructions"}
                 </Button>
               </CardFooter>
@@ -84,10 +79,7 @@ const ForgotPassword = () => {
           )}
           
           <div className="p-6 pt-0 text-center">
-            <Link 
-              to="/login" 
-              className="text-zenith-700 hover:text-zenith-800 font-medium text-sm"
-            >
+            <Link to="/login" className="text-black-bean-600 hover:text-black-bean-700 font-medium text-sm">
               Return to sign in
             </Link>
           </div>

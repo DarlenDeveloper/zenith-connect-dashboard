@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -13,13 +12,26 @@ export default {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: '0rem',
 			screens: {
 				'2xl': '1400px'
 			}
 		},
 		extend: {
 			colors: {
+				'black-bean': {
+					'50': '#ebfeee',
+					'100': '#cffcd5',
+					'200': '#a3f7b2',
+					'300': '#68ed88',
+					'400': '#2cdb5c',
+					'500': '#08c141',
+					'600': '#009d33',
+					'700': '#007e2b',
+					'800': '#026325',
+					'900': '#035121',
+					'950': '#001408',
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

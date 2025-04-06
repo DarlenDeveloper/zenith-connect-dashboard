@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
@@ -24,6 +23,7 @@ import {
   SidebarMenuButton,
   SidebarFooter
 } from "@/components/ui/sidebar";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -41,6 +41,36 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const [profileName, setProfileName] = useState<string | null>(null);
+  const [profileEmail, setProfileEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (user) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', user.id)
+            .single();
+
+          if (error) {
+            console.error('Error fetching profile:', error);
+          } else if (data) {
+            setProfileName(data.name);
+            setProfileEmail(user.email || null);
+          }
+        } catch (err) {
+          console.error('Error in fetchProfile:', err);
+        }
+      } else {
+        setProfileName(null);
+        setProfileEmail(null);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -63,12 +93,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full overflow-hidden font-['Inter', sans-serif]">
+      <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0">
         <Sidebar
-          className="bg-black border-gray-800 border-r w-[220px]"
+          className="bg-black-bean-950 border-r border-black-bean-900 w-[220px] text-gray-300 flex-shrink-0"
           collapsible="none"
         >
-          <SidebarHeader className="h-14 flex items-center px-4 border-b border-gray-800">
+          <SidebarHeader className="h-14 flex items-center px-4 border-b border-black-bean-900">
             <Link to="/dashboard" className="flex items-center">
               <ZenithLogo className="text-white" />
             </Link>
@@ -82,12 +112,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     asChild 
                     isActive={item.active}
                     tooltip={item.name}
-                    className="h-10 text-sm px-3"
+                    className={`h-10 text-sm px-3 rounded-md mx-2 ${
+                      item.active 
+                        ? 'bg-black-bean-600 text-white font-semibold'
+                        : 'text-gray-300 hover:bg-black-bean-900 hover:text-white'
+                    }`}
                   >
                     <Link to={item.path} className="flex items-center gap-2.5">
-                      <span className={`${item.active ? "text-[#9efa06]" : "text-gray-400"}`}>
-                        {item.icon}
-                      </span>
+                      <span className="flex-shrink-0 w-[18px]">{item.icon}</span>
                       <span className="text-sm">{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -96,23 +128,23 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </SidebarMenu>
           </SidebarContent>
           
-          <SidebarFooter className="mt-auto border-t border-gray-800 py-4 px-3">
+          <SidebarFooter className="mt-auto border-t border-black-bean-900 py-4 px-3">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-gray-700 text-white">
-                    {user?.name?.charAt(0) || 'U'}
+                  <AvatarFallback className="bg-black-bean-800 text-gray-200">
+                    {profileName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="text-xs">
-                  <p className="text-white font-medium">{user?.name || 'User'}</p>
-                  <p className="text-gray-400">{user?.email || 'user@example.com'}</p>
+                  <p className="text-gray-100 font-medium">{profileName || user?.email?.split('@')[0] || 'User'}</p>
+                  <p className="text-gray-400">{profileEmail || 'loading...'}</p>
                 </div>
               </div>
             </div>
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-gray-400 hover:text-white hover:bg-[#1a1a1a] h-9 text-sm px-3"
+              className="w-full justify-start text-gray-400 hover:text-white hover:bg-black-bean-900 h-9 text-sm px-3"
               onClick={handleLogout}
             >
               <LogOut size={18} className="mr-2.5" />
@@ -121,25 +153,22 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </SidebarFooter>
         </Sidebar>
 
-        {/* Main content */}
-        <div className="flex-1 flex flex-col overflow-hidden w-full">
-          {/* Header */}
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-white px-4 lg:px-6">
-            {isMobile && <SidebarTrigger className="text-gray-500" />}
+        <div className="flex-1 flex flex-col overflow-y-auto w-full bg-gray-50 p-0 m-0">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-white px-4 lg:px-6 shadow-sm">
+            {isMobile && <SidebarTrigger className="text-muted-foreground" />}
             <div className="ml-auto flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground">
                 <Bell className="h-5 w-5" />
               </Button>
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-black text-white">
-                  {user?.name?.charAt(0) || 'U'}
+                <AvatarFallback className="bg-black-bean-600 text-white">
+                  {profileName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
             </div>
           </header>
           
-          {/* Page content */}
-          <div className="flex-1 w-full bg-white overflow-hidden">
+          <div className="flex-1 w-full p-0 m-0">
             {children}
           </div>
         </div>

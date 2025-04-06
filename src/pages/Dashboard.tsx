@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useSearchParams } from "react-router-dom";
@@ -43,7 +42,23 @@ const Dashboard = () => {
     }
   }, [subscriptionStatus]);
 
-  // Mock data - all zeroed out as placeholders for real-time data later
+  // Updated activity metrics for new styling
+  const activityMetrics = [
+    {
+      label: "Customer Satisfaction",
+      value: "0%",
+      change: "+0%", // Indicate direction
+      isPositive: true
+    },
+    {
+      label: "Escalation Rate",
+      value: "0%",
+      change: "+0%", // Indicate direction
+      isPositive: true // Assuming lower is better, might need logic flip
+    }
+  ];
+
+  // Updated call data for chart styling
   const callData = [
     { day: "Feb 14", value: 0 },
     { day: "Feb 15", value: 0 },
@@ -54,47 +69,27 @@ const Dashboard = () => {
     { day: "Feb 20", value: 0 },
   ];
 
-  // Stats cards data
+  // Update stats card icons with black-bean colors
   const statsCards = [
     {
-      icon: <div className="bg-indigo-900 p-2 rounded-md text-indigo-300"><Phone className="h-5 w-5" /></div>,
+      icon: <Phone className="h-6 w-6 text-black-bean-600" />, // Green icon
       value: "0",
       label: "Total AI Calls",
-      color: "text-indigo-300"
     },
     {
-      icon: <div className="bg-purple-900 p-2 rounded-md text-purple-300"><MessageCircle className="h-5 w-5" /></div>,
+      icon: <MessageCircle className="h-6 w-6 text-black-bean-600" />, // Green icon
       value: "0",
       label: "Customer Interactions",
-      color: "text-purple-300"
     },
     {
-      icon: <div className="bg-green-900 p-2 rounded-md text-green-300"><Clock4 className="h-5 w-5" /></div>,
+      icon: <Clock4 className="h-6 w-6 text-black-bean-600" />, // Green icon
       value: "0",
       label: "Average Call Duration",
-      color: "text-green-300"
     },
     {
-      icon: <div className="bg-blue-900 p-2 rounded-md text-blue-300"><CircleDot className="h-5 w-5" /></div>,
+      icon: <CircleDot className="h-6 w-6 text-black-bean-600" />, // Green icon
       value: "0",
       label: "Call Resolution Rate",
-      color: "text-blue-300"
-    }
-  ];
-
-  // Activity metrics
-  const activityMetrics = [
-    {
-      label: "Customer Satisfaction",
-      value: "0%",
-      change: "0%",
-      isPositive: true
-    },
-    {
-      label: "Escalation Rate",
-      value: "0%",
-      change: "0%",
-      isPositive: true
     }
   ];
 
@@ -136,44 +131,48 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-6 max-w-7xl mx-auto w-full no-scrollbar">
-        {/* Greeting header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Hello, {user?.name || 'User'}!</h1>
+      <div className="w-full h-full p-0 m-0">
+        <div className="mb-4 lg:mb-4 px-4 lg:px-4 pt-4 lg:pt-4">
+          <h1 className="text-2xl font-semibold text-gray-900">Hello, {user?.name || 'User'}!</h1>
+          <p className="text-sm text-gray-600">Welcome back, here's your dashboard overview.</p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-4 lg:px-4 mb-4 lg:mb-4">
           {statsCards.map((stat, index) => (
-            <Card key={index} className="bg-gray-200 border-0 shadow-md hover:shadow-lg transition-all">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  {stat.icon}
-                  <MoreHorizontal className="h-5 w-5 text-gray-400" />
+            <Card 
+              key={index} 
+              className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+            >
+              <CardContent className="p-5 lg:p-6">
+                <div className="flex justify-between items-start mb-3 lg:mb-4">
+                  <div className="p-2 bg-black-bean-100 rounded-md">
+                     {stat.icon} 
+                  </div>
                 </div>
-                <div className="mt-2">
-                  <h3 className={`text-2xl font-bold ${stat.color}`}>{stat.value}</h3>
-                  <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
+                <div>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</h3>
+                  <p className="text-sm text-gray-500">{stat.label}</p>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Activity Metrics & Call Data Chart */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {/* Activity Metrics */}
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 lg:px-4 mb-4 lg:mb-4"> 
+          <div className="lg:col-span-1 space-y-6"> 
             {activityMetrics.map((metric, index) => (
-              <Card key={index} className="bg-gray-200 border-0 shadow-md">
-                <CardContent className="p-4">
-                  <h3 className="text-sm text-gray-600 mb-2">{metric.label}</h3>
-                  <div className="flex items-end gap-2">
-                    <span className="text-4xl font-bold text-gray-800">{metric.value}</span>
-                    <span className={`text-xs font-medium rounded-md px-2 py-1 ${
-                      metric.isPositive ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
+              <Card 
+                key={index} 
+                className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+              >
+                <CardContent className="p-5 lg:p-6">
+                  <h3 className="text-base font-medium text-gray-600 mb-3">{metric.label}</h3> 
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold text-gray-900">{metric.value}</span> 
+                    <span className={`text-sm font-medium ${
+                      metric.isPositive ? 'text-black-bean-700' : 'text-red-600' 
                     }`}>
-                      {metric.change}
+                      {metric.change} 
                     </span>
                   </div>
                 </CardContent>
@@ -181,30 +180,49 @@ const Dashboard = () => {
             ))}
           </div>
 
-          {/* AI Call Data Chart */}
-          <Card className="col-span-2 bg-gray-200 border-0 shadow-md">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-sm text-gray-700">AI Call Activity</h3>
-                <p className="text-xs text-gray-600">Last 7 days</p>
+          <Card className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+            <CardContent className="p-5 lg:p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-base font-medium text-gray-700">AI Call Activity</h3> 
+                <p className="text-sm text-gray-500">Last 7 days</p>
               </div>
-              <div className="h-44">
+              <div className="h-60">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={callData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ccc" />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} stroke="#666" />
-                    <YAxis axisLine={false} tickLine={false} stroke="#666" />
+                  <LineChart data={callData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                    <XAxis 
+                      dataKey="day" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      stroke="#6b7280"
+                      fontSize={12} 
+                      dy={10}
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      stroke="#6b7280"
+                      fontSize={12}
+                      dx={-10}
+                    />
                     <Tooltip 
-                      contentStyle={{ background: '#f8f8f8', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', color: '#333', border: '1px solid #ddd' }}
-                      formatter={(value) => [`${value}`, 'Calls']}
+                      cursor={{ fill: 'rgba(235, 254, 238, 0.5)' }} /* Lighter green hover */
+                      contentStyle={{ 
+                        background: 'white', 
+                        borderRadius: '8px', 
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)', 
+                        color: '#1f2937', 
+                        border: '1px solid #e5e7eb' 
+                      }}
+                      formatter={(value: number) => [`${value}`, 'Calls']}
                     />
                     <Line 
                       type="monotone" 
                       dataKey="value" 
-                      stroke="#8884d8" 
-                      strokeWidth={2}
-                      dot={{ stroke: '#8884d8', strokeWidth: 2, r: 4 }}
-                      activeDot={{ stroke: '#8884d8', strokeWidth: 2, r: 6 }}
+                      stroke="#009d33"
+                      strokeWidth={2.5}
+                      dot={{ stroke: '#009d33', strokeWidth: 2, r: 4, fill: 'white' }}
+                      activeDot={{ stroke: '#009d33', strokeWidth: 2, r: 6, fill: '#009d33' }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -213,79 +231,52 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Recent messages */}
-          <Card className="col-span-2 bg-gray-200 border-0 shadow-md">
-            <CardContent className="p-4">
-              <h3 className="text-sm font-medium mb-4 text-gray-700">Recent customer interactions</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 lg:px-4 pb-4 lg:pb-4">
+          <Card className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+            <CardContent className="p-5 lg:p-6">
+              <h3 className="text-base font-medium text-gray-700 mb-4">Recent customer interactions</h3>
               <div className="space-y-4">
                 {recentEmails.map((email, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-9 w-9">
                         <AvatarImage src={email.avatar} alt={email.name} />
-                        <AvatarFallback className="bg-indigo-900 text-indigo-300">{email.name[0]}</AvatarFallback>
+                        <AvatarFallback className="bg-black-bean-100 text-black-bean-700">{email.name[0]}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-sm font-medium text-gray-800">{email.name}</p>
-                        <p className="text-xs text-gray-600">{email.subject}</p>
+                        <p className="text-sm font-medium text-gray-900">{email.name}</p>
+                        <p className="text-xs text-gray-500">{email.subject}</p>
                       </div>
                     </div>
-                    <span className="text-xs text-gray-500">{email.time}</span>
+                    <span className="text-xs text-gray-400">{email.time}</span>
                   </div>
                 ))}
+                {recentEmails.length === 0 && (
+                   <p className="text-sm text-gray-500 text-center py-4">No recent interactions found.</p>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Right sidebar */}
-          <div className="space-y-4">
-            {/* Setup status */}
-            <Card className="bg-gray-200 text-gray-800 border-0 shadow-md">
-              <CardContent className="p-4">
-                <h3 className="font-medium mb-1 text-gray-800">Setup status</h3>
-                <p className="text-xs text-gray-600 mb-2">Getting started</p>
-                <Progress value={0} className="h-1.5 mb-1 bg-gray-300" />
-                <p className="text-xs text-gray-600 mb-2">Estimated completion</p>
-                <p className="text-sm">Not started</p>
-                <Button variant="outline" className="w-full mt-4 text-gray-700 border-gray-400 hover:bg-gray-300">
-                  View guide
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* To-do list */}
-            <Card className="bg-gray-200 border-0 shadow-md">
-              <CardContent className="p-4">
-                <h3 className="font-medium mb-4 text-gray-700">Your to-do list</h3>
-                <div className="space-y-3">
-                  {todoItems.map((item, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <div className="bg-gray-300 p-1.5 rounded-md mt-0.5">
-                        <Clock className="h-4 w-4 text-gray-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-800">{item.task}</p>
-                        <p className="text-xs text-gray-600">{item.time}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Board meeting */}
-            <Card className="bg-gray-200 text-gray-800 border-0 shadow-md">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="bg-blue-500 rounded-full h-2 w-2"></div>
-                  <h3 className="font-medium text-gray-800">AI Training</h3>
-                </div>
-                <p className="text-sm mb-2 text-gray-700">Not scheduled</p>
-                <p className="text-xs text-gray-600">Schedule AI training sessions to improve customer interactions.</p>
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="lg:col-span-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+            <CardContent className="p-5 lg:p-6">
+              <h3 className="text-base font-medium text-gray-700 mb-3">Setup Status</h3>
+              <div className="space-y-3">
+                 <div className="flex items-center gap-3">
+                   <div className="w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0"></div>
+                   <p className="text-sm text-gray-600">Configure AI Voice</p>
+                 </div>
+                 <div className="flex items-center gap-3">
+                   <div className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0"></div>
+                   <p className="text-sm text-gray-600">Setup Script Templates</p>
+                 </div>
+                 <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0"></div>
+                    <p className="text-sm text-gray-600">Train AI Model</p>
+                 </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </DashboardLayout>

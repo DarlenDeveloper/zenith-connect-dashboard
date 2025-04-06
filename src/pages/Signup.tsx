@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, SignupData } from "@/contexts/AuthContext";
@@ -67,24 +66,24 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-muted p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-lg">
         <div className="flex justify-center mb-8">
-          <ZenithLogo className="h-12 w-auto" />
+          <ZenithLogo className="h-12 w-auto text-black-bean-700" />
         </div>
         
-        <Card className="w-full shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Create Your Account</CardTitle>
-            <CardDescription className="text-center">
+        <Card className="w-full shadow-xl border-0 rounded-lg">
+          <CardHeader className="pt-8">
+            <CardTitle className="text-2xl font-bold text-center text-gray-900">Create Your Account</CardTitle>
+            <CardDescription className="text-center text-gray-500">
               Get started with Zenith's AI-powered customer care solutions
             </CardDescription>
           </CardHeader>
           
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 px-8">
               <div className="space-y-2">
-                <Label htmlFor="organizationName">Organization Name</Label>
+                <Label htmlFor="organizationName" className="text-gray-700">Organization Name</Label>
                 <Input
                   id="organizationName"
                   name="organizationName"
@@ -97,7 +96,7 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name (Gov't issued name)</Label>
+                <Label htmlFor="name" className="text-gray-700">Full Name (Gov't issued name)</Label>
                 <Input
                   id="name"
                   name="name"
@@ -110,7 +109,7 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email" className="text-gray-700">Email Address</Label>
                 <Input
                   id="email"
                   name="email"
@@ -124,7 +123,7 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <Label htmlFor="phoneNumber" className="text-gray-700">Phone Number</Label>
                 <PhoneInput 
                   value={formData.phoneNumber} 
                   onChange={handlePhoneChange}
@@ -133,7 +132,7 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-gray-700">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -147,7 +146,7 @@ const Signup = () => {
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -156,7 +155,7 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-gray-700">Confirm Password</Label>
                 <Input
                   id="confirmPassword"
                   type={showPassword ? "text" : "password"}
@@ -164,7 +163,7 @@ const Signup = () => {
                   value={confirmPassword}
                   onChange={handleConfirmPasswordChange}
                   required
-                  className={`w-full ${!passwordsMatch ? "border-red-500" : ""}`}
+                  className={`w-full ${!passwordsMatch ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                 />
                 {!passwordsMatch && (
                   <p className="text-red-500 text-sm mt-1">Passwords do not match</p>
@@ -186,34 +185,34 @@ const Signup = () => {
                 />
                 <Label 
                   htmlFor="agreedToTerms" 
-                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="text-sm leading-none text-gray-600 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   I agree to Zenith's{" "}
-                  <a href="#" className="text-zenith-700 hover:text-zenith-800 underline">
+                  <a href="#" className="text-black-bean-600 hover:text-black-bean-700 underline">
                     Terms of Service
                   </a>{" "}
                   and{" "}
-                  <a href="#" className="text-zenith-700 hover:text-zenith-800 underline">
+                  <a href="#" className="text-black-bean-600 hover:text-black-bean-700 underline">
                     Privacy Policy
                   </a>
                 </Label>
               </div>
             </CardContent>
             
-            <CardFooter className="flex flex-col space-y-4">
+            <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
               <Button 
                 type="submit" 
-                className="w-full" 
+                className="w-full bg-black-bean-600 hover:bg-black-bean-700 text-white"
                 disabled={isLoading || !passwordsMatch}
               >
                 {isLoading ? "Creating account..." : "Create account"}
               </Button>
               
-              <p className="text-center text-sm text-muted-foreground">
+              <p className="text-center text-sm text-gray-500">
                 Already have an account?{" "}
                 <Link 
                   to="/login" 
-                  className="text-zenith-700 hover:text-zenith-800 font-medium"
+                  className="text-black-bean-600 hover:text-black-bean-700 font-medium"
                 >
                   Sign in
                 </Link>

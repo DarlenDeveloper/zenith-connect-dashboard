@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import CurrentSubscriptionInfo from "@/components/subscription/CurrentSubscriptionInfo";
@@ -42,15 +41,16 @@ const SubscriptionPage = () => {
           if (error) {
             console.error('Error fetching subscription details:', error);
           } else if (data) {
-            // Determine plan based on stored stripe_subscription_id prefix
-            if (data.stripe_subscription_id?.includes('starter')) {
+            // Determine plan based on stored plan_id
+            if (data.plan_id === 'starter') {
               setCurrentPlan('starter');
-            } else if (data.stripe_subscription_id?.includes('pro')) {
+            } else if (data.plan_id === 'pro') {
               setCurrentPlan('pro');
-            } else if (data.stripe_subscription_id?.includes('enterprise')) {
+            } else if (data.plan_id === 'enterprise') {
               setCurrentPlan('enterprise');
             } else {
-              setCurrentPlan('pro'); // Default to pro if can't determine
+              // Optionally handle unknown plan_id or default
+              setCurrentPlan(null); // Or a default plan like 'pro'
             }
             
             // Format the next billing date
