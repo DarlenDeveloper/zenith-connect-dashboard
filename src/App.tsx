@@ -24,8 +24,6 @@ import AIVoiceSettings from "./pages/AIVoiceSettings";
 import Analytics from "./pages/Analytics";
 import Scripts from "./pages/Scripts";
 import ContactSales from "./pages/ContactSales";
-
-// Placeholder pages for new routes
 import Calendar from "./pages/Calendar";
 import Clients from "./pages/Clients";
 import Activity from "./pages/Activity";
@@ -71,131 +69,67 @@ function App() {
     },
     {
       path: "/payment-required",
-      element: (
-        <ProtectedRoute>
-          <PaymentRequired />
-        </ProtectedRoute>
-      ),
+      element: <PaymentRequired />,
     },
     {
       path: "/contact-sales",
-      element: (
-        <ProtectedRoute>
-          <ContactSales />
-        </ProtectedRoute>
-      ),
+      element: <ContactSales />,
     },
     {
       path: "/dashboard",
-      element: (
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      ),
+      element: <Dashboard />,
     },
     {
       path: "/products",
-      element: (
-        <ProtectedRoute>
-          <Products />
-        </ProtectedRoute>
-      ),
+      element: <Products />,
     },
     {
       path: "/conversations",
-      element: (
-        <ProtectedRoute>
-          <Conversations />
-        </ProtectedRoute>
-      ),
+      element: <Conversations />,
     },
     {
       path: "/subscription",
-      element: (
-        <ProtectedRoute>
-          <Subscription />
-        </ProtectedRoute>
-      ),
+      element: <Subscription />,
     },
     {
       path: "/requests",
-      element: (
-        <ProtectedRoute>
-          <Requests />
-        </ProtectedRoute>
-      ),
+      element: <Requests />,
     },
     {
       path: "/notifications",
-      element: (
-        <ProtectedRoute>
-          <Notifications />
-        </ProtectedRoute>
-      ),
+      element: <Notifications />,
     },
     {
       path: "/settings",
-      element: (
-        <ProtectedRoute>
-          <Settings />
-        </ProtectedRoute>
-      ),
+      element: <Settings />,
     },
     {
       path: "/call-history",
-      element: (
-        <ProtectedRoute>
-          <CallHistory />
-        </ProtectedRoute>
-      ),
+      element: <CallHistory />,
     },
     {
       path: "/ai-voice-settings",
-      element: (
-        <ProtectedRoute>
-          <AIVoiceSettings />
-        </ProtectedRoute>
-      ),
+      element: <AIVoiceSettings />,
     },
     {
       path: "/analytics",
-      element: (
-        <ProtectedRoute>
-          <Analytics />
-        </ProtectedRoute>
-      ),
+      element: <Analytics />,
     },
     {
       path: "/scripts",
-      element: (
-        <ProtectedRoute>
-          <Scripts />
-        </ProtectedRoute>
-      ),
+      element: <Scripts />,
     },
     {
       path: "/calendar",
-      element: (
-        <ProtectedRoute>
-          <Calendar />
-        </ProtectedRoute>
-      ),
+      element: <Calendar />,
     },
     {
       path: "/clients",
-      element: (
-        <ProtectedRoute>
-          <Clients />
-        </ProtectedRoute>
-      ),
+      element: <Clients />,
     },
     {
       path: "/activity",
-      element: (
-        <ProtectedRoute>
-          <Activity />
-        </ProtectedRoute>
-      ),
+      element: <Activity />,
     },
     {
       path: "*",

@@ -6,7 +6,7 @@ interface PaymentRequiredRouteProps {
 }
 
 const PaymentRequiredRoute = ({ children }: PaymentRequiredRouteProps) => {
-  // No longer checking for subscription - just passing through the children
+  // No longer checking for subscription - passing through the children directly
   return <>{children}</>;
 };
 
