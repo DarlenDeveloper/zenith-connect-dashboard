@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LineChart,
   Line,
@@ -21,11 +21,15 @@ import {
   Info,
   Phone,
   MessageCircle,
-  Clock4
+  Clock4,
+  Users,
+  Smile,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import ZenithLogo from "@/components/ZenithLogo";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -110,24 +114,7 @@ const Dashboard = () => {
   ];
 
   // Todo items
-  const todoItems = [
-    {
-      task: "Configure AI Voice",
-      time: "Not started"
-    },
-    {
-      task: "Setup Script Templates",
-      time: "Not started"
-    },
-    {
-      task: "Train AI Model",
-      time: "Not started"
-    },
-    {
-      task: "Test Customer Interactions",
-      time: "Not started"
-    }
-  ];
+ 
 
   return (
     <DashboardLayout>
@@ -239,9 +226,8 @@ const Dashboard = () => {
                 {recentEmails.map((email, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage src={email.avatar} alt={email.name} />
-                        <AvatarFallback className="bg-black-bean-100 text-black-bean-700">{email.name[0]}</AvatarFallback>
+                      <Avatar className="h-9 w-9 bg-white">
+                        <ZenithLogo className="h-6 w-auto text-black-bean-700" />
                       </Avatar>
                       <div>
                         <p className="text-sm font-medium text-gray-900">{email.name}</p>
@@ -263,16 +249,16 @@ const Dashboard = () => {
               <h3 className="text-base font-medium text-gray-700 mb-3">Setup Status</h3>
               <div className="space-y-3">
                  <div className="flex items-center gap-3">
-                   <div className="w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0"></div>
-                   <p className="text-sm text-gray-600">Configure AI Voice</p>
+                   <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
+                   <p className="text-sm text-gray-600">Update Profile</p>
                  </div>
                  <div className="flex items-center gap-3">
-                   <div className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0"></div>
-                   <p className="text-sm text-gray-600">Setup Script Templates</p>
+                   <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
+                   <p className="text-sm text-gray-600">Make a Payment</p>
                  </div>
                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0"></div>
-                    <p className="text-sm text-gray-600">Train AI Model</p>
+                    <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></div>
+                    <p className="text-sm text-gray-600">Receive Customer Care Phone Number</p>
                  </div>
               </div>
             </CardContent>

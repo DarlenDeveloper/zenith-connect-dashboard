@@ -51,7 +51,7 @@ function App() {
   const routes = [
     {
       path: "/",
-      element: <Navigate to="/dashboard" replace />,
+      element: <Navigate to="/login" replace />,
     },
     {
       path: "/login",
@@ -67,59 +67,59 @@ function App() {
     },
     {
       path: "/contact-sales",
-      element: <ContactSales />,
+      element: <ProtectedRoute><ContactSales /></ProtectedRoute>,
     },
     {
       path: "/dashboard",
-      element: <Dashboard />,
+      element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
     },
     {
       path: "/products",
-      element: <Products />,
+      element: <ProtectedRoute><Products /></ProtectedRoute>,
     },
     {
       path: "/subscription",
-      element: <Subscription />,
+      element: <ProtectedRoute><Subscription /></ProtectedRoute>,
     },
     {
       path: "/requests",
-      element: <Requests />,
+      element: <ProtectedRoute><Requests /></ProtectedRoute>,
     },
     {
       path: "/notifications",
-      element: <Notifications />,
+      element: <ProtectedRoute><Notifications /></ProtectedRoute>,
     },
     {
       path: "/settings",
-      element: <Settings />,
+      element: <ProtectedRoute><Settings /></ProtectedRoute>,
     },
     {
       path: "/call-history",
-      element: <CallHistory />,
+      element: <ProtectedRoute><CallHistory /></ProtectedRoute>,
     },
     {
       path: "/ai-voice-settings",
-      element: <AIVoiceSettings />,
+      element: <ProtectedRoute><AIVoiceSettings /></ProtectedRoute>,
     },
     {
       path: "/analytics",
-      element: <Analytics />,
+      element: <ProtectedRoute><Analytics /></ProtectedRoute>,
     },
     {
       path: "/scripts",
-      element: <Scripts />,
+      element: <ProtectedRoute><Scripts /></ProtectedRoute>,
     },
     {
       path: "/calendar",
-      element: <Calendar />,
+      element: <ProtectedRoute><Calendar /></ProtectedRoute>,
     },
     {
       path: "/clients",
-      element: <Clients />,
+      element: <ProtectedRoute><Clients /></ProtectedRoute>,
     },
     {
       path: "/activity",
-      element: <Activity />,
+      element: <ProtectedRoute><Activity /></ProtectedRoute>,
     },
     {
       path: "*",

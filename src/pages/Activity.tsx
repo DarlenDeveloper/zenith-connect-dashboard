@@ -13,7 +13,7 @@ const Activity = () => {
             <CardTitle>Activity Page</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Activity tracking functionality will be implemented soon.</p>
+            <p>Activity tracking functionality.</p>
           </CardContent>
         </Card>
       </div>

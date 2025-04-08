@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -47,48 +46,48 @@ const CallHistory = () => {
   const [callLogs, setCallLogs] = useState<CallLog[]>([
     { 
       id: "1", 
-      caller_number: "+1 (555) 123-4567", 
+      caller_number: "+256 701 234 567", 
       call_datetime: "2025-04-05T10:30:00Z", 
       duration: "4:32", 
-      issue_summary: "Customer inquiring about subscription renewal options", 
+      issue_summary: "Customer inquiring about subscription renewal options (Placeholder)", 
       status: "Resolved", 
-      notes: "Customer chose the annual plan with monthly payments" 
+      notes: "Placeholder data - Customer chose the annual plan with monthly payments" 
     },
     { 
       id: "2", 
-      caller_number: "+1 (555) 234-5678", 
+      caller_number: "+256 702 345 678", 
       call_datetime: "2025-04-05T13:15:00Z", 
       duration: "8:47", 
-      issue_summary: "Technical issue with checkout process", 
+      issue_summary: "Technical issue with checkout process (Placeholder)", 
       status: "Unresolved", 
-      notes: "Escalated to technical team" 
+      notes: "Placeholder data - Escalated to technical team" 
     },
     { 
       id: "3", 
-      caller_number: "+1 (555) 345-6789", 
+      caller_number: "+256 703 456 789", 
       call_datetime: "2025-04-04T11:05:00Z", 
       duration: "3:18", 
-      issue_summary: "Inquiry about product features", 
+      issue_summary: "Inquiry about product features (Placeholder)", 
       status: "Resolved", 
-      notes: null 
+      notes: "Placeholder data" 
     },
     { 
       id: "4", 
-      caller_number: "+1 (555) 456-7890", 
+      caller_number: "+256 704 567 890", 
       call_datetime: "2025-04-04T09:45:00Z", 
       duration: "6:22", 
-      issue_summary: "Requesting product demonstration", 
+      issue_summary: "Requesting product demonstration (Placeholder)", 
       status: "Resolved", 
-      notes: "Scheduled a demo for next Tuesday" 
+      notes: "Placeholder data - Scheduled a demo for next Tuesday" 
     },
     { 
       id: "5", 
-      caller_number: "+1 (555) 567-8901", 
+      caller_number: "+256 705 678 901", 
       call_datetime: "2025-04-03T16:30:00Z", 
       duration: "5:12", 
-      issue_summary: "Billing discrepancy", 
+      issue_summary: "Billing discrepancy (Placeholder)", 
       status: "Unresolved", 
-      notes: "Waiting for finance department review" 
+      notes: "Placeholder data - Waiting for finance department review" 
     },
   ]);
 
@@ -97,6 +96,7 @@ const CallHistory = () => {
   const [editNotes, setEditNotes] = useState("");
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [statusFilter, setStatusFilter] = useState<"all" | "Resolved" | "Unresolved">("all");
 
   // Function to format date nicely
   const formatDate = (dateString: string) => {
@@ -166,31 +166,45 @@ const CallHistory = () => {
     }
   };
 
-  // Sort the call logs (in a real application, this would be done at DB level)
-  const sortedCallLogs = [...callLogs].sort((a, b) => {
-    if (!sortField) return 0;
-    
-    let comparison = 0;
-    
-    switch (sortField) {
-      case "datetime":
-        comparison = new Date(a.call_datetime).getTime() - new Date(b.call_datetime).getTime();
-        break;
-      case "duration":
-        comparison = a.duration.localeCompare(b.duration);
-        break;
-      case "number":
-        comparison = a.caller_number.localeCompare(b.caller_number);
-        break;
-      case "status":
-        comparison = a.status.localeCompare(b.status);
-        break;
-      default:
-        return 0;
-    }
-    
-    return sortDirection === "asc" ? comparison : -comparison;
-  });
+  // Filter and sort the call logs
+  const filteredAndSortedCallLogs = [...callLogs]
+    .filter(call => statusFilter === "all" ? true : call.status === statusFilter)
+    .sort((a, b) => {
+      if (!sortField) return 0;
+      
+      let comparison = 0;
+      
+      switch (sortField) {
+        case "datetime":
+          comparison = new Date(a.call_datetime).getTime() - new Date(b.call_datetime).getTime();
+          break;
+        case "duration":
+          comparison = a.duration.localeCompare(b.duration);
+          break;
+        case "number":
+          comparison = a.caller_number.localeCompare(b.caller_number);
+          break;
+        case "status":
+          comparison = a.status.localeCompare(b.status);
+          break;
+        default:
+          return 0;
+      }
+      
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+
+  // Calculate metrics based on filtered data
+  const totalCalls = filteredAndSortedCallLogs.length;
+  const resolvedCalls = filteredAndSortedCallLogs.filter(call => call.status === "Resolved").length;
+  const resolutionRate = totalCalls > 0 ? Math.round((resolvedCalls / totalCalls) * 100) : 0;
+  const avgDuration = filteredAndSortedCallLogs.length > 0
+    ? filteredAndSortedCallLogs.reduce((acc, call) => {
+        const [mins, secs] = call.duration.split(":").map(Number);
+        return acc + mins * 60 + secs;
+      }, 0) / filteredAndSortedCallLogs.length
+    : 0;
+  const formattedAvgDuration = `${Math.floor(avgDuration / 60)}:${String(Math.round(avgDuration % 60)).padStart(2, '0')}`;
 
   return (
     <DashboardLayout>
@@ -223,7 +237,7 @@ const CallHistory = () => {
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Total Calls</div>
-                  <div className="text-xl font-bold">0</div>
+                  <div className="text-xl font-bold">{totalCalls}</div>
                 </div>
               </div>
               <div className="bg-green-50 rounded-lg p-4 flex items-center shadow-sm">
@@ -232,7 +246,7 @@ const CallHistory = () => {
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Avg. Duration</div>
-                  <div className="text-xl font-bold">0:00</div>
+                  <div className="text-xl font-bold">{formattedAvgDuration}</div>
                 </div>
               </div>
               <div className="bg-purple-50 rounded-lg p-4 flex items-center shadow-sm">
@@ -241,7 +255,7 @@ const CallHistory = () => {
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Resolution Rate</div>
-                  <div className="text-xl font-bold">0%</div>
+                  <div className="text-xl font-bold">{resolutionRate}%</div>
                 </div>
               </div>
             </div>
@@ -264,13 +278,19 @@ const CallHistory = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm">
-                      View: All
+                      View: {statusFilter === "all" ? "All" : statusFilter}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-white">
-                    <DropdownMenuItem>All Calls</DropdownMenuItem>
-                    <DropdownMenuItem>Resolved</DropdownMenuItem>
-                    <DropdownMenuItem>Unresolved</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter("all")}>
+                      All Calls
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter("Resolved")}>
+                      Resolved
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter("Unresolved")}>
+                      Unresolved
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -318,15 +338,10 @@ const CallHistory = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedCallLogs.map((call) => (
+                  {filteredAndSortedCallLogs.map((call) => (
                     <TableRow key={call.id} className="hover:bg-gray-50">
                       <TableCell>
-                        <div className="flex items-center">
-                          <div className="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center mr-2">
-                            <User className="h-4 w-4 text-gray-500" />
-                          </div>
-                          {call.caller_number}
-                        </div>
+                        {call.caller_number}
                       </TableCell>
                       <TableCell>{formatDate(call.call_datetime)}</TableCell>
                       <TableCell>{call.duration}</TableCell>
@@ -375,10 +390,10 @@ const CallHistory = () => {
                     </TableRow>
                   ))}
                   
-                  {callLogs.length === 0 && (
+                  {filteredAndSortedCallLogs.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={6} className="h-24 text-center">
-                        No call history found
+                        No {statusFilter === "all" ? "" : statusFilter.toLowerCase()} calls found
                       </TableCell>
                     </TableRow>
                   )}
