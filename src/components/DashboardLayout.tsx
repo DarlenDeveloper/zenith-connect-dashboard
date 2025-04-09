@@ -5,9 +5,10 @@ import {
   Settings, LogOut, InboxIcon, Menu, 
   PhoneCall, BarChart2, PlusCircle, MicIcon,
   FileText, Headphones, Bell, Calendar, Users, 
-  Activity
+  Activity, AlertTriangle, UserCheck
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAgent } from "@/contexts/AgentContext";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ZenithLogo from "@/components/ZenithLogo";
@@ -23,6 +24,7 @@ import {
   SidebarMenuButton,
   SidebarFooter
 } from "@/components/ui/sidebar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardLayoutProps {
@@ -38,6 +40,7 @@ interface NavItem {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout } = useAuth();
+  const { agents, selectedAgent, setSelectedAgentId, loadingAgents } = useAgent();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -81,11 +84,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={18} />, active: location.pathname === "/dashboard" },
     { name: "Call History", path: "/call-history", icon: <PhoneCall size={18} />, active: location.pathname === "/call-history" },
     { name: "Analytics", path: "/analytics", icon: <BarChart2 size={18} />, active: location.pathname === "/analytics" },
-    { name: "Scripts", path: "/scripts", icon: <FileText size={18} />, active: location.pathname === "/scripts" },
+    { name: "Technical", path: "/technical", icon: <AlertTriangle size={18} />, active: location.pathname === "/technical" },
     { name: "AI Voice", path: "/ai-voice-settings", icon: <MicIcon size={18} />, active: location.pathname === "/ai-voice-settings" },
-    { name: "Requests", path: "/requests", icon: <InboxIcon size={18} />, active: location.pathname === "/requests" },
-    { name: "Calendar", path: "/calendar", icon: <Calendar size={18} />, active: location.pathname === "/calendar" },
-    { name: "Clients", path: "/clients", icon: <Users size={18} />, active: location.pathname === "/clients" },
+    { name: "Status & Updates", path: "/status-updates", icon: <Bell size={18} />, active: location.pathname === "/status-updates" },
+    { name: "Agents", path: "/agents", icon: <Users size={18} />, active: location.pathname === "/agents" },
     { name: "Activity", path: "/activity", icon: <Activity size={18} />, active: location.pathname === "/activity" },
     { name: "Subscription", path: "/subscription", icon: <CreditCard size={18} />, active: location.pathname === "/subscription" },
     { name: "Settings", path: "/settings", icon: <Settings size={18} />, active: location.pathname === "/settings" },
@@ -157,6 +159,25 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-white px-4 lg:px-6 shadow-sm">
             {isMobile && <SidebarTrigger className="text-muted-foreground" />}
             <div className="ml-auto flex items-center gap-3">
+              <Select 
+                value={selectedAgent?.id || ""} 
+                onValueChange={(value) => setSelectedAgentId(value || null)}
+                disabled={loadingAgents || agents.length === 0}
+              >
+                <SelectTrigger className="w-[180px] h-9 text-sm">
+                  <div className="flex items-center gap-2"><UserCheck className="h-4 w-4 text-gray-500" /><SelectValue placeholder={loadingAgents ? "Loading agents..." : "Select Agent"} /></div>
+                </SelectTrigger>
+                <SelectContent>
+                  {agents.map((agent) => (
+                    <SelectItem key={agent.id} value={agent.id}>
+                      {agent.name} ({agent.agent_ref_id})
+                    </SelectItem>
+                  ))}
+                  {agents.length === 0 && !loadingAgents && (
+                    <div className="px-2 py-1.5 text-sm text-gray-500">(No active agents)</div>
+                  )}
+                </SelectContent>
+              </Select>
               <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground">
                 <Bell className="h-5 w-5" />
               </Button>

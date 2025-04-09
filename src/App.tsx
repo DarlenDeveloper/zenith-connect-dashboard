@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom"
 import "./App.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
+import { AgentProvider } from "./contexts/AgentContext";
 import SmallScreenWarning from "./components/SmallScreenWarning";
 
 // Pages
@@ -13,17 +14,16 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Subscription from "./pages/Subscription";
-import Requests from "./pages/Requests";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import CallHistory from "./pages/CallHistory";
 import AIVoiceSettings from "./pages/AIVoiceSettings";
 import Analytics from "./pages/Analytics";
-import Scripts from "./pages/Scripts";
+import Technical from "./pages/Technical";
+import StatusUpdates from "./pages/StatusUpdates";
 import ContactSales from "./pages/ContactSales";
-import Calendar from "./pages/Calendar";
-import Clients from "./pages/Clients";
+import Agents from "./pages/Agents";
 import Activity from "./pages/Activity";
 
 // Components
@@ -82,10 +82,6 @@ function App() {
       element: <ProtectedRoute><Subscription /></ProtectedRoute>,
     },
     {
-      path: "/requests",
-      element: <ProtectedRoute><Requests /></ProtectedRoute>,
-    },
-    {
       path: "/notifications",
       element: <ProtectedRoute><Notifications /></ProtectedRoute>,
     },
@@ -106,16 +102,16 @@ function App() {
       element: <ProtectedRoute><Analytics /></ProtectedRoute>,
     },
     {
-      path: "/scripts",
-      element: <ProtectedRoute><Scripts /></ProtectedRoute>,
+      path: "/technical",
+      element: <ProtectedRoute><Technical /></ProtectedRoute>,
     },
     {
-      path: "/calendar",
-      element: <ProtectedRoute><Calendar /></ProtectedRoute>,
+      path: "/status-updates",
+      element: <ProtectedRoute><StatusUpdates /></ProtectedRoute>,
     },
     {
-      path: "/clients",
-      element: <ProtectedRoute><Clients /></ProtectedRoute>,
+      path: "/agents",
+      element: <ProtectedRoute><Agents /></ProtectedRoute>,
     },
     {
       path: "/activity",
@@ -130,9 +126,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <RouterProvider router={createBrowserRouter(routes)} />
-        <Toaster />
-        <SmallScreenWarning />
+        <AgentProvider>
+          <RouterProvider router={createBrowserRouter(routes)} />
+          <Toaster />
+          <SmallScreenWarning />
+        </AgentProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { 
   PhoneCall, Calendar, Clock, User, BarChart, Phone,
   Search, Filter, FileEdit, CheckCircle, Download, 
-  AlertCircle, ArrowUp, ArrowDown
+  AlertCircle, ArrowUp, ArrowDown, AlertTriangle, XCircle
 } from "lucide-react";
 import {
   Table,
@@ -31,185 +32,193 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAgent } from "@/contexts/AgentContext";
 
 interface CallLog {
   id: string;
-  caller_number: string;
+  caller_number: string | null;
   call_datetime: string;
-  duration: string;
-  issue_summary: string | null;
+  duration?: string;
+  issue_summary?: string | null;
   status: string;
   notes: string | null;
 }
 
 const CallHistory = () => {
-  const [callLogs, setCallLogs] = useState<CallLog[]>([
-    { 
-      id: "1", 
-      caller_number: "+256 701 234 567", 
-      call_datetime: "2025-04-05T10:30:00Z", 
-      duration: "4:32", 
-      issue_summary: "Customer inquiring about subscription renewal options (Placeholder)", 
-      status: "Resolved", 
-      notes: "Placeholder data - Customer chose the annual plan with monthly payments" 
-    },
-    { 
-      id: "2", 
-      caller_number: "+256 702 345 678", 
-      call_datetime: "2025-04-05T13:15:00Z", 
-      duration: "8:47", 
-      issue_summary: "Technical issue with checkout process (Placeholder)", 
-      status: "Unresolved", 
-      notes: "Placeholder data - Escalated to technical team" 
-    },
-    { 
-      id: "3", 
-      caller_number: "+256 703 456 789", 
-      call_datetime: "2025-04-04T11:05:00Z", 
-      duration: "3:18", 
-      issue_summary: "Inquiry about product features (Placeholder)", 
-      status: "Resolved", 
-      notes: "Placeholder data" 
-    },
-    { 
-      id: "4", 
-      caller_number: "+256 704 567 890", 
-      call_datetime: "2025-04-04T09:45:00Z", 
-      duration: "6:22", 
-      issue_summary: "Requesting product demonstration (Placeholder)", 
-      status: "Resolved", 
-      notes: "Placeholder data - Scheduled a demo for next Tuesday" 
-    },
-    { 
-      id: "5", 
-      caller_number: "+256 705 678 901", 
-      call_datetime: "2025-04-03T16:30:00Z", 
-      duration: "5:12", 
-      issue_summary: "Billing discrepancy (Placeholder)", 
-      status: "Unresolved", 
-      notes: "Placeholder data - Waiting for finance department review" 
-    },
-  ]);
-
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { selectedAgent } = useAgent();
+  const [callLogs, setCallLogs] = useState<CallLog[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCall, setSelectedCall] = useState<CallLog | null>(null);
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
   const [editNotes, setEditNotes] = useState("");
-  const [sortField, setSortField] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [statusFilter, setStatusFilter] = useState<"all" | "Resolved" | "Unresolved">("all");
+  const [sortField, setSortField] = useState<string>("call_datetime");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // Function to format date nicely
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric'
-    }).format(date);
+  const fetchCallLogs = async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('calls')
+        .select('*');
+        
+      const dbStatusFilter = statusFilter === 'Pending' ? 'Unresolved' : statusFilter;
+
+      if (dbStatusFilter !== 'all') {
+        query = query.eq('status', dbStatusFilter);
+      }
+        
+      query = query.order(sortField, { ascending: sortDirection === "asc" });
+
+      const { data, error } = await query;
+      
+      if (error) {
+        throw error;
+      }
+      setCallLogs(data || []);
+    } catch (error: any) {
+      console.error("Error fetching call logs:", error);
+      toast.error(`Failed to load call history: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Function to handle sorting
+  useEffect(() => {
+    if (!user) return;
+
+    fetchCallLogs();
+
+    const callsSubscription = supabase
+      .channel('custom-calls-channel')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'calls' },
+        (payload) => {
+          console.log('Change received!', payload);
+          fetchCallLogs(); 
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(callsSubscription);
+    };
+  }, [user, statusFilter, sortField, sortDirection]);
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: 'numeric', minute: 'numeric', hour12: true
+      }).format(date);
+    } catch (e) {
+      return 'Invalid Date';
+    }
+  };
+
   const handleSort = (field: string) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection("asc");
+      setSortDirection("desc");
     }
   };
 
-  // Function to update call status
-  const updateCallStatus = (id: string, newStatus: string) => {
-    // This will be updated to use Supabase later
-    setCallLogs(callLogs.map(call => 
-      call.id === id ? { ...call, status: newStatus } : call
-    ));
-    toast.success(`Call status updated to ${newStatus}`);
+  const updateCallStatus = async (id: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('calls')
+        .update({ status: newStatus })
+        .eq('id', id);
+        
+      if (error) throw error;
+      toast.success(`Call status updated to ${newStatus}`);
+    } catch (error: any) {
+      console.error("Error updating call status:", error);
+      toast.error(`Failed to update status: ${error.message}`);
+    }
   };
 
-  // Function to open notes dialog
   const openNotesDialog = (call: CallLog) => {
     setSelectedCall(call);
     setEditNotes(call.notes || "");
     setIsNoteDialogOpen(true);
   };
 
-  // Function to save notes
   const saveNotes = async () => {
     if (!selectedCall) return;
     
-    // This will be updated to use Supabase later
-    setCallLogs(callLogs.map(call => 
-      call.id === selectedCall.id ? { ...call, notes: editNotes } : call
-    ));
-    
-    setIsNoteDialogOpen(false);
-    toast.success("Notes saved successfully");
-  };
-
-  // Function to fetch call logs from Supabase (to be implemented)
-  const fetchCallLogs = async () => {
     try {
-      // This will be implemented later to fetch from Supabase
-      // const { data, error } = await supabase
-      //   .from('call_logs')
-      //   .select('*')
-      //   .order('call_datetime', { ascending: false });
-      
-      // if (error) throw error;
-      // setCallLogs(data);
-    } catch (error) {
-      console.error("Error fetching call logs:", error);
-      toast.error("Failed to load call history");
+      const { error } = await supabase
+        .from('calls')
+        .update({ notes: editNotes })
+        .eq('id', selectedCall.id);
+        
+      if (error) throw error;
+      setIsNoteDialogOpen(false);
+      toast.success("Notes saved successfully");
+    } catch (error: any) {
+      console.error("Error saving notes:", error);
+      toast.error(`Failed to save notes: ${error.message}`);
     }
   };
 
-  // Filter and sort the call logs
-  const filteredAndSortedCallLogs = [...callLogs]
-    .filter(call => statusFilter === "all" ? true : call.status === statusFilter)
-    .sort((a, b) => {
-      if (!sortField) return 0;
+  const flagTechnicalIssue = async (call: CallLog) => {
+    if (!user) {
+      toast.error("You must be logged in to flag issues.");
+      return;
+    }
+    if (!selectedAgent) {
+      toast.error("Please select an active agent from the header dropdown before flagging issues.");
+      return;
+    }
+    
+    try {
+      const { data, error } = await supabase
+        .from('technical_issues')
+        .insert({
+          user_id: user.id,
+          call_id: call.id,
+          title: `Tech Issue: Call ${call.caller_number || 'Unknown'}`,
+          description: call.notes || "Call flagged for technical review.",
+          status: "Open",
+          priority: "Medium",
+          reported_by: user.id,
+          acting_agent_id: selectedAgent.id
+        })
+        .select();
+        
+      if (error) throw error;
       
-      let comparison = 0;
-      
-      switch (sortField) {
-        case "datetime":
-          comparison = new Date(a.call_datetime).getTime() - new Date(b.call_datetime).getTime();
-          break;
-        case "duration":
-          comparison = a.duration.localeCompare(b.duration);
-          break;
-        case "number":
-          comparison = a.caller_number.localeCompare(b.caller_number);
-          break;
-        case "status":
-          comparison = a.status.localeCompare(b.status);
-          break;
-        default:
-          return 0;
-      }
-      
-      return sortDirection === "asc" ? comparison : -comparison;
-    });
+      const newIssueId = data?.[0]?.id;
+      toast.success(`Flagged call for technical review (Agent: ${selectedAgent.name}).`);
+      navigate(`/technical?techIssueId=${newIssueId || call.id}`);
 
-  // Calculate metrics based on filtered data
-  const totalCalls = filteredAndSortedCallLogs.length;
-  const resolvedCalls = filteredAndSortedCallLogs.filter(call => call.status === "Resolved").length;
+    } catch (error: any) {
+      console.error("Error flagging technical issue:", error);
+      if (error.message.includes('row-level security policy')) {
+        toast.error(`Failed to flag issue: Permission denied. Please check RLS setup.`);
+      } else {
+        toast.error(`Failed to flag issue: ${error.message}`);
+      }
+    }
+  };
+
+  const totalCalls = callLogs.length;
+  const resolvedCalls = callLogs.filter(call => call.status === "Resolved").length;
   const resolutionRate = totalCalls > 0 ? Math.round((resolvedCalls / totalCalls) * 100) : 0;
-  const avgDuration = filteredAndSortedCallLogs.length > 0
-    ? filteredAndSortedCallLogs.reduce((acc, call) => {
-        const [mins, secs] = call.duration.split(":").map(Number);
-        return acc + mins * 60 + secs;
-      }, 0) / filteredAndSortedCallLogs.length
-    : 0;
-  const formattedAvgDuration = `${Math.floor(avgDuration / 60)}:${String(Math.round(avgDuration % 60)).padStart(2, '0')}`;
+  const formattedAvgDuration = "N/A";
 
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full">
-        {/* Header */}
         <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center px-6 justify-between">
           <div className="flex items-center">
             <PhoneCall className="mr-2 h-5 w-5 text-gray-500" />
@@ -227,8 +236,7 @@ const CallHistory = () => {
           </div>
         </header>
 
-        {/* Main content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-6 overflow-auto">
           <div className="bg-white rounded-lg border shadow-md">
             <div className="grid grid-cols-3 gap-4 p-4 border-b border-gray-200">
               <div className="bg-blue-50 rounded-lg p-4 flex items-center shadow-sm">
@@ -260,7 +268,6 @@ const CallHistory = () => {
               </div>
             </div>
             
-            {/* Search and filter */}
             <div className="p-4 flex flex-wrap gap-3 items-center">
               <div className="relative grow md:max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -278,54 +285,40 @@ const CallHistory = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm">
-                      View: {statusFilter === "all" ? "All" : statusFilter}
+                      Status: {statusFilter === "all" ? "All" : statusFilter}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-white">
-                    <DropdownMenuItem onClick={() => setStatusFilter("all")}>
-                      All Calls
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter("Resolved")}>
-                      Resolved
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter("Unresolved")}>
-                      Unresolved
-                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter("all")}>All</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter("Resolved")}>Resolved</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter("Pending")}>Pending</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setStatusFilter("Needs Review")}>Needs Review</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             </div>
             
-            {/* Table */}
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="cursor-pointer" onClick={() => handleSort("number")}>
+                    <TableHead className="cursor-pointer" onClick={() => handleSort("caller_number")}>
                       Caller Number
-                      {sortField === "number" && (
+                      {sortField === "caller_number" && (
                         <span className="ml-1 inline-block">
                           {sortDirection === "asc" ? <ArrowUp className="h-3 w-3 inline" /> : <ArrowDown className="h-3 w-3 inline" />}
                         </span>
                       )}
                     </TableHead>
-                    <TableHead className="cursor-pointer" onClick={() => handleSort("datetime")}>
+                    <TableHead className="cursor-pointer" onClick={() => handleSort("call_datetime")}>
                       Date & Time
-                      {sortField === "datetime" && (
+                      {sortField === "call_datetime" && (
                         <span className="ml-1 inline-block">
                           {sortDirection === "asc" ? <ArrowUp className="h-3 w-3 inline" /> : <ArrowDown className="h-3 w-3 inline" />}
                         </span>
                       )}
                     </TableHead>
-                    <TableHead className="cursor-pointer" onClick={() => handleSort("duration")}>
-                      Duration
-                      {sortField === "duration" && (
-                        <span className="ml-1 inline-block">
-                          {sortDirection === "asc" ? <ArrowUp className="h-3 w-3 inline" /> : <ArrowDown className="h-3 w-3 inline" />}
-                        </span>
-                      )}
-                    </TableHead>
-                    <TableHead className="min-w-[200px]">Issue Summary</TableHead>
+                    <TableHead className="min-w-[200px]">Notes / Summary</TableHead>
                     <TableHead className="cursor-pointer" onClick={() => handleSort("status")}>
                       Status
                       {sortField === "status" && (
@@ -338,64 +331,78 @@ const CallHistory = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredAndSortedCallLogs.map((call) => (
-                    <TableRow key={call.id} className="hover:bg-gray-50">
-                      <TableCell>
-                        {call.caller_number}
-                      </TableCell>
-                      <TableCell>{formatDate(call.call_datetime)}</TableCell>
-                      <TableCell>{call.duration}</TableCell>
-                      <TableCell className="max-w-xs truncate">
-                        {call.issue_summary || "No summary available"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          className={
-                            call.status === "Resolved" 
-                              ? "bg-green-100 text-green-800 hover:bg-green-200" 
-                              : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
-                          }
-                        >
-                          {call.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end space-x-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => openNotesDialog(call)}
-                          >
-                            <FileEdit className="h-4 w-4 mr-1" />
-                            Notes
-                          </Button>
-                          
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm">Status</Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-white">
-                              <DropdownMenuItem onClick={() => updateCallStatus(call.id, "Resolved")}>
-                                <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
-                                Mark as Resolved
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => updateCallStatus(call.id, "Unresolved")}>
-                                <AlertCircle className="h-4 w-4 mr-2 text-yellow-600" />
-                                Mark as Unresolved
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  
-                  {filteredAndSortedCallLogs.length === 0 && (
+                  {loading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="h-24 text-center">
-                        No {statusFilter === "all" ? "" : statusFilter.toLowerCase()} calls found
+                      <TableCell colSpan={5} className="h-24 text-center">Loading calls...</TableCell>
+                    </TableRow>
+                  ) : callLogs.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center">
+                        No {statusFilter === "all" ? "" : statusFilter.toLowerCase()} calls found.
                       </TableCell>
                     </TableRow>
+                  ) : (
+                    callLogs.map((call) => (
+                      <TableRow key={call.id} className="hover:bg-gray-50">
+                        <TableCell>{call.caller_number || 'Unknown'}</TableCell>
+                        <TableCell>{formatDate(call.call_datetime)}</TableCell>
+                        <TableCell className="max-w-xs truncate">
+                          {call.notes || "No notes available"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant={call.status === "Resolved" ? "default" : call.status === "Unresolved" ? "destructive" : "secondary"}
+                            className={call.status === "Resolved" ? "bg-green-100 text-green-800 border-green-200" 
+                                     : call.status === "Unresolved" ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                                     : "bg-blue-100 text-blue-800 border-blue-200"}
+                          >
+                            {call.status === 'Unresolved' ? 'Pending' : call.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end space-x-1">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 px-2"
+                              onClick={() => openNotesDialog(call)}
+                            >
+                              <FileEdit className="h-4 w-4" />
+                              <span className="sr-only">Edit Notes</span>
+                            </Button>
+                            
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 px-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                              onClick={() => flagTechnicalIssue(call)}
+                              disabled={!selectedAgent}
+                              title={selectedAgent ? "Flag for Technical Review" : "Select an agent first"}
+                            >
+                              <AlertTriangle className="h-4 w-4" />
+                              <span className="sr-only">Flag Technical Issue</span>
+                            </Button>
+                            
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 px-2">Status</Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-white">
+                                <DropdownMenuItem onClick={() => updateCallStatus(call.id, "Resolved")}>
+                                  <CheckCircle className="h-4 w-4 mr-2 text-green-600" /> Mark Resolved
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => updateCallStatus(call.id, "Unresolved")}>
+                                  <Clock className="h-4 w-4 mr-2 text-yellow-600" /> Mark Pending
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => updateCallStatus(call.id, "Needs Review")}>
+                                  <AlertCircle className="h-4 w-4 mr-2 text-blue-600" /> Mark Needs Review
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
                   )}
                 </TableBody>
               </Table>
@@ -404,7 +411,6 @@ const CallHistory = () => {
         </main>
       </div>
 
-      {/* Notes Dialog */}
       <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
