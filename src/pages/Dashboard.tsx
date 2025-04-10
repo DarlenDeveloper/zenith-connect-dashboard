@@ -130,11 +130,13 @@ const Dashboard = () => {
     } catch (e) { return 'Invalid Date'; }
   };
 
+  const firstName = user?.name?.split(' ')[0] || 'User';
+
   return (
     <DashboardLayout>
       <div className="w-full h-full p-0 m-0 overflow-y-auto">
         <div className="mb-4 lg:mb-4 px-4 lg:px-4 pt-4 lg:pt-4">
-          <h1 className="text-2xl font-semibold text-gray-900">Hello, {user?.email?.split('@')[0] || 'User'}!</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Hello, {firstName}!</h1>
           <p className="text-sm text-gray-600">Welcome back, here's your dashboard overview.</p>
         </div>
 

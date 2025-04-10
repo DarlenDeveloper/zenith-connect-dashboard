@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
+import { logAction } from "@/lib/logging";
+import { useAgent } from "@/contexts/AgentContext";
 
 interface TechnicalIssue {
   id: string;
@@ -26,6 +28,7 @@ const Technical = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { selectedAgent } = useAgent();
   const [flaggedIssues, setFlaggedIssues] = useState<TechnicalIssue[]>([]);
   const [loading, setLoading] = useState(true);
   const [highlightedIssueId, setHighlightedIssueId] = useState<string | null>(null);
@@ -100,6 +103,17 @@ const Technical = () => {
       if (error) throw error;
       toast.success("Issue marked as resolved");
       if (issueId === highlightedIssueId) setHighlightedIssueId(null);
+      
+      if (user) {
+        await logAction({
+          userId: user.id,
+          agentId: selectedAgent?.id || null,
+          actionType: 'RESOLVE_TECHNICAL_ISSUE',
+          targetTable: 'technical_issues',
+          targetId: issueId,
+          details: { resolution: "Issue marked as resolved by user." }
+        });
+      }
     } catch (error: any) {
       console.error("Error resolving issue:", error);
       toast.error(`Failed to resolve issue: ${error.message}`);
@@ -116,6 +130,17 @@ const Technical = () => {
       if (error) throw error;
       toast.success("Issue removed successfully");
       if (issueId === highlightedIssueId) setHighlightedIssueId(null);
+      
+      if (user) {
+        await logAction({
+          userId: user.id,
+          agentId: selectedAgent?.id || null,
+          actionType: 'DELETE_TECHNICAL_ISSUE',
+          targetTable: 'technical_issues',
+          targetId: issueId,
+          details: { issueId: issueId }
+        });
+      }
     } catch (error: any) {
       console.error("Error deleting issue:", error);
       toast.error(`Failed to delete issue: ${error.message}`);

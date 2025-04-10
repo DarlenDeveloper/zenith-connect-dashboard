@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAgent } from "@/contexts/AgentContext";
+import { logAction } from "@/lib/logging";
 
 interface CallLog {
   id: string;
@@ -140,6 +141,17 @@ const CallHistory = () => {
         
       if (error) throw error;
       toast.success(`Call status updated to ${newStatus}`);
+      
+      if (user) {
+        await logAction({
+          userId: user.id,
+          agentId: selectedAgent?.id || null,
+          actionType: 'UPDATE_CALL_STATUS',
+          targetTable: 'calls',
+          targetId: id,
+          details: { newStatus: newStatus }
+        });
+      }
     } catch (error: any) {
       console.error("Error updating call status:", error);
       toast.error(`Failed to update status: ${error.message}`);
@@ -155,6 +167,9 @@ const CallHistory = () => {
   const saveNotes = async () => {
     if (!selectedCall) return;
     
+    const originalNotes = selectedCall.notes || "";
+    const trimmedNewNotes = editNotes.trim();
+
     try {
       const { error } = await supabase
         .from('calls')
@@ -162,8 +177,23 @@ const CallHistory = () => {
         .eq('id', selectedCall.id);
         
       if (error) throw error;
+      
       setIsNoteDialogOpen(false);
       toast.success("Notes saved successfully");
+
+      if (user && trimmedNewNotes !== (originalNotes || "").trim()) {
+        await logAction({
+          userId: user.id,
+          agentId: selectedAgent?.id || null,
+          actionType: 'SAVE_CALL_NOTES',
+          targetTable: 'calls',
+          targetId: selectedCall.id,
+          details: { 
+            previousNotesLength: originalNotes.length, 
+            newNotesLength: editNotes.length 
+          } 
+        });
+      }
     } catch (error: any) {
       console.error("Error saving notes:", error);
       toast.error(`Failed to save notes: ${error.message}`);
@@ -180,6 +210,8 @@ const CallHistory = () => {
       return;
     }
     
+    let newIssueId: string | undefined = undefined;
+    
     try {
       const { data, error } = await supabase
         .from('technical_issues')
@@ -193,12 +225,23 @@ const CallHistory = () => {
           reported_by: user.id,
           acting_agent_id: selectedAgent.id
         })
-        .select();
+        .select('id')
+        .single();
         
       if (error) throw error;
       
-      const newIssueId = data?.[0]?.id;
+      newIssueId = data?.id;
       toast.success(`Flagged call for technical review (Agent: ${selectedAgent.name}).`);
+      
+      await logAction({
+        userId: user.id,
+        agentId: selectedAgent.id,
+        actionType: 'FLAG_TECHNICAL_ISSUE',
+        targetTable: 'technical_issues',
+        targetId: newIssueId,
+        details: { flaggedCallId: call.id } 
+      });
+
       navigate(`/technical?techIssueId=${newIssueId || call.id}`);
 
     } catch (error: any) {

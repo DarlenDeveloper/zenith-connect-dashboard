@@ -51,11 +51,11 @@ serve(async (req) => {
     switch (event) {
       case "charge.completed": {
         if (data.status === "successful") {
-          const { customer, meta, tx_ref, amount, currency } = data;
+          const { customer, meta, tx_ref, amount, currency, id: flutterwave_tx_id } = data;
           const { user_id, plan } = meta || {};
           
-          if (!user_id) {
-            console.error("No user_id found in meta data");
+          if (!user_id || !plan) {
+            console.error("No user_id or plan found in meta data");
             return new Response(
               JSON.stringify({ status: "failed", message: "Invalid metadata" }),
               {
@@ -65,42 +65,72 @@ serve(async (req) => {
             );
           }
 
-          // Calculate end date based on the plan (1 month default)
-          const startDate = new Date();
-          const endDate = new Date();
-          endDate.setMonth(endDate.getMonth() + 1);
+          // --- Calculate subscription period: Exactly 30 days --- 
+          // Use Flutterwave's created_at if available and reliable, otherwise use current time
+          const startDate = data.created_at ? new Date(data.created_at) : new Date(); 
+          const endDate = new Date(startDate); // Create a copy
+          endDate.setDate(startDate.getDate() + 30); // Add exactly 30 days
 
-          console.log(`Setting subscription for user ${user_id} valid until ${endDate.toISOString()}`);
-          console.log(`Payment of ${amount} ${currency} received for plan ${plan}`);
-
-          // Update subscription status in database
-          const { error: subscriptionError } = await supabase
-            .from('user_subscriptions')
+          console.log(`Processing successful payment for user ${user_id}, plan: ${plan}. Subscription active from ${startDate.toISOString()} to ${endDate.toISOString()}`);
+          
+          // --- Run DB operations concurrently --- 
+          const upsertSubscriptionPromise = supabase
+            .from('subscriptions')
             .upsert({
               user_id: user_id,
               plan_id: plan,
               status: 'active',
-              current_period_start: startDate.toISOString(),
-              current_period_end: endDate.toISOString(),
-            }, {
-              onConflict: 'user_id'
+              current_period_start: startDate.toISOString(), // Use calculated start date
+              current_period_end: endDate.toISOString(), // Use calculated 30-day end date
+              cancel_at_period_end: false,
+              metadata: { 
+                flutterwave_tx_ref: tx_ref, 
+                flutterwave_tx_id: flutterwave_tx_id 
+              } 
+            }, { onConflict: 'user_id' });
+
+          const insertPaymentPromise = supabase
+            .from('payments')
+            .insert({
+              user_id: user_id,
+              flutterwave_tx_id: flutterwave_tx_id,
+              flutterwave_tx_ref: tx_ref,
+              status: data.status,
+              amount: amount,
+              currency: currency,
+              payment_method: data.payment_type,
+              processor_response: data
             });
-
-          if (subscriptionError) {
-            console.error("Error updating subscription:", subscriptionError);
-          }
-
-          // Update user profile has_subscription status
-          const { error: profileError } = await supabase
+          
+          // Optional profile update
+          const updateProfilePromise = supabase
             .from('profiles')
             .update({ has_subscription: true })
             .eq('id', user_id);
 
-          if (profileError) {
-            console.error("Error updating profile:", profileError);
-          }
+          // Wait for all promises to settle
+          const results = await Promise.allSettled([
+              upsertSubscriptionPromise,
+              insertPaymentPromise,
+              updateProfilePromise
+          ]);
 
-          console.log(`Payment successful for user ${user_id}, plan: ${plan}, valid until: ${endDate.toISOString()}`);
+          // Check results and log errors
+          results.forEach((result, index) => {
+            if (result.status === 'rejected') {
+              const error = result.reason;
+              if (index === 0) console.error("Error upserting subscription:", error);
+              if (index === 1) console.error("Error inserting payment record:", error);
+              if (index === 2) console.error("Error updating profile:", error);
+              // Decide if any error here should cause the webhook to return a failure status
+            } else {
+              if (index === 0) console.log(`Subscription upserted successfully for user ${user_id}`);
+              if (index === 1) console.log(`Payment record inserted successfully for user ${user_id}`);
+              if (index === 2) console.log(`Profile updated successfully for user ${user_id}`);
+            }
+          });
+          
+          console.log(`Webhook processing complete for charge.completed, user: ${user_id}`);
         }
         break;
       }

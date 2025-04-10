@@ -1,4 +1,4 @@
-
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,24 +8,80 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
 import PhoneInput from "@/components/PhoneInput";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { logAction } from "@/lib/logging";
+import { useAgent } from "@/contexts/AgentContext";
 
 const Settings = () => {
   const { user } = useAuth();
+  const { selectedAgent } = useAgent();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
-  // Profile form state
   const [profile, setProfile] = useState({
-    name: user?.name || "",
+    name: "",
     email: user?.email || "",
-    phoneNumber: "+1234567890",
-    organizationName: user?.organizationName || "",
+    phone_number: "",
+    organization_name: "",
   });
 
-  // Notification settings
+  useEffect(() => {
+    if (!user) {
+      setLoadingProfile(false);
+      return;
+    }
+    
+    setLoadingProfile(true);
+    const fetchProfileData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('name, organization_name, phone_number')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          if (error.code !== 'PGRST116') {
+             throw error;
+          }
+          console.warn("Profile not found for user, using defaults.");
+          setProfile({
+            name: user.name || user.email?.split('@')[0] || "",
+            email: user.email || "",
+            phone_number: "",
+            organization_name: user.organizationName || ""
+          });
+        } else if (data) {
+          setProfile({
+            name: data.name || "",
+            email: user.email || "",
+            phone_number: data.phone_number || "",
+            organization_name: data.organization_name || "",
+          });
+        }
+      } catch (err: any) {
+        toast({
+          variant: "destructive",
+          title: "Error loading profile",
+          description: err.message || "Could not fetch profile data.",
+        });
+        setProfile({
+            name: user.name || user.email?.split('@')[0] || "",
+            email: user.email || "",
+            phone_number: "",
+            organization_name: user.organizationName || ""
+        });
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
+    fetchProfileData();
+  }, [user, toast]);
+
   const [notifications, setNotifications] = useState({
     emailDigest: true,
     conversationAlerts: true,
@@ -33,7 +89,6 @@ const Settings = () => {
     serviceUpdates: true,
   });
 
-  // Security settings
   const [securitySettings, setSecuritySettings] = useState({
     twoFactorAuth: false,
     sessionTimeout: "30",
@@ -42,11 +97,13 @@ const Settings = () => {
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    if (name === 'name' || name === 'organization_name' || name === 'email') {
+      setProfile(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handlePhoneChange = (value: string) => {
-    setProfile(prev => ({ ...prev, phoneNumber: value }));
+    setProfile(prev => ({ ...prev, phone_number: value }));
   };
 
   const handleNotificationChange = (setting: keyof typeof notifications) => {
@@ -65,17 +122,47 @@ const Settings = () => {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!user) return;
     setSaving(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      const updates = {
+        name: profile.name,
+        organization_name: profile.organization_name,
+        phone_number: profile.phone_number,
+      };
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id);
+
+      if (error) throw error;
+
       toast({
-        title: "Settings updated",
-        description: "Your settings have been saved successfully",
+        title: "Profile updated",
+        description: "Your profile information has been saved.",
       });
-    }, 1000);
+      
+      await logAction({
+        userId: user.id,
+        agentId: selectedAgent?.id || null,
+        actionType: 'UPDATE_PROFILE_SETTINGS',
+        targetTable: 'profiles',
+        targetId: user.id,
+        details: { updatedFields: Object.keys(updates) } 
+      });
+
+    } catch (error: any) {
+       toast({
+          variant: "destructive",
+          title: "Error saving settings",
+          description: error.message || "Could not update profile information.",
+        });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -92,7 +179,6 @@ const Settings = () => {
           <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>
 
-        {/* Profile Settings */}
         <TabsContent value="profile">
           <Card>
             <CardHeader>
@@ -102,72 +188,61 @@ const Settings = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={profile.name}
-                    onChange={handleProfileChange}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={profile.email}
-                    onChange={handleProfileChange}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="phoneNumber">Phone Number</Label>
-                  <PhoneInput
-                    value={profile.phoneNumber}
-                    onChange={handlePhoneChange}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="organizationName">Organization Name</Label>
-                  <Input
-                    id="organizationName"
-                    name="organizationName"
-                    value={profile.organizationName}
-                    onChange={handleProfileChange}
-                  />
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div className="space-y-2">
-                <Label htmlFor="avatar">Profile Picture</Label>
-                <div className="flex items-center space-x-4">
-                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary text-lg font-medium">
-                      {profile.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()}
-                    </span>
+              {loadingProfile ? (
+                <p>Loading profile...</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      value={profile.name}
+                      onChange={handleProfileChange}
+                    />
                   </div>
-                  <Button variant="outline">Upload</Button>
-                  <Button variant="ghost" className="text-muted-foreground">Remove</Button>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={profile.email}
+                      readOnly
+                      className="bg-gray-100 cursor-not-allowed"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <PhoneInput
+                      value={profile.phone_number}
+                      onChange={handlePhoneChange}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="organizationName">Organization Name</Label>
+                    <Input
+                      id="organizationName"
+                      name="organization_name"
+                      value={profile.organization_name}
+                      onChange={handleProfileChange}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
             <CardFooter className="flex justify-end space-x-4">
               <Button variant="outline">Cancel</Button>
-              <Button onClick={handleSave} disabled={saving}>
+              <Button onClick={handleSave} disabled={saving || loadingProfile}>
                 {saving ? "Saving..." : "Save changes"}
               </Button>
             </CardFooter>
           </Card>
         </TabsContent>
 
-        {/* Notification Settings */}
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
@@ -243,14 +318,13 @@ const Settings = () => {
             </CardContent>
             <CardFooter className="flex justify-end space-x-4">
               <Button variant="outline">Cancel</Button>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? "Saving..." : "Save changes"}
+              <Button onClick={() => toast({ title: "Note", description: "Saving Notification settings not yet implemented." })}>
+                Save changes
               </Button>
             </CardFooter>
           </Card>
         </TabsContent>
 
-        {/* Security Settings */}
         <TabsContent value="security">
           <Card>
             <CardHeader>
@@ -337,8 +411,8 @@ const Settings = () => {
             </CardContent>
             <CardFooter className="flex justify-end space-x-4">
               <Button variant="outline">Cancel</Button>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? "Saving..." : "Save changes"}
+               <Button onClick={() => toast({ title: "Note", description: "Saving Security settings not yet implemented." })}>
+                Save changes
               </Button>
             </CardFooter>
           </Card>

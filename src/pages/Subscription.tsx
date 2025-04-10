@@ -7,63 +7,52 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
+// Interface matching the new subscriptions table
+interface Subscription {
+  id: string;
+  user_id: string;
+  plan_id: string;
+  status: string;
+  current_period_start: string;
+  current_period_end: string;
+  cancel_at_period_end: boolean;
+  canceled_at: string | null;
+  metadata: Record<string, any> | null;
+  created_at: string;
+  updated_at: string;
+}
+
 const SubscriptionPage = () => {
   const { user } = useAuth();
-  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
-  const [nextBillingDate, setNextBillingDate] = useState<string>("");
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     const fetchSubscriptionDetails = async () => {
-      if (!user) return;
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
       
+      setIsLoading(true);
       try {
-        // Check if subscription is active
-        const { data: isActive, error: functionError } = await supabase.rpc(
-          'is_subscription_active',
-          { user_uuid: user.id }
-        );
-        
-        if (functionError) {
-          console.error('Error checking subscription status:', functionError);
-          setIsLoading(false);
-          return;
-        }
-        
-        if (isActive) {
-          // Fetch subscription details
-          const { data, error } = await supabase
-            .from('user_subscriptions')
-            .select('*')
-            .eq('user_id', user.id)
-            .single();
+        // Fetch subscription details directly from the new 'subscriptions' table
+        const { data, error } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          // Optionally filter by active status if needed, e.g.: .in('status', ['active', 'past_due'])
+          .maybeSingle(); // Use maybeSingle since user_id is unique
             
-          if (error) {
-            console.error('Error fetching subscription details:', error);
-          } else if (data) {
-            // Determine plan based on stored plan_id
-            if (data.plan_id === 'starter') {
-              setCurrentPlan('starter');
-            } else if (data.plan_id === 'pro') {
-              setCurrentPlan('pro');
-            } else if (data.plan_id === 'enterprise') {
-              setCurrentPlan('enterprise');
-            } else {
-              // Optionally handle unknown plan_id or default
-              setCurrentPlan(null); // Or a default plan like 'pro'
-            }
-            
-            // Format the next billing date
-            if (data.current_period_end) {
-              const endDate = new Date(data.current_period_end);
-              setNextBillingDate(format(endDate, 'MMMM d, yyyy'));
-            }
-          }
+        if (error) {
+          console.error('Error fetching subscription details:', error);
+          setSubscription(null);
         } else {
-          setCurrentPlan(null);
+          setSubscription(data);
         }
       } catch (err) {
-        console.error('Error:', err);
+        console.error('Error fetching subscription:', err);
+        setSubscription(null);
       } finally {
         setIsLoading(false);
       }
@@ -71,6 +60,18 @@ const SubscriptionPage = () => {
     
     fetchSubscriptionDetails();
   }, [user]);
+
+  // Determine current plan name and next billing date from the fetched subscription state
+  const currentPlanId = subscription?.status === 'active' || subscription?.status === 'past_due' ? subscription.plan_id : null;
+  const currentPlanName = 
+      currentPlanId === 'starter' ? 'Starter Plan' : 
+      currentPlanId === 'pro' ? 'Popular Plan' : 
+      currentPlanId === 'enterprise' ? 'Enterprise Plan' : 
+      null;
+
+  const nextBillingDate = subscription?.current_period_end 
+    ? format(new Date(subscription.current_period_end), 'MMMM d, yyyy') 
+    : null;
 
   if (isLoading) {
     return (
@@ -93,30 +94,31 @@ const SubscriptionPage = () => {
         {/* Main content */}
         <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
           <div className="max-w-4xl mx-auto">
-            {currentPlan ? (
+            {currentPlanName ? (
               <>
                 {/* Current Plan Section */}
                 <CurrentSubscriptionInfo 
-                  plan={
-                    currentPlan === 'starter' ? 'Starter Plan' : 
-                    currentPlan === 'pro' ? 'Popular Plan' : 
-                    'Enterprise Plan'
-                  }
+                  plan={currentPlanName}
                   price={
-                    currentPlan === 'starter' ? '300,000 UGX/month, billed monthly' : 
-                    currentPlan === 'pro' ? '800,000 UGX/month, billed monthly' : 
+                    currentPlanId === 'starter' ? '300,000 UGX/month, billed monthly' : 
+                    currentPlanId === 'pro' ? '800,000 UGX/month, billed monthly' : 
                     'Custom pricing, billed monthly'
                   }
                   nextBillingDate={nextBillingDate || 'Not available'}
                 />
                 
-                {/* Payment Method Section */}
+                {/* Payment Method Section (Needs data source if implemented) */}
                 <PaymentMethodInfo />
               </>
-            ) : null}
+            ) : (
+              // Optional: Show message if no active subscription
+              <div className="bg-white rounded-lg border p-6 mb-6 text-center">
+                <p className="text-gray-600">You do not have an active subscription.</p>
+              </div>
+            )}
             
             {/* Available Plans Section */}
-            <PlansSection currentPlan={currentPlan || undefined} />
+            <PlansSection currentPlan={currentPlanId || undefined} />
           </div>
         </main>
       </div>

@@ -9,9 +9,9 @@ import { Badge } from "@/components/ui/badge";
 
 // Define plan prices
 const PLANS = {
-  starter: { price: 300000 }, // 300k UGX
-  pro: { price: 800000 },     // 800k UGX
-  enterprise: { price: 1500000 } // 1.5M UGX
+  starter: { price: 45000 }, // Updated to 45k UGX
+  pro: { price: 800000 },
+  enterprise: { price: 1500000 } // Price ignored as it redirects to sales
 };
 
 interface PlansSectionProps {
@@ -24,7 +24,6 @@ const PlansSection = ({ currentPlan = "" }: PlansSectionProps) => {
   const navigate = useNavigate();
 
   const handleSubscription = async (plan: 'starter' | 'pro' | 'enterprise') => {
-    // For enterprise plan, redirect to contact form instead of payment
     if (plan === 'enterprise') {
       navigate('/contact-sales');
       return;
@@ -34,7 +33,6 @@ const PlansSection = ({ currentPlan = "" }: PlansSectionProps) => {
       setIsLoading({ ...isLoading, [plan]: true });
       setCheckoutError(null);
       
-      // Redirect to Flutterwave Payment
       const result = await redirectToFlutterwavePayment(plan, PLANS[plan].price);
       
       if (result?.error) {
@@ -68,7 +66,7 @@ const PlansSection = ({ currentPlan = "" }: PlansSectionProps) => {
         {/* Starter Plan */}
         <PlanCard
           title="Starter"
-          price={<>300,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
+          price={<>45,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
           features={[
             { text: "Up to 5 AI conversations" },
             { text: "Basic analytics" },

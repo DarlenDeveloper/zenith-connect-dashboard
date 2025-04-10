@@ -1,26 +1,29 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client'; // Corrected import path
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { format } from 'date-fns'; // For date formatting
-import DashboardLayout from "@/components/DashboardLayout"; // Import the layout
+import { format } from 'date-fns';
+import DashboardLayout from "@/components/DashboardLayout";
 
-// Define the structure of an action log based on the SQL schema
+// Update ActionLog interface for joined agent data
 interface ActionLog {
   id: number;
   user_id: string;
   acting_agent_id: string | null;
   action_type: string;
   target_table: string | null;
-  target_id: string | null; // Changed to string to match UUID retrieval
-  details: Record<string, any> | null; // Assuming JSONB maps to an object
-  created_at: string; // Comes as ISO string
+  target_id: string | null;
+  details: Record<string, any> | null;
+  created_at: string;
+  agents: { // Added from join
+    agent_ref_id: string;
+  } | null;
 }
 
-export default function ActivityPage() { // Renamed component to match filename convention
+export default function ActivityPage() {
   const [logs, setLogs] = useState<ActionLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,18 +33,23 @@ export default function ActivityPage() { // Renamed component to match filename 
       setLoading(true);
       setError(null);
 
+      // Modify query to join with agents table and select agent_ref_id
       const { data, error } = await supabase
         .from('action_logs')
-        .select('*') // Select all columns for now
-        .order('created_at', { ascending: false }) // Show newest logs first
-        .limit(100); // Limit results for performance
+        .select(`
+          *,
+          agents ( agent_ref_id )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(100);
 
       if (error) {
         console.error('Error fetching action logs:', error);
         setError(`Failed to fetch logs: ${error.message}`);
         setLogs([]);
       } else {
-        setLogs(data || []);
+        // Cast data to the updated ActionLog interface
+        setLogs(data as ActionLog[] || []);
       }
       setLoading(false);
     };
@@ -51,7 +59,7 @@ export default function ActivityPage() { // Renamed component to match filename 
 
   const formatTimestamp = (timestamp: string) => {
     try {
-      return format(new Date(timestamp), 'PPpp'); // e.g., Aug 17, 2023, 5:09:11 PM
+      return format(new Date(timestamp), 'PPpp');
     } catch (e) {
       return 'Invalid Date';
     }
@@ -59,14 +67,30 @@ export default function ActivityPage() { // Renamed component to match filename 
 
   const renderDetails = (details: Record<string, any> | null) => {
     if (!details) return '-';
-    // Basic rendering, could be more sophisticated
     return <pre className="text-xs whitespace-pre-wrap">{JSON.stringify(details, null, 2)}</pre>;
   }
 
+  // Helper function to determine badge variant based on action type
+  const getActionTypeBadgeVariant = (actionType: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+    switch (actionType) {
+      case 'DELETE_TECHNICAL_ISSUE':
+        return 'destructive';
+      case 'RESOLVE_TECHNICAL_ISSUE':
+        return 'default'; // Often themed green/blue
+      case 'FLAG_TECHNICAL_ISSUE':
+        return 'outline'; // Neutral, could customize color further if needed
+      case 'SAVE_CALL_NOTES':
+      case 'UPDATE_CALL_STATUS':
+        return 'secondary'; // Gray background
+      // Add more cases for other action types as needed
+      default:
+        return 'outline'; // Default for unknown types
+    }
+  };
+
   return (
-    // Wrap the content with DashboardLayout
     <DashboardLayout>
-      <div className="container mx-auto py-10 px-6"> {/* Added horizontal padding */}
+      <div className="container mx-auto py-10 px-6">
         <Card>
           <CardHeader>
             <CardTitle>Activity Log</CardTitle>
@@ -80,7 +104,7 @@ export default function ActivityPage() { // Renamed component to match filename 
                   <TableRow>
                     <TableHead>Timestamp</TableHead>
                     <TableHead>Action Type</TableHead>
-                    <TableHead>Agent ID</TableHead>
+                    <TableHead>Agent Ref ID</TableHead>
                     <TableHead>Target</TableHead>
                     <TableHead>Details</TableHead>
                   </TableRow>
@@ -95,11 +119,14 @@ export default function ActivityPage() { // Renamed component to match filename 
                       <TableRow key={log.id}>
                         <TableCell className="whitespace-nowrap">{formatTimestamp(log.created_at)}</TableCell>
                         <TableCell>
-                          <Badge variant="outline">{log.action_type}</Badge>
+                          {/* Use helper function to set variant */}
+                          <Badge variant={getActionTypeBadgeVariant(log.action_type)}>
+                            {log.action_type}
+                          </Badge>
                         </TableCell>
-                        <TableCell className="font-mono text-xs">{log.acting_agent_id || '-'}</TableCell>
+                        <TableCell className="font-mono text-xs">{log.agents?.agent_ref_id || '-'}</TableCell>
                         <TableCell className="font-mono text-xs">
-                          {log.target_table ? `${log.target_table} (${log.target_id || 'N/A'})` : '-'}
+                          {log.target_table || '-'}
                         </TableCell>
                         <TableCell>{renderDetails(log.details)}</TableCell>
                       </TableRow>
