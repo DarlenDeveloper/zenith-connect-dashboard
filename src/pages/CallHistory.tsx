@@ -213,7 +213,7 @@ const CallHistory = () => {
     let newIssueId: string | undefined = undefined;
     
     try {
-      const { data, error } = await supabase
+      const { data: issueData, error: issueError } = await supabase
         .from('technical_issues')
         .insert({
           user_id: user.id,
@@ -228,9 +228,9 @@ const CallHistory = () => {
         .select('id')
         .single();
         
-      if (error) throw error;
+      if (issueError) throw issueError;
       
-      newIssueId = data?.id;
+      newIssueId = issueData?.id;
       toast.success(`Flagged call for technical review (Agent: ${selectedAgent.name}).`);
       
       await logAction({
@@ -241,6 +241,23 @@ const CallHistory = () => {
         targetId: newIssueId,
         details: { flaggedCallId: call.id } 
       });
+
+      if (newIssueId) {
+        const { error: notificationError } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: user.id,
+            type: 'tech_issue_flagged',
+            title: 'New Technical Issue Flagged',
+            message: `Issue flagged for call from ${call.caller_number || 'Unknown'} by Agent ${selectedAgent.name}`,
+            target_table: 'technical_issues',
+            target_id: newIssueId
+          });
+        
+        if (notificationError) {
+          console.error("Error creating notification for flagged issue:", notificationError);
+        }
+      }
 
       navigate(`/technical?techIssueId=${newIssueId || call.id}`);
 

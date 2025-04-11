@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, MessageSquare, CreditCard, 
@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import NotificationsDropdown from "@/components/NotificationsDropdown";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -46,6 +48,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const isMobile = useIsMobile();
   const [profileName, setProfileName] = useState<string | null>(null);
   const [profileEmail, setProfileEmail] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -75,6 +79,43 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     fetchProfile();
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUnreadCount = async () => {
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+
+      if (error) {
+        console.error("Error fetching unread notification count:", error);
+        setUnreadCount(0);
+      } else {
+        setUnreadCount(count ?? 0);
+      }
+    };
+
+    fetchUnreadCount();
+
+    const notificationChannel = supabase
+      .channel('public:notifications')
+      .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` }, 
+          (payload) => {
+            console.log('Notification change detected, re-checking unread count...', payload);
+            fetchUnreadCount(); 
+          }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(notificationChannel);
+    };
+
+  }, [user]);
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -92,6 +133,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Subscription", path: "/subscription", icon: <CreditCard size={18} />, active: location.pathname === "/subscription" },
     { name: "Settings", path: "/settings", icon: <Settings size={18} />, active: location.pathname === "/settings" },
   ];
+
+  const formatCount = (count: number): string => {
+    if (count === 0) return "";
+    if (count > 99) return "99+";
+    return count.toString();
+  };
 
   return (
     <SidebarProvider>
@@ -156,7 +203,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </Sidebar>
 
         <div className="flex-1 flex flex-col overflow-y-auto w-full bg-gray-50 p-0 m-0">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-white px-4 lg:px-6 shadow-sm">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-white px-4 lg:px-6 shadow-sm mt-2">
             {isMobile && <SidebarTrigger className="text-muted-foreground" />}
             <div className="ml-auto flex items-center gap-3">
               <Select 
@@ -178,9 +225,29 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   )}
                 </SelectContent>
               </Select>
-              <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground">
-                <Bell className="h-5 w-5" />
-              </Button>
+              <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="rounded-full text-muted-foreground hover:text-foreground relative"
+                  >
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                        {formatCount(unreadCount)}
+                      </span>
+                    )}
+                    <span className="sr-only">Notifications</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0" align="end">
+                  <NotificationsDropdown 
+                    onClose={() => setIsNotificationOpen(false)} 
+                    onReadAll={() => setUnreadCount(0)}
+                  /> 
+                </PopoverContent>
+              </Popover>
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-black-bean-600 text-white">
                   {profileName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
