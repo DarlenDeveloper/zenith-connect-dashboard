@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 // Function to redirect to Flutterwave payment
@@ -21,7 +20,7 @@ export const redirectToFlutterwavePayment = async (plan: string, amount: number)
         plan,
         amount,
         currency: "UGX", // Changed from USD to UGX
-        successUrl: `${origin}/dashboard?subscription=success`,
+        successUrl: `${origin}/subscription?payment=success`,
         cancelUrl: `${origin}/subscription`,
         userId: user.id,
         userEmail: user.email

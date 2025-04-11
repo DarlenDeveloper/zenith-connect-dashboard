@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import CurrentSubscriptionInfo from "@/components/subscription/CurrentSubscriptionInfo";
 import PaymentMethodInfo from "@/components/subscription/PaymentMethodInfo";
@@ -6,6 +7,7 @@ import PlansSection from "@/components/subscription/PlansSection";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 // Interface matching the new subscriptions table
 interface Subscription {
@@ -26,6 +28,16 @@ const SubscriptionPage = () => {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+    if (paymentStatus === 'success') {
+      toast.success("Payment successful! Your subscription is active.");
+      searchParams.delete('payment');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   
   useEffect(() => {
     const fetchSubscriptionDetails = async () => {
