@@ -1,48 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg
-  width="200"
-  height="200"
-  viewBox="0 0 200 200"
-  xmlns="http://www.w3.org/2000/svg"
->
-
-  <!-- Rounded green background -->
-  <rect
-    x="0"
-    y="0"
-    width="200"
-    height="200"
-    rx="20"
-    ry="20"
-    fill="#2ecc71"
-  />
-
-  <!-- Define the wedge shape (one segment of the shutter) -->
-  <defs>
-    <!--
-      Explanation of the wedge path:
-        - M100,100  : Move to the center of the circle
-        - L180,65   : Draw a line to an outer point (roughly top-right)
-        - A80 80 0 0 1 180,135 : Arc around an 80px radius back toward the bottom-right
-        - Z         : Close the shape back to the center
-    -->
-    <path
-      id="apertureWedge"
-      d="M100,100
-         L180,65
-         A80 80 0 0 1 180,135
-         Z"
-    />
-  </defs>
-
-  <!-- Repeat the wedge 6 times, each rotated by 60°, to form the Aperture shape. -->
-  <!-- Fill each wedge in white. -->
-  <g fill="#ffffff">
-    <use href="#apertureWedge" transform="rotate(0,100,100)"   />
-    <use href="#apertureWedge" transform="rotate(60,100,100)"  />
-    <use href="#apertureWedge" transform="rotate(120,100,100)" />
-    <use href="#apertureWedge" transform="rotate(180,100,100)" />
-    <use href="#apertureWedge" transform="rotate(240,100,100)" />
-    <use href="#apertureWedge" transform="rotate(300,100,100)" />
-  </g>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="8" fill="#9efa06"/>
+  <path d="M8 10H24M8 22H24M19 10L13 22" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
