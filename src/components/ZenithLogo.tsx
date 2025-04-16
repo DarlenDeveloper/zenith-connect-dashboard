@@ -29,7 +29,7 @@ const ZenithLogo = ({ className }: ZenithLogoProps) => {
           </g>
         </g>
       </svg>
-      <span className="font-bold text-xl">Zenith</span>
+      <span className="font-bold text-xl">AIRIES AI</span>
     </div>
   );
 };
