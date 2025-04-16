@@ -12,6 +12,7 @@ export interface Agent {
   phone_number: string | null;
   is_active: boolean;
   created_at: string;
+  pin: string; // 4-digit PIN for agent authentication
 }
 
 // Interface for the context value
@@ -20,6 +21,8 @@ interface AgentContextType {
   selectedAgent: Agent | null;
   setSelectedAgentId: (agentId: string | null) => void;
   loadingAgents: boolean;
+  authenticateAgent: (agentId: string, password: string) => Promise<boolean>;
+  authenticatedAgentIds: string[];
 }
 
 // Create the context
@@ -31,10 +34,26 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgentId, setSelectedAgentIdState] = useState<string | null>(null);
   const [loadingAgents, setLoadingAgents] = useState(true);
+  // Track which agents are authenticated
+  const [authenticatedAgentIds, setAuthenticatedAgentIds] = useState<string[]>([]);
 
-  // Load initial selected agent from localStorage
+  // Load initial selected agent from sessionStorage if it exists in authenticated agents
   useEffect(() => {
-    const storedAgentId = localStorage.getItem('selectedAgentId');
+    // Check session storage for authenticated agents
+    const storedAuthenticatedAgents = sessionStorage.getItem('authenticatedAgentIds');
+    if (storedAuthenticatedAgents) {
+      try {
+        const parsedIds = JSON.parse(storedAuthenticatedAgents);
+        if (Array.isArray(parsedIds)) {
+          setAuthenticatedAgentIds(parsedIds);
+        }
+      } catch (e) {
+        // Invalid JSON, clear the item
+        sessionStorage.removeItem('authenticatedAgentIds');
+      }
+    }
+
+    const storedAgentId = sessionStorage.getItem('selectedAgentId');
     if (storedAgentId) {
       setSelectedAgentIdState(storedAgentId);
     }
@@ -45,7 +64,9 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     if (!user) {
       setAgents([]);
       setSelectedAgentIdState(null); // Clear selection on logout
-      localStorage.removeItem('selectedAgentId');
+      setAuthenticatedAgentIds([]); // Clear authenticated agents
+      sessionStorage.removeItem('selectedAgentId');
+      sessionStorage.removeItem('authenticatedAgentIds');
       setLoadingAgents(false);
       return;
     }
@@ -65,27 +86,25 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         const fetchedAgents = data || [];
         setAgents(fetchedAgents);
 
-        // Ensure the stored selected agent is valid and active, otherwise select the first one or none
-        const currentSelectedId = localStorage.getItem('selectedAgentId');
-        const isValidSelection = fetchedAgents.some(agent => agent.id === currentSelectedId);
+        // Ensure the stored selected agent is valid, active, and authenticated
+        const currentSelectedId = sessionStorage.getItem('selectedAgentId');
+        const isValidSelection = fetchedAgents.some(agent => 
+          agent.id === currentSelectedId && authenticatedAgentIds.includes(agent.id)
+        );
         
         if (isValidSelection) {
             setSelectedAgentIdState(currentSelectedId);
-        } else if (fetchedAgents.length > 0) {
-            // If invalid selection or no selection, default to the first active agent
-            setSelectedAgentIdState(fetchedAgents[0].id);
-            localStorage.setItem('selectedAgentId', fetchedAgents[0].id);
         } else {
-            // No active agents found
+            // If invalid selection, clear selection
             setSelectedAgentIdState(null);
-            localStorage.removeItem('selectedAgentId');
+            sessionStorage.removeItem('selectedAgentId');
         }
 
       } catch (error: any) {
         toast.error(`Failed to load agents: ${error.message}`);
         setAgents([]); // Clear agents on error
         setSelectedAgentIdState(null);
-        localStorage.removeItem('selectedAgentId');
+        sessionStorage.removeItem('selectedAgentId');
       } finally {
         setLoadingAgents(false);
       }
@@ -95,17 +114,53 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
 
     // Optional: Add real-time subscription for agents table if needed
 
-  }, [user]);
+  }, [user, authenticatedAgentIds]);
+
+  // Function to authenticate agent with password
+  const authenticateAgent = async (agentId: string, password: string): Promise<boolean> => {
+    // Find the agent
+    const agent = agents.find(a => a.id === agentId);
+    if (!agent) return false;
+
+    // Validate the entered PIN against the agent's PIN in the database
+    if (password === agent.pin) {
+      // Only authentication for this browser session - won't affect other computers
+      const newAuthenticatedAgents = [agentId];
+      setAuthenticatedAgentIds(newAuthenticatedAgents);
+      
+      // Store authenticated agents in sessionStorage (only affects current browser session)
+      sessionStorage.setItem('authenticatedAgentIds', JSON.stringify(newAuthenticatedAgents));
+      
+      // Automatically set this agent as the selected agent for this session
+      setSelectedAgentIdState(agentId);
+      sessionStorage.setItem('selectedAgentId', agentId);
+      
+      // Notify user about agent switch
+      toast.success(`Agent ${agent.name} is now active`);
+      
+      return true;
+    }
+    
+    return false;
+  };
 
   // Function to update selected agent ID and store it
   const setSelectedAgentId = useCallback((agentId: string | null) => {
+    // Only allow setting to an authenticated agent
+    if (agentId && !authenticatedAgentIds.includes(agentId)) {
+      // This shouldn't happen normally as the UI should prevent it,
+      // but adding as a safeguard
+      console.warn("Attempted to select an unauthenticated agent.");
+      return;
+    }
+    
     setSelectedAgentIdState(agentId);
     if (agentId) {
-      localStorage.setItem('selectedAgentId', agentId);
+      sessionStorage.setItem('selectedAgentId', agentId);
     } else {
-      localStorage.removeItem('selectedAgentId');
+      sessionStorage.removeItem('selectedAgentId');
     }
-  }, []);
+  }, [authenticatedAgentIds]);
 
   // Find the selected agent object based on the ID
   const selectedAgent = useMemo(() => {
@@ -117,8 +172,10 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     agents,
     selectedAgent,
     setSelectedAgentId,
-    loadingAgents
-  }), [agents, selectedAgent, setSelectedAgentId, loadingAgents]);
+    loadingAgents,
+    authenticateAgent,
+    authenticatedAgentIds
+  }), [agents, selectedAgent, setSelectedAgentId, loadingAgents, authenticateAgent, authenticatedAgentIds]);
 
   return (
     <AgentContext.Provider value={value}>

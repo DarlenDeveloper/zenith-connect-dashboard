@@ -28,6 +28,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
+import AgentPasswordDialog from "@/components/AgentPasswordDialog";
+import { toast } from "sonner";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -42,7 +44,7 @@ interface NavItem {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout } = useAuth();
-  const { agents, selectedAgent, setSelectedAgentId, loadingAgents } = useAgent();
+  const { agents, selectedAgent, setSelectedAgentId, loadingAgents, authenticateAgent, authenticatedAgentIds } = useAgent();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -50,6 +52,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [profileEmail, setProfileEmail] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  
+  // Agent authentication states
+  const [pendingAgentId, setPendingAgentId] = useState<string | null>(null);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -140,6 +146,36 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return count.toString();
   };
 
+  const handleAgentChange = (agentId: string | null) => {
+    if (!agentId) {
+      setSelectedAgentId(null);
+      return;
+    }
+    
+    // Check if agent is already authenticated
+    if (authenticatedAgentIds.includes(agentId)) {
+      setSelectedAgentId(agentId);
+      toast.success(`Agent ${agents.find(a => a.id === agentId)?.name} is now active`);
+    } else {
+      // Open password dialog for authentication
+      setPendingAgentId(agentId);
+      setIsPasswordDialogOpen(true);
+    }
+  };
+
+  const handleAgentPasswordVerification = (success: boolean) => {
+    if (success && pendingAgentId) {
+      setSelectedAgentId(pendingAgentId);
+      const agent = agents.find(a => a.id === pendingAgentId);
+      toast.success(`Agent ${agent?.name} authenticated successfully`);
+    }
+    
+    // Clear pending agent if verification failed
+    if (!success) {
+      setPendingAgentId(null);
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0">
@@ -208,16 +244,24 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="ml-auto flex items-center gap-3">
               <Select 
                 value={selectedAgent?.id || ""} 
-                onValueChange={(value) => setSelectedAgentId(value || null)}
+                onValueChange={handleAgentChange}
                 disabled={loadingAgents || agents.length === 0}
               >
                 <SelectTrigger className="w-[180px] h-9 text-sm">
-                  <div className="flex items-center gap-2"><UserCheck className="h-4 w-4 text-gray-500" /><SelectValue placeholder={loadingAgents ? "Loading agents..." : "Select Agent"} /></div>
+                  <div className="flex items-center gap-2">
+                    <UserCheck className="h-4 w-4 text-gray-500" />
+                    <SelectValue placeholder={loadingAgents ? "Loading agents..." : "Select Agent"} />
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
                   {agents.map((agent) => (
-                    <SelectItem key={agent.id} value={agent.id}>
+                    <SelectItem 
+                      key={agent.id} 
+                      value={agent.id}
+                      className={authenticatedAgentIds.includes(agent.id) ? "text-green-600 font-medium" : ""}
+                    >
                       {agent.name} ({agent.agent_ref_id})
+                      {authenticatedAgentIds.includes(agent.id) && " ✓"}
                     </SelectItem>
                   ))}
                   {agents.length === 0 && !loadingAgents && (
@@ -256,11 +300,23 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </div>
           </header>
           
-          <div className="flex-1 w-full p-0 m-0">
+          <div className="flex-1 flex flex-col w-full mx-auto" style={{ maxWidth: "1920px" }}>
             {children}
           </div>
+          
+          <footer className="fixed bottom-0 left-0 right-0 ml-[220px] p-4 text-center text-sm text-gray-500 bg-white border-t shadow-sm z-10">
+            Powered By Najod
+          </footer>
         </div>
       </div>
+      
+      {/* Agent Password Dialog */}
+      <AgentPasswordDialog
+        isOpen={isPasswordDialogOpen}
+        onClose={() => setIsPasswordDialogOpen(false)}
+        agent={agents.find(a => a.id === pendingAgentId) || null}
+        onVerify={handleAgentPasswordVerification}
+      />
     </SidebarProvider>
   );
 };

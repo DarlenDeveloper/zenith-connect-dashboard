@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import ZenithLogo from "@/components/ZenithLogo";
+import { Spinner } from "@/components/ui/spinner";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -72,7 +73,11 @@ const ForgotPassword = () => {
               
               <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
                 <Button type="submit" className="w-full bg-black-bean-600 hover:bg-black-bean-700 text-white" disabled={isLoading}>
-                  {isLoading ? "Sending..." : "Send reset instructions"}
+                  {isLoading ? (
+                    <span className="flex items-center justify-center">
+                      <Spinner size="sm" className="mr-2" /> Sending
+                    </span>
+                  ) : "Send reset instructions"}
                 </Button>
               </CardFooter>
             </form>

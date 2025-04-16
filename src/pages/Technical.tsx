@@ -176,13 +176,13 @@ const Technical = () => {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
+        <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6 lg:p-8">
           {loading ? (
             <div className="text-center p-8">
               <p>Loading technical issues...</p>
             </div>
           ) : flaggedIssues.length === 0 ? (
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center max-w-3xl mx-auto">
               <AlertTriangle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h2 className="text-xl font-medium text-gray-800 mb-2">No Technical Issues</h2>
               <p className="text-gray-600 mb-4">
@@ -194,7 +194,7 @@ const Technical = () => {
               </Button>
             </div>
           ) : (
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm max-w-6xl mx-auto">
               <div className="border-b border-gray-200 p-4 flex justify-between items-center">
                 <h2 className="font-medium">Flagged Technical Issues</h2>
                 <p className="text-sm text-gray-500">{flaggedIssues.length} issues found</p>
@@ -204,13 +204,13 @@ const Technical = () => {
                 {flaggedIssues.map((issue) => (
                   <div 
                     key={issue.id} 
-                    className={`p-4 hover:bg-gray-50 transition-colors ${
+                    className={`p-4 md:p-6 hover:bg-gray-50 transition-colors ${
                       highlightedIssueId === issue.id ? 'bg-yellow-50 border-l-4 border-yellow-500' : ''
                     }`}
                   >
-                    <div className="flex justify-between">
-                      <div>
-                        <h3 className="font-medium flex items-center flex-wrap gap-2">
+                    <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start">
+                      <div className="flex-1">
+                        <h3 className="font-medium flex flex-wrap items-center gap-2">
                           <span>{issue.title || `Issue ID: ${issue.id}`}</span>
                           <Badge 
                             variant={issue.status === "Resolved" ? "default" : issue.status === "Open" ? "destructive" : "secondary"}
@@ -226,18 +226,18 @@ const Technical = () => {
                             {issue.priority} Priority
                           </Badge>
                         </h3>
-                        <p className="text-sm text-gray-700 mt-1 mb-2">{issue.description || "No description provided."}</p>
+                        <p className="text-sm text-gray-700 mt-1 mb-2 max-w-4xl">{issue.description || "No description provided."}</p>
                         <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
                           <span>Call ID: {issue.call_id}</span>
                           <span>Reported: {formatDate(issue.created_at)}</span>
                         </div>
                         {issue.status === 'Resolved' && issue.resolution && (
-                          <p className="text-sm mt-2 bg-gray-100 p-2 rounded">
+                          <p className="text-sm mt-2 bg-gray-100 p-2 rounded max-w-4xl">
                             <span className="font-medium">Resolution:</span> {issue.resolution}
                           </p>
                         )}
                       </div>
-                      <div className="flex flex-col items-center space-y-1 ml-2 flex-shrink-0">
+                      <div className="flex flex-row lg:flex-col items-center space-y-0 space-x-2 lg:space-y-1 lg:space-x-0 mt-3 lg:mt-0 ml-0 lg:ml-2 flex-shrink-0">
                         <Button 
                           variant="ghost" 
                           size="sm" 

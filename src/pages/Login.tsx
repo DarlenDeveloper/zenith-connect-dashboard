@@ -9,6 +9,7 @@ import { Eye, EyeOff } from "lucide-react";
 import ZenithLogo from "@/components/ZenithLogo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -52,7 +53,7 @@ const Login = () => {
           <CardHeader className="pt-8">
             <CardTitle className="text-2xl font-bold text-center text-gray-900">Welcome Back</CardTitle>
             <CardDescription className="text-center text-gray-500">
-              Sign in to access your Zenith Portal
+              Sign in to access your AIRIES Portal
             </CardDescription>
           </CardHeader>
           
@@ -131,7 +132,11 @@ const Login = () => {
                 className="w-full bg-black-bean-600 hover:bg-black-bean-700 text-white"
                 disabled={isLoading}
               >
-                {isLoading ? "Signing in..." : "Sign in"}
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <Spinner size="sm" className="mr-2" /> Signing in
+                  </span>
+                ) : "Sign in"}
               </Button>
               
               <p className="text-center text-sm text-gray-500">
@@ -142,6 +147,10 @@ const Login = () => {
                 >
                   Sign up
                 </Link>
+              </p>
+              
+              <p className="text-center text-sm text-gray-500 mt-4">
+                Powered By Najod
               </p>
             </CardFooter>
           </form>

@@ -30,6 +30,7 @@ const newAgentSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   email: z.string().email({ message: "Invalid email address." }), // Added email
   phone_number: z.string().optional(), // Optional phone number
+  pin: z.string().length(4, { message: "PIN must be exactly 4 digits." }).regex(/^\d{4}$/, { message: "PIN must be 4 digits." })
 });
 type NewAgentFormData = z.infer<typeof newAgentSchema>;
 
@@ -116,28 +117,44 @@ const Agents = () => {
                 <DialogTitle>Add New Agent</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit(handleAddAgent)}>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">Name</Label>
-                    <Input id="name" {...register('name')} className="col-span-3" />
+                <div className="space-y-4 py-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input id="name" {...register('name')} />
+                    {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
                   </div>
-                  {errors.name && <p className="col-start-2 col-span-3 text-xs text-red-600">{errors.name.message}</p>}
                   
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="email" className="text-right">Email</Label>
-                    <Input id="email" type="email" {...register('email')} className="col-span-3" />
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" {...register('email')} />
+                    {errors.email && <p className="text-xs text-red-600">{errors.email.message}</p>}
                   </div>
-                  {errors.email && <p className="col-start-2 col-span-3 text-xs text-red-600">{errors.email.message}</p>}
 
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="phone_number" className="text-right">Phone</Label>
-                    <Input id="phone_number" placeholder="Optional" {...register('phone_number')} className="col-span-3" />
+                  <div className="space-y-2">
+                    <Label htmlFor="phone_number">Phone Number</Label>
+                    <Input id="phone_number" placeholder="Optional" {...register('phone_number')} />
+                    {errors.phone_number && <p className="text-xs text-red-600">{errors.phone_number.message}</p>}
                   </div>
-                  {errors.phone_number && <p className="col-start-2 col-span-3 text-xs text-red-600">{errors.phone_number.message}</p>}
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="pin">PIN</Label>
+                    <Input 
+                      id="pin" 
+                      type="password" 
+                      placeholder="4-digit PIN" 
+                      {...register('pin')} 
+                      maxLength={4}
+                      inputMode="numeric"
+                    />
+                    <p className="text-xs text-gray-500">Create a 4-digit PIN for agent authentication</p>
+                    {errors.pin && <p className="text-xs text-red-600">{errors.pin.message}</p>}
+                  </div>
                 </div>
-                <DialogFooter>
-                  {/* Optional: Add a close button if needed, though clicking outside works */}
-                  {/* <DialogClose asChild><Button type="button" variant="secondary">Cancel</Button></DialogClose> */}
+                
+                <DialogFooter className="mt-6">
+                  <Button variant="outline" type="button" onClick={() => setIsAddAgentDialogOpen(false)} className="mr-2">
+                    Cancel
+                  </Button>
                   <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? 'Adding...' : 'Add Agent'}
                   </Button>

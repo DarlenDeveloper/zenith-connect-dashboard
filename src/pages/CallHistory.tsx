@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { 
   PhoneCall, Calendar, Clock, User, BarChart, Phone,
   Search, Filter, FileEdit, CheckCircle, Download, 
-  AlertCircle, ArrowUp, ArrowDown, AlertTriangle, XCircle
+  AlertCircle, ArrowUp, ArrowDown, AlertTriangle, XCircle,
+  Trash2
 } from "lucide-react";
 import {
   Table,
@@ -28,13 +29,23 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter
+  DialogFooter,
+  DialogTrigger
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAgent } from "@/contexts/AgentContext";
 import { logAction } from "@/lib/logging";
+import { Spinner } from "@/components/ui/spinner";
+import { format } from "date-fns";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { DateRange } from "react-day-picker";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@/components/ui/popover";
 
 interface CallLog {
   id: string;
@@ -58,6 +69,11 @@ const CallHistory = () => {
   const [sortField, setSortField] = useState<string>("call_datetime");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: undefined,
+    to: undefined
+  });
 
   const fetchCallLogs = async () => {
     setLoading(true);
@@ -70,6 +86,19 @@ const CallHistory = () => {
 
       if (dbStatusFilter !== 'all') {
         query = query.eq('status', dbStatusFilter);
+      }
+      
+      // Apply date filter if dates are selected
+      if (dateRange.from) {
+        const fromDate = new Date(dateRange.from);
+        fromDate.setHours(0, 0, 0, 0);
+        query = query.gte('call_datetime', fromDate.toISOString());
+      }
+      
+      if (dateRange.to) {
+        const toDate = new Date(dateRange.to);
+        toDate.setHours(23, 59, 59, 999);
+        query = query.lte('call_datetime', toDate.toISOString());
       }
         
       query = query.order(sortField, { ascending: sortDirection === "asc" });
@@ -108,7 +137,7 @@ const CallHistory = () => {
     return () => {
       supabase.removeChannel(callsSubscription);
     };
-  }, [user, statusFilter, sortField, sortDirection]);
+  }, [user, statusFilter, sortField, sortDirection, dateRange]);
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
@@ -276,6 +305,34 @@ const CallHistory = () => {
   const resolutionRate = totalCalls > 0 ? Math.round((resolvedCalls / totalCalls) * 100) : 0;
   const formattedAvgDuration = "N/A";
 
+  const clearDateFilter = () => {
+    setDateRange({ from: undefined, to: undefined });
+    setIsDateFilterOpen(false);
+  };
+
+  const applyDateFilter = () => {
+    // Filter is automatically applied when dateRange changes via the useEffect
+    setIsDateFilterOpen(false);
+    
+    if (dateRange.from || dateRange.to) {
+      const fromText = dateRange.from ? format(dateRange.from, 'PP') : 'Any';
+      const toText = dateRange.to ? format(dateRange.to, 'PP') : 'Any';
+      toast.success(`Date filter applied: ${fromText} - ${toText}`);
+    }
+  };
+
+  const getDateFilterLabel = () => {
+    if (dateRange.from && dateRange.to) {
+      return `${format(dateRange.from, 'MM/dd/yyyy')} - ${format(dateRange.to, 'MM/dd/yyyy')}`;
+    } else if (dateRange.from) {
+      return `From ${format(dateRange.from, 'MM/dd/yyyy')}`;
+    } else if (dateRange.to) {
+      return `Until ${format(dateRange.to, 'MM/dd/yyyy')}`;
+    } else {
+      return "Filter by Date";
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full">
@@ -285,10 +342,37 @@ const CallHistory = () => {
             <h1 className="text-xl font-medium">Call History</h1>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Calendar className="mr-2 h-4 w-4" />
-              Filter by Date
-            </Button>
+            <Dialog open={isDateFilterOpen} onOpenChange={setIsDateFilterOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  variant={dateRange.from || dateRange.to ? "default" : "outline"} 
+                  size="sm"
+                  className={dateRange.from || dateRange.to ? "bg-blue-600 text-white hover:bg-blue-700" : ""}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {getDateFilterLabel()}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Filter Calls by Date Range</DialogTitle>
+                </DialogHeader>
+                <div className="py-4">
+                  <div className="space-y-4">
+                    <CalendarComponent
+                      mode="range"
+                      selected={dateRange}
+                      onSelect={(value) => setDateRange(value || { from: undefined, to: undefined })}
+                      className="mx-auto"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={clearDateFilter}>Clear</Button>
+                  <Button onClick={applyDateFilter}>Apply Filter</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
             <Button variant="outline" size="sm">
               <Download className="mr-2 h-4 w-4" />
               Export
@@ -393,7 +477,12 @@ const CallHistory = () => {
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-24 text-center">Loading calls...</TableCell>
+                      <TableCell colSpan={5} className="h-24 text-center">
+                        <div className="flex items-center justify-center">
+                          <Spinner size="lg" className="mr-3" />
+                          <span className="text-muted-foreground">Loading call data...</span>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ) : callLogs.length === 0 ? (
                     <TableRow>

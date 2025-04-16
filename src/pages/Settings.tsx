@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { logAction } from "@/lib/logging";
 import { useAgent } from "@/contexts/AgentContext";
+import { Spinner } from "@/components/ui/spinner";
 
 const Settings = () => {
   const { user } = useAuth();
@@ -189,7 +190,10 @@ const Settings = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               {loadingProfile ? (
-                <p>Loading profile...</p>
+                <div className="flex items-center justify-center py-10">
+                  <Spinner size="lg" className="mr-3" />
+                  <p className="text-muted-foreground">Loading profile...</p>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -237,7 +241,11 @@ const Settings = () => {
             <CardFooter className="flex justify-end space-x-4">
               <Button variant="outline">Cancel</Button>
               <Button onClick={handleSave} disabled={saving || loadingProfile}>
-                {saving ? "Saving..." : "Save changes"}
+                {saving ? (
+                  <span className="flex items-center justify-center">
+                    <Spinner size="sm" className="mr-2" /> Saving
+                  </span>
+                ) : "Save changes"}
               </Button>
             </CardFooter>
           </Card>
@@ -305,7 +313,7 @@ const Settings = () => {
                   <div className="space-y-0.5">
                     <Label htmlFor="serviceUpdates">Service Updates</Label>
                     <p className="text-sm text-muted-foreground">
-                      Important information about your Zenith service
+                      Important information about your AIRIES service
                     </p>
                   </div>
                   <Switch

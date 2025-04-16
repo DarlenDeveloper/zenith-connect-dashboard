@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
 import PhoneInput from "@/components/PhoneInput";
 import ZenithLogo from "@/components/ZenithLogo";
+import { Spinner } from "@/components/ui/spinner";
 
 const Signup = () => {
   const [formData, setFormData] = useState<SignupData>({
@@ -79,7 +80,7 @@ const Signup = () => {
                 Create Your Account
               </CardTitle>
               <CardDescription className="text-center text-gray-500">
-                Get started with Zenith's AI-powered customer care solutions
+                Get started with AIRIES' AI-powered customer care solutions
               </CardDescription>
             </CardHeader>
             
@@ -190,7 +191,7 @@ const Signup = () => {
                     htmlFor="agreedToTerms" 
                     className="text-sm leading-none text-gray-600 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    I agree to Zenith's{" "}
+                    I agree to AIRIES'{" "}
                     <a href="#" className="text-black-bean-600 hover:text-black-bean-700 underline">
                       Terms of Service
                     </a>{" "}
@@ -208,7 +209,11 @@ const Signup = () => {
                   className="w-full bg-black-bean-600 hover:bg-black-bean-700 text-white"
                   disabled={isLoading || !passwordsMatch}
                 >
-                  {isLoading ? "Creating account..." : "Create account"}
+                  {isLoading ? (
+                    <span className="flex items-center justify-center">
+                      <Spinner size="sm" className="mr-2" /> Creating account
+                    </span>
+                  ) : "Create account"}
                 </Button>
                 
                 <p className="text-center text-sm text-gray-500">
@@ -219,6 +224,10 @@ const Signup = () => {
                   >
                     Sign in
                   </Link>
+                </p>
+                
+                <p className="text-center text-sm text-gray-500 mt-4">
+                  Powered By Najod
                 </p>
               </CardFooter>
             </form>
