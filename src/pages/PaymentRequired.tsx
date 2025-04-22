@@ -26,8 +26,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Define plan prices
 const PLANS = {
-  starter: { price: 300000 }, // 300k UGX
-  pro: { price: 800000 },     // 800k UGX
+  starter: { price: 297300 }, // 297kk UGX
+  pro: { price: 597300 },     // 597k UGX
   enterprise: { price: 1500000 } // 1.5M UGX (though this will redirect to contact form)
 };
 
@@ -108,18 +108,18 @@ const PaymentRequired = () => {
                   <Card className="border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 relative h-full flex flex-col">
                     <CardHeader className="pb-2">
                       <h3 className="font-semibold text-lg">Starter</h3>
-                      <div className="text-3xl font-bold mb-2">300,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></div>
+                      <div className="text-3xl font-bold mb-2">297,300<span className="text-sm font-normal text-gray-500"> UGX/month</span></div>
                       <p className="text-gray-600 text-sm">Perfect for small businesses</p>
                     </CardHeader>
                     <CardContent className="py-2 flex-grow">
                       <ul className="space-y-3">
                         <li className="flex items-start">
                           <CheckCircle2 size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
-                          <span className="text-sm">Up to 100 AI calls</span>
+                          <span className="text-sm">Up to 20 concurrent calls</span>
                         </li>
                         <li className="flex items-start">
                           <BadgeCheck size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
-                          <span className="text-sm">Basic analytics</span>
+                          <span className="text-sm">Access to analytics</span>
                         </li>
                         <li className="flex items-start">
                           <Mail size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
@@ -145,14 +145,14 @@ const PaymentRequired = () => {
                     </Badge>
                     <CardHeader className="pb-2">
                       <h3 className="font-semibold text-lg">Popular</h3>
-                      <div className="text-3xl font-bold mb-2">800,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></div>
+                      <div className="text-3xl font-bold mb-2">597,300<span className="text-sm font-normal text-gray-500"> UGX/month</span></div>
                       <p className="text-gray-600 text-sm">For growing businesses</p>
                     </CardHeader>
                     <CardContent className="py-2 flex-grow">
                       <ul className="space-y-3">
                         <li className="flex items-start">
                           <Zap size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
-                          <span className="text-sm">Unlimited AI calls</span>
+                          <span className="text-sm">All in starter</span>
                         </li>
                         <li className="flex items-start">
                           <ArrowUpRight size={16} className="text-green-500 mt-1 mr-2 flex-shrink-0" />
