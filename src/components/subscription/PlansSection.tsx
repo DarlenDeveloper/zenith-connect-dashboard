@@ -66,7 +66,7 @@ const PlansSection = ({ currentPlan = "" }: PlansSectionProps) => {
         {/* Starter Plan */}
         <PlanCard
           title="Starter"
-          price={<>45,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
+          price={<>297,300<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
           features={[
             { text: "Up to 5 AI conversations" },
             { text: "Basic analytics" },
@@ -87,7 +87,7 @@ const PlansSection = ({ currentPlan = "" }: PlansSectionProps) => {
           </Badge>
           <PlanCard
             title="Popular"
-            price={<>800,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
+            price={<>597,300<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
             features={[
               { text: "Unlimited AI conversations" },
               { text: "Advanced analytics" },
