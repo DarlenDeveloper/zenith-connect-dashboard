@@ -5,7 +5,6 @@ import "./dashboard-override.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
 import { AgentProvider } from "./contexts/AgentContext";
-import SmallScreenWarning from "./components/SmallScreenWarning";
 
 // Pages
 import Index from "./pages/Index";
@@ -130,7 +129,6 @@ function App() {
         <AgentProvider>
           <RouterProvider router={createBrowserRouter(routes)} />
           <Toaster />
-          <SmallScreenWarning />
         </AgentProvider>
       </AuthProvider>
     </QueryClientProvider>

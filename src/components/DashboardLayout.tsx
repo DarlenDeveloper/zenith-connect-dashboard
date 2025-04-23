@@ -180,8 +180,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <SidebarProvider>
       <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0">
         <Sidebar
-          className="bg-[#1f2937] border-r border-[#2c3038] w-[220px] text-white flex-shrink-0"
-          collapsible="none"
+          className="bg-[#1f2937] border-r border-[#2c3038] w-[220px] md:w-[220px] text-white flex-shrink-0"
+          collapsible="sm"
+          collapsedWidth="0"
         >
           <SidebarHeader className="h-14 flex items-center px-4 border-b border-[#2c3038]">
             <Link to="/dashboard" className="flex items-center">
@@ -198,14 +199,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     isActive={item.active}
                     tooltip={item.name}
                     className={`h-10 text-sm px-3 rounded-none mx-0 ${
-                      item.active 
-                        ? 'bg-[#1a56db] text-white font-medium'
-                        : 'text-white hover:bg-[#32363c] hover:text-white'
+                      item.active ? "bg-[#34445c] text-white" : "text-gray-300 hover:bg-[#2c3038] hover:text-white"
                     }`}
                   >
-                    <Link to={item.path} className="flex items-center gap-2.5">
-                      <span className="flex-shrink-0 w-[18px]">{item.icon}</span>
-                      <span className="text-sm">{item.name}</span>
+                    <Link to={item.path} className="flex items-center gap-2">
+                      {item.icon}
+                      <span>{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -213,110 +212,108 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </SidebarMenu>
           </SidebarContent>
           
-          <SidebarFooter className="mt-auto border-t border-[#2c3038] py-4 px-3">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-[#1a56db] text-white">
-                    {profileName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="text-xs">
-                  <p className="text-white font-medium">{profileName || user?.email?.split('@')[0] || 'User'}</p>
-                  <p className="text-gray-400">{profileEmail || 'loading...'}</p>
-                </div>
-              </div>
-            </div>
+          <SidebarFooter className="h-14 px-3 flex items-center justify-center border-t border-[#2c3038] mt-auto">
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-white hover:text-white hover:bg-[#32363c] h-9 text-sm px-3"
+              size="sm" 
+              className="text-gray-400 hover:text-white w-full justify-start px-2"
               onClick={handleLogout}
             >
-              <LogOut size={18} className="mr-2.5" />
-              <span className="text-sm">Log out</span>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Logout</span>
             </Button>
           </SidebarFooter>
         </Sidebar>
 
-        <div className="flex-1 flex flex-col overflow-y-auto w-full bg-gray-50 p-0 m-0">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-gray-200 bg-white px-4 lg:px-6 shadow-sm mt-2">
-            {isMobile && <SidebarTrigger className="text-muted-foreground" />}
-            <div className="ml-auto flex items-center gap-3">
-              <Select 
-                value={selectedAgent?.id || ""} 
-                onValueChange={handleAgentChange}
-                disabled={loadingAgents || agents.length === 0}
-              >
-                <SelectTrigger className="w-[180px] h-9 text-sm border-gray-200">
-                  <div className="flex items-center gap-2">
-                    <UserCheck className="h-4 w-4 text-gray-500" />
-                    <SelectValue placeholder={loadingAgents ? "Loading agents..." : "Select Agent"} />
+        <div className="flex flex-col flex-grow overflow-hidden">
+          <header className="h-14 border-b border-[#e2e8f0] bg-white flex items-center justify-between px-4 md:px-6 flex-shrink-0">
+            <div className="flex items-center">
+              <SidebarTrigger className="lg:hidden mr-2">
+                <Menu size={20} />
+              </SidebarTrigger>
+              <div className="flex-grow flex items-center">
+                {selectedAgent && (
+                  <div className="hidden md:flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-full text-xs text-gray-700">
+                    <UserCheck size={14} />
+                    <span>{selectedAgent.name} • Active</span>
                   </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {agents.map((agent) => (
-                    <SelectItem 
-                      key={agent.id} 
-                      value={agent.id}
-                      className={authenticatedAgentIds.includes(agent.id) ? "text-[#1a56db] font-medium" : ""}
-                    >
-                      {agent.name} ({agent.agent_ref_id})
-                      {authenticatedAgentIds.includes(agent.id) && " ✓"}
-                    </SelectItem>
-                  ))}
-                  {agents.length === 0 && !loadingAgents && (
-                    <div className="px-2 py-1.5 text-sm text-gray-500">(No active agents)</div>
-                  )}
-                </SelectContent>
-              </Select>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {agents && agents.length > 0 && (
+                <div className="relative hidden sm:block">
+                  <Select value={selectedAgent?.id || null} onValueChange={handleAgentChange}>
+                    <SelectTrigger className="w-[180px] text-sm">
+                      <SelectValue placeholder="Select Agent" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {loadingAgents ? (
+                        <div className="py-2 px-2 text-center">
+                          <span className="loading loading-spinner loading-xs"></span>
+                        </div>
+                      ) : agents.length > 0 ? (
+                        agents.map((agent) => (
+                          <SelectItem key={agent.id} value={agent.id}>
+                            {agent.name} {authenticatedAgentIds.includes(agent.id) && "✓"}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="py-2 px-2 text-sm">No agents found</div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
                 <PopoverTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="rounded-full text-muted-foreground hover:text-foreground relative"
-                  >
-                    <Bell className="h-5 w-5" />
+                  <Button size="icon" variant="ghost" className="relative">
+                    <Bell size={18} />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#1a56db] text-[10px] font-medium text-white">
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
                         {formatCount(unreadCount)}
                       </span>
                     )}
-                    <span className="sr-only">Notifications</span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 p-0" align="end">
+                <PopoverContent align="end" className="w-[380px] p-0">
                   <NotificationsDropdown 
                     onClose={() => setIsNotificationOpen(false)} 
-                    onReadAll={() => setUnreadCount(0)}
-                  /> 
+                  />
                 </PopoverContent>
               </Popover>
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-[#1a56db] text-white">
-                  {profileName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
+
+              <div className="border-l border-[#e2e8f0] h-8 mx-2 hidden sm:block"></div>
+
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={`https://ui-avatars.com/api/?name=${profileName || "User"}&background=1d4fd8&color=fff`} />
+                  <AvatarFallback>
+                    {profileName ? profileName?.charAt(0).toUpperCase() : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden md:block">
+                  <p className="text-sm font-medium">{profileName || "User"}</p>
+                  <p className="text-xs text-muted-foreground">{profileEmail || ""}</p>
+                </div>
+              </div>
             </div>
           </header>
           
-          <div className="flex-1 flex flex-col w-full mx-auto pb-16" style={{ maxWidth: "1920px" }}>
+          <main className="flex-grow overflow-auto bg-gray-50">
             {children}
-          </div>
-          
-          <footer className="fixed bottom-0 left-0 right-0 ml-[220px] p-4 text-center text-sm text-gray-500 bg-white border-t shadow-sm z-10">
-            Powered By Najod
-          </footer>
+          </main>
         </div>
+        
+        <AgentPasswordDialog 
+          isOpen={isPasswordDialogOpen} 
+          onClose={() => setIsPasswordDialogOpen(false)}
+          agentId={pendingAgentId}
+          onVerified={handleAgentPasswordVerification}
+        />
       </div>
-      
-      {/* Agent Password Dialog */}
-      <AgentPasswordDialog
-        isOpen={isPasswordDialogOpen}
-        onClose={() => setIsPasswordDialogOpen(false)}
-        agent={agents.find(a => a.id === pendingAgentId) || null}
-        onVerify={handleAgentPasswordVerification}
-      />
     </SidebarProvider>
   );
 };

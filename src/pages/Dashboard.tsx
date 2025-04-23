@@ -139,12 +139,12 @@ const Dashboard = () => {
     <DashboardLayout>
       <div className="w-full h-full p-0 m-0 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-4 lg:mb-4 px-4 lg:px-4 pt-4 lg:pt-4">
+          <div className="mb-4 px-4 pt-4">
             <h1 className="text-2xl font-semibold text-gray-900">Hello, {firstName}!</h1>
             <p className="text-sm text-gray-600">Welcome back, here's your dashboard overview.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 lg:px-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 mb-6">
             <Card className="bg-[#1a56db] text-white rounded-lg shadow-md overflow-hidden">
               <CardContent className="p-6 relative">
                 <div className="flex items-center justify-between">
@@ -199,96 +199,130 @@ const Dashboard = () => {
               </CardContent>
             </Card>
           </div>
-
-          <div className="flex items-center justify-between px-4 mb-2">
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-medium text-gray-800">Activity Summary</h2>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 lg:px-4 pb-6">
-            <Card className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-md">
-              <CardHeader className="pb-0">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-lg font-medium text-gray-800">Call Activity</CardTitle>
-                  <p className="text-sm text-gray-500">Last 7 days</p>
-                </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 mb-6">
+            <Card className="col-span-1 lg:col-span-2 shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-semibold">Call Activity</CardTitle>
               </CardHeader>
-              <CardContent className="p-5 lg:p-6">
-                <div className="h-60">
+              <CardContent>
+                <div className="h-[300px] w-full">
                   {loading ? (
-                    <div className="flex flex-col items-center justify-center h-full space-y-2">
-                      <Skeleton className="h-[200px] w-full rounded-md" />
+                    <div className="flex items-center justify-center h-full">
+                      <Loading />
                     </div>
-                  ) : (
+                  ) : dailyData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={dailyData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                        <XAxis dataKey="call_day" axisLine={false} tickLine={false} stroke="#6b7280" fontSize={12} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} stroke="#6b7280" fontSize={12} dx={-10} allowDecimals={false} />
-                        <Tooltip cursor={{ fill: 'rgba(229, 245, 235, 0.7)' }} contentStyle={{ background: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', color: '#1f2937', border: '1px solid #e5e7eb' }} formatter={(value: number) => [`${value}`, 'Calls']} />
-                        <Line type="monotone" dataKey="call_count" stroke="#1a56db" strokeWidth={2.5} dot={{ stroke: '#1a56db', strokeWidth: 2, r: 4, fill: 'white' }} activeDot={{ stroke: '#1a56db', strokeWidth: 2, r: 6, fill: '#1a56db' }} />
+                      <LineChart
+                        data={dailyData}
+                        margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis 
+                          dataKey="call_day" 
+                          tick={{ fontSize: 12 }} 
+                          tickLine={false}
+                          axisLine={{ stroke: '#e0e0e0' }}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 12 }} 
+                          tickLine={false}
+                          axisLine={{ stroke: '#e0e0e0' }}
+                          tickFormatter={(value) => value.toFixed(0)}
+                        />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: 'white', 
+                            borderRadius: '6px',
+                            border: '1px solid #e0e0e0',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                          }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="call_count" 
+                          stroke="#1a56db" 
+                          activeDot={{ r: 6 }} 
+                          dot={{ r: 4 }}
+                          strokeWidth={2}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                      <Phone className="h-10 w-10 mb-2 text-gray-300" />
+                      <p>No call data available for this period</p>
+                    </div>
                   )}
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="lg:col-span-1 bg-white border border-gray-200 rounded-lg shadow-md">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-lg font-medium text-gray-800">Recent Calls</CardTitle>
-                <Link to="/call-history" className="text-sm text-[#1a56db] hover:underline flex items-center">
-                  <span className="mr-1">View All</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+            
+            <Card className="shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-semibold">Recent Calls</CardTitle>
               </CardHeader>
-              <CardContent className="p-5 pt-0">
-                <div className="space-y-4">
+              <CardContent className="px-0">
+                <div className="overflow-hidden">
                   {loading ? (
-                    <div className="space-y-4">
-                      {[...Array(3)].map((_, i) => (
-                        <div key={i} className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Skeleton className="h-9 w-9 rounded-full" />
-                            <div>
-                              <Skeleton className="h-4 w-32 mb-1" />
-                              <Skeleton className="h-3 w-24" />
-                            </div>
+                    Array(5).fill(0).map((_, i) => (
+                      <div key={i} className="flex items-center gap-3 px-6 py-3 border-b border-gray-100">
+                        <Skeleton className="h-9 w-9 rounded-full" />
+                        <div className="flex-1">
+                          <Skeleton className="h-4 w-24 mb-1" />
+                          <Skeleton className="h-3 w-32" />
+                        </div>
+                      </div>
+                    ))
+                  ) : recentCalls.length > 0 ? (
+                    <div className="space-y-1">
+                      {recentCalls.map((call) => (
+                        <div key={call.id} className="flex items-center px-6 py-3 hover:bg-gray-50">
+                          <div className="flex-shrink-0 mr-3">
+                            <Avatar className="h-9 w-9 bg-blue-100">
+                              <AvatarFallback className="text-blue-700 font-medium">
+                                {call.caller_number ? call.caller_number.substring(0, 2) : 'NA'}
+                              </AvatarFallback>
+                            </Avatar>
                           </div>
-                          <Skeleton className="h-6 w-16 rounded-full" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {call.caller_number || 'Unknown Number'}
+                            </p>
+                            <p className="text-xs text-gray-500 flex items-center gap-1">
+                              <Clock4 className="h-3 w-3" />
+                              {formatDate(call.call_datetime)}
+                            </p>
+                          </div>
+                          <Badge 
+                            className={`${
+                              call.status === 'completed' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
+                              call.status === 'missed' ? 'bg-red-100 text-red-800 hover:bg-red-100' : 
+                              'bg-blue-100 text-blue-800 hover:bg-blue-100'
+                            } text-xs font-medium h-6`}
+                          >
+                            {call.status}
+                          </Badge>
                         </div>
                       ))}
                     </div>
-                  ) : recentCalls.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-4">No recent calls found.</p>
                   ) : (
-                    recentCalls.map((call) => (
-                      <div key={call.id} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-9 w-9 bg-gray-100">
-                            <AvatarFallback>
-                              <User className="h-5 w-5 text-gray-500" />
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">{call.caller_number || 'Unknown Caller'}</p>
-                            <p className="text-xs text-gray-500">{formatDate(call.call_datetime)}</p>
-                          </div>
-                        </div>
-                        <Badge 
-                          className={`
-                            ${call.status === "Resolved" ? "bg-green-100 text-green-800 border-green-200" : 
-                              call.status === "Unresolved" ? "bg-yellow-100 text-yellow-800 border-yellow-200" : 
-                              "bg-blue-100 text-blue-800 border-blue-200"}
-                            text-xs font-medium px-2.5 py-0.5 rounded
-                          `}
-                        >
-                          {call.status === 'Unresolved' ? 'Pending' : call.status}
-                        </Badge>
-                      </div>
-                    ))
+                    <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                      <Phone className="h-10 w-10 mb-2 text-gray-300" />
+                      <p>No recent calls</p>
+                    </div>
                   )}
+                </div>
+                <div className="px-6 pt-4">
+                  <Link to="/call-history">
+                    <Button 
+                      variant="outline" 
+                      className="w-full text-[#1a56db] border-[#1a56db] hover:bg-[#1a56db] hover:text-white"
+                    >
+                      View All Call History
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
