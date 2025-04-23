@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import DashboardLayout from "@/components/DashboardLayout";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Loading } from "@/components/ui/loading";
 
 // Update ActionLog interface for joined agent data
 interface ActionLog {
@@ -88,6 +90,19 @@ export default function ActivityPage() {
     }
   };
 
+  // Generate an array of placeholder rows for the skeleton loader
+  const generateSkeletonRows = (count: number) => {
+    return Array(count).fill(0).map((_, index) => (
+      <TableRow key={`skeleton-${index}`}>
+        <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+        <TableCell><Skeleton className="h-6 w-24" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+        <TableCell><Skeleton className="h-12 w-full" /></TableCell>
+      </TableRow>
+    ));
+  };
+
   return (
     <DashboardLayout>
       <div className="container mx-auto py-10 px-6">
@@ -96,9 +111,12 @@ export default function ActivityPage() {
             <CardTitle>Activity Log</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading && <p>Loading activity logs...</p>}
             {error && <p className="text-red-500">{error}</p>}
-            {!loading && !error && (
+            {loading ? (
+              <div className="min-h-[300px] flex items-center justify-center">
+                <Loading text="Loading activity logs" size="md" />
+              </div>
+            ) : (
               <Table>
                 <TableHeader>
                   <TableRow>

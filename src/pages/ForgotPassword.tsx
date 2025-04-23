@@ -72,7 +72,7 @@ const ForgotPassword = () => {
               </CardContent>
               
               <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
-                <Button type="submit" className="w-full bg-black-bean-600 hover:bg-black-bean-700 text-white" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-sun-500 hover:bg-sun-600 text-white" disabled={isLoading}>
                   {isLoading ? (
                     <span className="flex items-center justify-center">
                       <Spinner size="sm" className="mr-2" /> Sending

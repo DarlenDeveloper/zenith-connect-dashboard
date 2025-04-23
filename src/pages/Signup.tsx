@@ -206,7 +206,7 @@ const Signup = () => {
               <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
                 <Button 
                   type="submit" 
-                  className="w-full bg-black-bean-600 hover:bg-black-bean-700 text-white"
+                  className="w-full bg-sun-500 hover:bg-sun-600 text-white"
                   disabled={isLoading || !passwordsMatch}
                 >
                   {isLoading ? (

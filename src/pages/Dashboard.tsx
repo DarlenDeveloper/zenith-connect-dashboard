@@ -34,6 +34,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ZenithLogo from "@/components/ZenithLogo";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { Loading } from "@/components/ui/loading";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AnalyticsOverview {
   total_calls: number;
@@ -149,7 +151,11 @@ const Dashboard = () => {
                 </div>
               </div>
               <div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-1">{loading ? '-' : overviewData?.total_calls ?? 0}</h3>
+                {loading ? (
+                  <Skeleton className="h-9 w-16 mb-1" />
+                ) : (
+                  <h3 className="text-3xl font-bold text-gray-900 mb-1">{overviewData?.total_calls ?? 0}</h3>
+                )}
                 <p className="text-sm text-gray-500">Total Calls</p>
               </div>
             </Card>
@@ -160,7 +166,11 @@ const Dashboard = () => {
                 </div>
               </div>
               <div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-1">{loading ? '-' : Math.round(overviewData?.resolution_rate ?? 0)}%</h3>
+                {loading ? (
+                  <Skeleton className="h-9 w-16 mb-1" />
+                ) : (
+                  <h3 className="text-3xl font-bold text-gray-900 mb-1">{Math.round(overviewData?.resolution_rate ?? 0)}%</h3>
+                )}
                 <p className="text-sm text-gray-500">Resolution Rate</p>
               </div>
             </Card>
@@ -171,7 +181,11 @@ const Dashboard = () => {
                 </div>
               </div>
               <div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-1">N/A</h3>
+                {loading ? (
+                  <Skeleton className="h-9 w-16 mb-1" />
+                ) : (
+                  <h3 className="text-3xl font-bold text-gray-900 mb-1">N/A</h3>
+                )}
                 <p className="text-sm text-gray-500">Average Call Time</p>
               </div>
             </Card>
@@ -187,7 +201,7 @@ const Dashboard = () => {
                 <div className="h-60">
                   {loading ? (
                     <div className="flex items-center justify-center h-full text-gray-500">
-                      <p>Loading chart data...</p>
+                      <Loading text="Loading chart data" size="md" />
                     </div>
                   ) : (
                     <ResponsiveContainer width="100%" height="100%">
@@ -215,7 +229,20 @@ const Dashboard = () => {
               <CardContent className="p-5 pt-0">
                 <div className="space-y-4">
                   {loading ? (
-                    <p className="text-sm text-gray-500">(Loading recent calls...)</p>
+                    <div className="space-y-4">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Skeleton className="h-9 w-9 rounded-full" />
+                            <div>
+                              <Skeleton className="h-4 w-32 mb-1" />
+                              <Skeleton className="h-3 w-24" />
+                            </div>
+                          </div>
+                          <Skeleton className="h-6 w-16 rounded-full" />
+                        </div>
+                      ))}
+                    </div>
                   ) : recentCalls.length === 0 ? (
                     <p className="text-sm text-gray-500 text-center py-4">No recent calls found.</p>
                   ) : (

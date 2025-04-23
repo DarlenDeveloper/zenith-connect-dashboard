@@ -16,9 +16,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 7%;
 
-    /* Primary uses black-bean-600 for main, black-bean-50 for foreground (light text on dark button) */
-    --primary: 145 100% 30%; /* HSL approximation of #009d33 */
-    --primary-foreground: 130 100% 96%; /* HSL approximation of #ebfeee */
+    /* Primary uses sun-500 for main, sun-50 for foreground */
+    --primary: 37 100% 50%; /* HSL approximation of #ffae00 */
+    --primary-foreground: 48 100% 98%; /* HSL approximation of #fffdea */
 
     /* Secondary uses light gray */
     --secondary: 0 0% 96%; 
@@ -27,8 +27,8 @@
     --muted: 0 0% 96%; 
     --muted-foreground: 0 0% 45%;
 
-    /* Accent uses black-bean-500 */
-    --accent: 141 95% 39%; /* HSL approximation of #08c141 */
+    /* Accent uses sun-600 */
+    --accent: 33 100% 44%; /* HSL approximation of #e28400 */
     --accent-foreground: 0 0% 100%; /* White text on accent */
 
     --destructive: 0 84.2% 60.2%;
@@ -36,20 +36,20 @@
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    /* Ring uses black-bean-400 */
-    --ring: 138 79% 64%; /* HSL approximation of #2cdb5c */
+    /* Ring uses sun-400 */
+    --ring: 47 100% 55%; /* HSL approximation of #ffcf1b */
 
     --radius: 0.5rem;
 
     /* Sidebar variables (assuming light sidebar) */
-    --sidebar-background: 0 0% 96%; /* Light Gray e.g., gray-100 */
-    --sidebar-foreground: 0 0% 7%;   /* Near Black */
-    --sidebar-primary: 145 100% 30%; /* black-bean-600 */
+    --sidebar-background: 37 50% 10%; /* Dark brown background */
+    --sidebar-foreground: 48 100% 98%;   /* Light text */
+    --sidebar-primary: 37 100% 50%; /* sun-500 */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 0 0% 90%; /* Slightly darker gray for hover e.g., gray-200 */
-    --sidebar-accent-foreground: 0 0% 7%; /* Near Black */
-    --sidebar-border: 0 0% 85%; /* Slightly darker gray border e.g., gray-200 */
-    --sidebar-ring: 138 79% 64%; /* black-bean-400 */
+    --sidebar-accent: 33 100% 44%; /* sun-600 */
+    --sidebar-accent-foreground: 48 100% 98%; /* Light text */
+    --sidebar-border: 35 60% 20%; /* Dark border */
+    --sidebar-ring: 47 100% 55%; /* sun-400 */
   }
 
   /* Dark Theme Variables - Update these if you implement dark mode */
@@ -63,9 +63,9 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    /* Dark primary uses black-bean-500, foreground black-bean-950 */
-    --primary: 141 95% 39%; /* black-bean-500 */
-    --primary-foreground: 144 100% 4%; /* black-bean-950 */ 
+    /* Dark primary uses sun-500, foreground sun-50 */
+    --primary: 37 100% 50%; /* sun-500 */
+    --primary-foreground: 48 100% 98%; /* sun-50 */ 
 
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -73,27 +73,27 @@
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 0 0% 63%;
 
-    /* Dark accent uses black-bean-400 */
-    --accent: 138 79% 64%; /* black-bean-400 */
-    --accent-foreground: 144 100% 4%; /* black-bean-950 */
+    /* Dark accent uses sun-400 */
+    --accent: 47 100% 55%; /* sun-400 */
+    --accent-foreground: 27 100% 14%; /* sun-950 */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    /* Dark ring uses black-bean-300 */
-    --ring: 135 82% 79%; /* black-bean-300 */
+    /* Dark ring uses sun-300 */
+    --ring: 50 100% 57%; /* sun-300 */
     
     /* Sidebar dark variables */
-    --sidebar-background: 240 10% 3.9%; /* Dark bg */
-    --sidebar-foreground: 0 0% 98%;     /* Light fg */
-    --sidebar-primary: 141 95% 39%;    /* black-bean-500 */
-    --sidebar-primary-foreground: 144 100% 4%; /* black-bean-950 */
-    --sidebar-accent: 240 3.7% 15.9%;   /* Darker gray accent */
-    --sidebar-accent-foreground: 0 0% 98%; /* Light fg */
-    --sidebar-border: 240 3.7% 15.9%; /* Dark border */
-    --sidebar-ring: 135 82% 79%;       /* black-bean-300 */
+    --sidebar-background: 27 100% 14%; /* sun-950 bg */
+    --sidebar-foreground: 48 100% 98%;     /* Light fg */
+    --sidebar-primary: 37 100% 50%;    /* sun-500 */
+    --sidebar-primary-foreground: 48 100% 98%; /* sun-50 */
+    --sidebar-accent: 33 100% 44%;   /* sun-600 */
+    --sidebar-accent-foreground: 48 100% 98%; /* Light fg */
+    --sidebar-border: 29 85% 32%; /* sun-800 */
+    --sidebar-ring: 50 100% 57%;       /* sun-300 */
   }
 }
 

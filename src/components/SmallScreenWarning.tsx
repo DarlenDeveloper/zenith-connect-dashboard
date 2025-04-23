@@ -63,7 +63,7 @@ const SmallScreenWarning = () => {
         </DialogHeader>
         <DialogFooter className="mt-4 flex justify-center sm:justify-between">
           <Button variant="ghost" onClick={() => setIsOpen(false)}>Continue Anyway</Button>
-          <Button variant="default" className="bg-black-bean-600 hover:bg-black-bean-700" onClick={handleDismiss}>
+          <Button variant="default" className="bg-sun-500 hover:bg-sun-600" onClick={handleDismiss}>
             Don't Show Again
           </Button>
         </DialogFooter>

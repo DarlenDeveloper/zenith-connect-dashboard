@@ -180,10 +180,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <SidebarProvider>
       <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0">
         <Sidebar
-          className="bg-black-bean-950 border-r border-black-bean-900 w-[220px] text-gray-300 flex-shrink-0"
+          className="bg-sun-950 border-r border-sun-800 w-[220px] text-gray-300 flex-shrink-0"
           collapsible="none"
         >
-          <SidebarHeader className="h-14 flex items-center px-4 border-b border-black-bean-900">
+          <SidebarHeader className="h-14 flex items-center px-4 border-b border-sun-800">
             <Link to="/dashboard" className="flex items-center">
               <ZenithLogo className="text-white" />
             </Link>
@@ -199,8 +199,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     tooltip={item.name}
                     className={`h-10 text-sm px-3 rounded-md mx-2 ${
                       item.active 
-                        ? 'bg-black-bean-600 text-white font-semibold'
-                        : 'text-gray-300 hover:bg-black-bean-900 hover:text-white'
+                        ? 'bg-sun-500 text-white font-semibold'
+                        : 'text-gray-300 hover:bg-sun-800 hover:text-white'
                     }`}
                   >
                     <Link to={item.path} className="flex items-center gap-2.5">
@@ -213,11 +213,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </SidebarMenu>
           </SidebarContent>
           
-          <SidebarFooter className="mt-auto border-t border-black-bean-900 py-4 px-3">
+          <SidebarFooter className="mt-auto border-t border-sun-800 py-4 px-3">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-black-bean-800 text-gray-200">
+                  <AvatarFallback className="bg-sun-700 text-gray-100">
                     {profileName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
@@ -229,7 +229,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </div>
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-gray-400 hover:text-white hover:bg-black-bean-900 h-9 text-sm px-3"
+              className="w-full justify-start text-gray-400 hover:text-white hover:bg-sun-800 h-9 text-sm px-3"
               onClick={handleLogout}
             >
               <LogOut size={18} className="mr-2.5" />
@@ -293,7 +293,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </PopoverContent>
               </Popover>
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-black-bean-600 text-white">
+                <AvatarFallback className="bg-sun-500 text-white">
                   {profileName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
