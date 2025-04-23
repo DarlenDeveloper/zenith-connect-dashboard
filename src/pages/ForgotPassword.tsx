@@ -32,7 +32,7 @@ const ForgotPassword = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <ZenithLogo className="h-12 w-auto text-black-bean-700" />
+          <ZenithLogo className="h-12 w-auto text-blue-700" />
         </div>
         
         <Card className="w-full shadow-xl border-0 rounded-lg">
@@ -72,7 +72,7 @@ const ForgotPassword = () => {
               </CardContent>
               
               <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
-                <Button type="submit" className="w-full bg-sun-500 hover:bg-sun-600 text-white" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isLoading}>
                   {isLoading ? (
                     <span className="flex items-center justify-center">
                       <Spinner size="sm" className="mr-2" /> Sending
@@ -84,7 +84,7 @@ const ForgotPassword = () => {
           )}
           
           <div className="p-6 pt-0 text-center">
-            <Link to="/login" className="text-black-bean-600 hover:text-black-bean-700 font-medium text-sm">
+            <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium text-sm">
               Return to sign in
             </Link>
           </div>

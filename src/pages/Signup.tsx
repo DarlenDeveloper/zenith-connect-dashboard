@@ -71,7 +71,7 @@ const Signup = () => {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-lg">
           <div className="flex justify-center mb-8">
-            <ZenithLogo className="h-12 w-auto text-black-bean-700" />
+            <ZenithLogo className="h-12 w-auto text-blue-700" />
           </div>
           
           <Card className="w-full shadow-xl border-0 rounded-lg">
@@ -192,11 +192,11 @@ const Signup = () => {
                     className="text-sm leading-none text-gray-600 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     I agree to AIRIES'{" "}
-                    <a href="#" className="text-black-bean-600 hover:text-black-bean-700 underline">
+                    <a href="#" className="text-blue-600 hover:text-blue-700 underline">
                       Terms of Service
                     </a>{" "}
                     and{" "}
-                    <a href="#" className="text-black-bean-600 hover:text-black-bean-700 underline">
+                    <a href="#" className="text-blue-600 hover:text-blue-700 underline">
                       Privacy Policy
                     </a>
                   </Label>
@@ -206,7 +206,7 @@ const Signup = () => {
               <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
                 <Button 
                   type="submit" 
-                  className="w-full bg-sun-500 hover:bg-sun-600 text-white"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   disabled={isLoading || !passwordsMatch}
                 >
                   {isLoading ? (
@@ -220,7 +220,7 @@ const Signup = () => {
                   Already have an account?{" "}
                   <Link 
                     to="/login" 
-                    className="text-black-bean-600 hover:text-black-bean-700 font-medium"
+                    className="text-blue-600 hover:text-blue-700 font-medium"
                   >
                     Sign in
                   </Link>
