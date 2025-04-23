@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAgent, Agent } from "@/contexts/AgentContext";
 import { Button } from "@/components/ui/button";
-import { Users, PlusCircle, Edit, Trash2 } from "lucide-react";
+import { Users, PlusCircle, Edit, Trash2, Phone, KeyRound, UserCheck, Filter } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -24,6 +24,7 @@ import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { Loading } from "@/components/ui/loading";
 
 // Zod schema for new agent form - Updated
 const newAgentSchema = z.object({
@@ -98,19 +99,24 @@ const Agents = () => {
   const handleDeleteAgent = (agent: Agent) => { toast.info("Delete functionality not yet implemented."); };
   const handleToggleActive = (agent: Agent) => { toast.info("Toggle active status not yet implemented."); };
 
+  // Stats counts
+  const activeAgentsCount = agents.filter(agent => agent.is_active).length;
+  const inactiveAgentsCount = agents.filter(agent => !agent.is_active).length;
+
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full">
-        {/* Header */}
-        <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center px-6 justify-between">
+        <header className="h-16 shrink-0 bg-white flex items-center px-6 justify-between border-b border-gray-100 shadow-sm">
           <div className="flex items-center">
-            <Users className="mr-2 h-5 w-5 text-gray-500" />
-            <h1 className="text-xl font-medium">Agents Management</h1>
+            <Users className="mr-2 h-5 w-5 text-blue-600" />
+            <h1 className="text-xl font-semibold text-gray-900">Agents Management</h1>
           </div>
           {/* Add Agent Button triggers Dialog */}
           <Dialog open={isAddAgentDialogOpen} onOpenChange={setIsAddAgentDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Add New Agent</Button>
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                <PlusCircle className="mr-2 h-4 w-4" /> Add New Agent
+              </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
@@ -155,7 +161,7 @@ const Agents = () => {
                   <Button variant="outline" type="button" onClick={() => setIsAddAgentDialogOpen(false)} className="mr-2">
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700">
                     {isSubmitting ? 'Adding...' : 'Add Agent'}
                   </Button>
                 </DialogFooter>
@@ -164,51 +170,133 @@ const Agents = () => {
           </Dialog>
         </header>
 
-        {/* Main content - Agent List Table */}
-        <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
-          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle>Your Agents</CardTitle>
+        <main className="flex-1 overflow-auto bg-gray-50 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-100 text-sm font-medium mb-1">Total Agents</p>
+                  <p className="text-3xl font-bold">{agents.length}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-300 text-sm font-medium mb-1">Active Agents</p>
+                  <p className="text-3xl font-bold">{activeAgentsCount}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <UserCheck className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-blue-800 to-blue-900 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-200 text-sm font-medium mb-1">Inactive Agents</p>
+                  <p className="text-3xl font-bold">{inactiveAgentsCount}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <Filter className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <Card className="bg-white rounded-xl shadow-md overflow-hidden border-none">
+            <CardHeader className="pb-0">
+              <CardTitle>Manage Your Agents</CardTitle>
+              <CardDescription>View and manage all agents in your organization</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               {loadingAgents ? (
-                <p className="py-8 text-center text-gray-500">Loading agents...</p>
+                <div className="min-h-[300px] flex items-center justify-center">
+                  <Loading text="Loading agents" size="md" />
+                </div>
               ) : (
                 agents.length === 0 ? (
-                  <div className="h-40 text-center flex flex-col items-center justify-center">
-                    <Users className="h-10 w-10 text-gray-300 mb-2" />
-                    <p className="text-gray-500">No agents found. Add one using the button above.</p>
+                  <div className="min-h-[300px] flex flex-col items-center justify-center py-10">
+                    <div className="bg-gray-100 rounded-full p-4 mb-4">
+                      <Users className="h-10 w-10 text-gray-400" />
+                    </div>
+                    <h2 className="text-xl font-medium text-gray-800 mb-2">No Agents Found</h2>
+                    <p className="text-gray-600 mb-6 max-w-md text-center">
+                      You haven't added any agents yet. Add an agent to get started with call management.
+                    </p>
+                    <Button 
+                      onClick={() => setIsAddAgentDialogOpen(true)}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <PlusCircle className="mr-2 h-4 w-4" /> Add Your First Agent
+                    </Button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 px-2 sm:px-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {agents.map((agent) => (
-                      <Card 
+                      <div 
                         key={agent.id} 
-                        className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow transition-shadow duration-200 border border-gray-100"
                       >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4 px-4">
-                          <div className="flex items-center">
-                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
-                              <Users className="h-4 w-4 text-blue-600" />
+                        <div className="p-5 border-b border-gray-100">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center">
+                              <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg">
+                                {agent.name.charAt(0)}
+                              </div>
+                              <div className="ml-3">
+                                <h3 className="font-semibold text-gray-900">{agent.name}</h3>
+                                <p className="text-sm text-gray-500">{agent.agent_ref_id}</p>
+                              </div>
                             </div>
-                            <div className="text-sm font-medium">{agent.agent_ref_id}</div>
-                          </div>
-                          <div className="text-xs text-gray-400">
-                            <Badge variant={agent.is_active ? "default" : "secondary"} className={agent.is_active ? 'bg-green-100 text-green-800' : ''}>
+                            <Badge 
+                              variant={agent.is_active ? "default" : "secondary"}
+                              className={
+                                agent.is_active 
+                                ? "bg-blue-100 text-blue-800 hover:bg-blue-200 border-none" 
+                                : "bg-gray-100 text-gray-800 hover:bg-gray-200 border-none"
+                              }
+                            >
                               {agent.is_active ? 'Active' : 'Inactive'}
                             </Badge>
                           </div>
-                        </CardHeader>
-                        <CardContent className="px-4 py-3">
-                          <div className="text-sm text-gray-700 font-medium mb-1">{agent.name}</div>
-                          <div className="text-xs text-gray-500">{agent.email || 'No email'}</div>
-                          <div className="text-xs text-gray-500">{agent.phone_number || 'No phone number'}</div>
-                          <div className="flex justify-end mt-4 space-x-1">
-                            <Button variant="ghost" size="icon" onClick={() => handleEditAgent(agent)} className="h-8 w-8"><Edit className="h-4 w-4" /></Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteAgent(agent)} className="h-8 w-8 text-red-600 hover:text-red-700"><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                        <div className="px-5 py-4 space-y-3">
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Phone className="h-4 w-4 mr-2 text-gray-400" />
+                            {agent.phone_number || 'No phone number'}
                           </div>
-                        </CardContent>
-                      </Card>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <KeyRound className="h-4 w-4 mr-2 text-gray-400" />
+                            PIN: ••••
+                          </div>
+                        </div>
+                        <div className="px-5 py-3 bg-gray-50 flex justify-end space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleEditAgent(agent)} 
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleDeleteAgent(agent)} 
+                            className="text-gray-600 hover:text-gray-700 hover:bg-gray-50 border-gray-200"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )

@@ -1,0 +1,39 @@
+Changes to make:
+
+1. Sidebar background: 
+   - Change from: className="bg-[#471a00] border-r border-[#5c2100] w-[220px] text-gray-300 flex-shrink-0" 
+   - Change to: className="bg-[#1f3b8a] border-r border-[#2c4da3] w-[220px] text-gray-300 flex-shrink-0"
+
+2. Sidebar header border:
+   - Change from: className="h-14 flex items-center px-4 border-b border-[#5c2100]"
+   - Change to: className="h-14 flex items-center px-4 border-b border-[#2c4da3]"
+
+3. Active menu items:
+   - Change from: 'bg-[#ff8c00] text-white font-medium'
+   - Change to: 'bg-[#1a56db] text-white font-medium'
+   - Also change hover: 'text-gray-300 hover:bg-[#5c2100] hover:text-white'
+   - To: 'text-gray-300 hover:bg-[#2c4da3] hover:text-white'
+
+4. Footer border:
+   - Change from: className="mt-auto border-t border-[#5c2100] py-4 px-3"
+   - Change to: className="mt-auto border-t border-[#2c4da3] py-4 px-3"
+
+5. Avatar background:
+   - Change from: className="bg-[#ff8c00] text-white"
+   - Change to: className="bg-[#1a56db] text-white"
+
+6. Logout button hover:
+   - Change from: className="w-full justify-start text-gray-400 hover:text-white hover:bg-[#5c2100] h-9 text-sm px-3"
+   - Change to: className="w-full justify-start text-gray-400 hover:text-white hover:bg-[#2c4da3] h-9 text-sm px-3"
+
+7. Notification badge:
+   - Change from: className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#ff8c00] text-[10px] font-medium text-white"
+   - Change to: className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#1a56db] text-[10px] font-medium text-white"
+
+8. Agent select menu:
+   - Change from: className={authenticatedAgentIds.includes(agent.id) ? "text-[#ff8c00] font-medium" : ""}
+   - Change to: className={authenticatedAgentIds.includes(agent.id) ? "text-[#1a56db] font-medium" : ""}
+
+9. Header avatar:
+   - Change from: className="bg-[#ff8c00] text-white"
+   - Change to: className="bg-[#1a56db] text-white" 

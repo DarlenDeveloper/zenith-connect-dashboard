@@ -1,0 +1,27 @@
+/* Override for orange menu active state */
+[data-active=true], 
+.bg-\[\#ff8c00\], 
+[class*="bg-orange"], 
+[class*="bg-amber"],
+li:has(a[aria-current="page"]) button,
+button.bg-\[\#ff8c00\],
+a[aria-current="page"] {
+  background-color: #1a56db !important;
+}
+
+/* Override any text or border with orange color */
+.text-\[\#ff8c00\], 
+.border-\[\#ff8c00\], 
+[class*="text-orange"], 
+[class*="text-amber"], 
+[class*="border-orange"], 
+[class*="border-amber"] {
+  color: #1a56db !important;
+  border-color: #1a56db !important;
+}
+
+/* Specific override for the Dashboard active state */
+a[href="/dashboard"] button[data-active=true],
+a[href="/dashboard"]:has(button[data-active=true]) {
+  background-color: #1a56db !important;
+} 

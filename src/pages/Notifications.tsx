@@ -1,12 +1,11 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Bell, CheckCircle2, Users, Bot, MessageSquare, Info, Settings } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Bell, CheckCircle2, Users, Bot, MessageSquare, Info, Settings, BellRing } from "lucide-react";
+import { toast } from "sonner";
 
 interface Notification {
   id: string;
@@ -18,7 +17,6 @@ interface Notification {
 }
 
 const Notifications = () => {
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("all");
   
   // Mock notifications data
@@ -76,15 +74,15 @@ const Notifications = () => {
   const getIcon = (type: string) => {
     switch (type) {
       case "conversation":
-        return <MessageSquare className="h-5 w-5 text-blue-500" />;
+        return <MessageSquare className="h-5 w-5 text-blue-600" />;
       case "system":
-        return <Info className="h-5 w-5 text-amber-500" />;
+        return <Info className="h-5 w-5 text-gray-700" />;
       case "team":
-        return <Users className="h-5 w-5 text-green-500" />;
+        return <Users className="h-5 w-5 text-blue-600" />;
       case "ai":
-        return <Bot className="h-5 w-5 text-purple-500" />;
+        return <Bot className="h-5 w-5 text-blue-800" />;
       default:
-        return <Bell className="h-5 w-5 text-gray-500" />;
+        return <Bell className="h-5 w-5 text-gray-700" />;
     }
   };
 
@@ -106,15 +104,15 @@ const Notifications = () => {
   const getTypeColor = (type: string) => {
     switch (type) {
       case "conversation":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200 border-none";
       case "system":
-        return "bg-amber-100 text-amber-800";
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200 border-none";
       case "team":
-        return "bg-green-100 text-green-800";
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200 border-none";
       case "ai":
-        return "bg-purple-100 text-purple-800";
+        return "bg-blue-200 text-blue-900 hover:bg-blue-300 border-none";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200 border-none";
     }
   };
 
@@ -130,10 +128,7 @@ const Notifications = () => {
     setNotifications(
       notifications.map((notification) => ({ ...notification, read: true }))
     );
-    toast({
-      title: "All notifications marked as read",
-      description: "You have cleared all unread notifications",
-    });
+    toast.success("All notifications marked as read");
   };
 
   const filteredNotifications = activeTab === "all" 
@@ -144,115 +139,176 @@ const Notifications = () => {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
+  // Count by type
+  const conversationCount = notifications.filter(n => n.type === "conversation").length;
+  const systemCount = notifications.filter(n => n.type === "system").length;
+  const teamCount = notifications.filter(n => n.type === "team").length;
+  const aiCount = notifications.filter(n => n.type === "ai").length;
+
   return (
     <DashboardLayout>
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Notifications</h1>
-          <p className="text-muted-foreground">
-            Stay updated with your organization's activity
-          </p>
-        </div>
-        
-        {unreadCount > 0 && (
-          <Button 
-            variant="outline" 
-            onClick={markAllAsRead}
-            className="ml-auto"
-          >
-            <CheckCircle2 className="mr-2 h-4 w-4" />
-            Mark all as read
-          </Button>
-        )}
-      </div>
-      
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <CardTitle>Recent Notifications</CardTitle>
-              <CardDescription>
-                You have {unreadCount} unread {unreadCount === 1 ? "notification" : "notifications"}
-              </CardDescription>
-            </div>
-            <Button variant="ghost" size="sm" className="gap-1">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Settings</span>
-            </Button>
+      <div className="flex flex-col h-full">
+        <header className="h-16 shrink-0 bg-white flex items-center px-6 justify-between border-b border-gray-100 shadow-sm">
+          <div className="flex items-center">
+            <BellRing className="mr-2 h-5 w-5 text-blue-600" />
+            <h1 className="text-xl font-semibold text-gray-900">Notifications</h1>
           </div>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-5 mb-4">
-              <TabsTrigger value="all" className="relative">
-                All
-                {unreadCount > 0 && (
-                  <Badge className="ml-1 bg-primary absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
-                    {unreadCount}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="conversation">Conversations</TabsTrigger>
-              <TabsTrigger value="ai">AI</TabsTrigger>
-              <TabsTrigger value="team">Team</TabsTrigger>
-              <TabsTrigger value="system">System</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value={activeTab} className="space-y-4">
-              {filteredNotifications.length === 0 ? (
-                <div className="text-center py-10">
-                  <Bell className="h-10 w-10 text-muted-foreground/60 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium">No notifications</h3>
-                  <p className="text-muted-foreground">
-                    You'll see your {activeTab === "all" ? "notifications" : activeTab + " notifications"} here when you have some
-                  </p>
+          {unreadCount > 0 && (
+            <Button 
+              size="sm" 
+              onClick={markAllAsRead}
+              className="flex items-center bg-blue-600 hover:bg-blue-700"
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              Mark all as read
+            </Button>
+          )}
+        </header>
+
+        <main className="flex-1 overflow-auto bg-gray-50 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-100 text-sm font-medium mb-1">Unread</p>
+                  <p className="text-3xl font-bold">{unreadCount}</p>
                 </div>
-              ) : (
-                filteredNotifications.map((notification) => (
-                  <div 
-                    key={notification.id}
-                    className={`
-                      p-4 rounded-lg border mb-3 transition-colors
-                      ${notification.read ? "bg-card" : "bg-blue-50/50 dark:bg-blue-900/10"}
-                    `}
-                  >
-                    <div className="flex">
-                      <div className="mr-4 mt-0.5">
-                        {getIcon(notification.type)}
+                <div className="bg-white/20 rounded-full p-3">
+                  <Bell className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-300 text-sm font-medium mb-1">Conversations</p>
+                  <p className="text-3xl font-bold">{conversationCount}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <MessageSquare className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-blue-700 to-blue-800 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-200 text-sm font-medium mb-1">System</p>
+                  <p className="text-3xl font-bold">{systemCount}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <Info className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-blue-800 to-blue-900 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-200 text-sm font-medium mb-1">AI Notifications</p>
+                  <p className="text-3xl font-bold">{aiCount}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <Bot className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <Card className="bg-white rounded-xl shadow-md overflow-hidden border-none">
+            <CardHeader className="pb-0">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <CardTitle>Notification Center</CardTitle>
+                  <CardDescription>
+                    View and manage all your notifications
+                  </CardDescription>
+                </div>
+                <Button variant="outline" size="sm" className="gap-1 text-gray-600">
+                  <Settings className="h-4 w-4" />
+                  <span className="hidden sm:inline">Settings</span>
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid grid-cols-5 mb-6 bg-gray-100">
+                  <TabsTrigger value="all" className="relative data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+                    All
+                    {unreadCount > 0 && (
+                      <Badge className="ml-1 bg-blue-600 absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
+                        {unreadCount}
+                      </Badge>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="conversation" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">Conversations</TabsTrigger>
+                  <TabsTrigger value="ai" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">AI</TabsTrigger>
+                  <TabsTrigger value="team" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">Team</TabsTrigger>
+                  <TabsTrigger value="system" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">System</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value={activeTab} className="space-y-4">
+                  {filteredNotifications.length === 0 ? (
+                    <div className="text-center py-16 bg-gray-50 rounded-lg">
+                      <div className="bg-white rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center shadow-sm">
+                        <Bell className="h-8 w-8 text-gray-400" />
                       </div>
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-medium">{notification.title}</p>
-                          <Badge 
-                            variant="outline"
-                            className={`text-xs ${getTypeColor(notification.type)}`}
-                          >
-                            {getTypeLabel(notification.type)}
-                          </Badge>
-                        </div>
-                        <p className="text-muted-foreground text-sm">{notification.message}</p>
-                        <div className="flex items-center justify-between pt-1">
-                          <p className="text-xs text-muted-foreground">{notification.time}</p>
-                          {!notification.read && (
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 text-xs"
-                              onClick={() => markAsRead(notification.id)}
-                            >
-                              Mark as read
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-1">No notifications</h3>
+                      <p className="text-gray-500 max-w-md mx-auto">
+                        You'll see your {activeTab === "all" ? "notifications" : activeTab + " notifications"} here when you have some
+                      </p>
                     </div>
-                  </div>
-                ))
-              )}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+                  ) : (
+                    filteredNotifications.map((notification) => (
+                      <div 
+                        key={notification.id}
+                        className={`
+                          p-5 rounded-lg border border-gray-100 mb-3 transition-colors shadow-sm
+                          ${notification.read ? "bg-white" : "bg-blue-50 border-blue-100"}
+                        `}
+                      >
+                        <div className="flex">
+                          <div className="mr-4 mt-0.5">
+                            <div className={`p-2 rounded-full ${notification.read ? 'bg-gray-100' : 'bg-blue-100'}`}>
+                              {getIcon(notification.type)}
+                            </div>
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <p className="font-semibold text-gray-900">{notification.title}</p>
+                              <Badge 
+                                variant="outline"
+                                className={`text-xs ${getTypeColor(notification.type)}`}
+                              >
+                                {getTypeLabel(notification.type)}
+                              </Badge>
+                            </div>
+                            <p className="text-gray-600 text-sm">{notification.message}</p>
+                            <div className="flex items-center justify-between pt-1">
+                              <p className="text-xs text-gray-500">{notification.time}</p>
+                              {!notification.read && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="h-8 text-xs border-blue-200 text-blue-600 hover:bg-blue-50"
+                                  onClick={() => markAsRead(notification.id)}
+                                >
+                                  Mark as read
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
     </DashboardLayout>
   );
 };

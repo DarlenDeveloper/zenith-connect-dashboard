@@ -6,7 +6,7 @@ import {
   PhoneCall, Calendar, Clock, User, BarChart, Phone,
   Search, Filter, FileEdit, CheckCircle, Download, 
   AlertCircle, ArrowUp, ArrowDown, AlertTriangle, XCircle,
-  Trash2
+  Trash2, MoreHorizontal
 } from "lucide-react";
 import {
   Table,
@@ -38,6 +38,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAgent } from "@/contexts/AgentContext";
 import { logAction } from "@/lib/logging";
 import { Spinner } from "@/components/ui/spinner";
+import { Loading } from "@/components/ui/loading";
 import { format } from "date-fns";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
@@ -74,6 +75,8 @@ const CallHistory = () => {
     from: undefined,
     to: undefined
   });
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedCallId, setSelectedCallId] = useState<string | null>(null);
 
   const fetchCallLogs = async () => {
     setLoading(true);
@@ -300,6 +303,31 @@ const CallHistory = () => {
     }
   };
 
+  const handleDeleteCall = (id: string) => {
+    setSelectedCallId(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteCall = async () => {
+    if (!selectedCallId) return;
+    
+    try {
+      const { error } = await supabase
+        .from('calls')
+        .delete()
+        .eq('id', selectedCallId);
+        
+      if (error) throw error;
+      
+      toast.success("Call record deleted successfully");
+      setIsDeleteDialogOpen(false);
+      fetchCallLogs();
+    } catch (error: any) {
+      console.error("Error deleting call:", error);
+      toast.error(`Failed to delete call: ${error.message}`);
+    }
+  };
+
   const totalCalls = callLogs.length;
   const resolvedCalls = callLogs.filter(call => call.status === "Resolved").length;
   const resolutionRate = totalCalls > 0 ? Math.round((resolvedCalls / totalCalls) * 100) : 0;
@@ -336,10 +364,10 @@ const CallHistory = () => {
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full">
-        <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center px-6 justify-between">
+        <header className="h-16 shrink-0 bg-white flex items-center px-6 justify-between border-b border-gray-100 shadow-sm">
           <div className="flex items-center">
-            <PhoneCall className="mr-2 h-5 w-5 text-gray-500" />
-            <h1 className="text-xl font-medium">Call History</h1>
+            <PhoneCall className="mr-2 h-5 w-5 text-blue-600" />
+            <h1 className="text-xl font-semibold text-gray-900">Call History</h1>
           </div>
           <div className="flex gap-2">
             <Dialog open={isDateFilterOpen} onOpenChange={setIsDateFilterOpen}>
@@ -369,82 +397,94 @@ const CallHistory = () => {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={clearDateFilter}>Clear</Button>
-                  <Button onClick={applyDateFilter}>Apply Filter</Button>
+                  <Button onClick={applyDateFilter} className="bg-blue-600 hover:bg-blue-700">Apply Filter</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            <Button variant="outline" size="sm">
+            
+            <Button variant="outline" size="sm" className="flex items-center">
               <Download className="mr-2 h-4 w-4" />
               Export
             </Button>
           </div>
         </header>
 
-        <main className="flex-1 p-6 overflow-auto">
-          <div className="bg-white rounded-lg border shadow-md">
-            <div className="grid grid-cols-3 gap-4 p-4 border-b border-gray-200">
-              <div className="bg-blue-50 rounded-lg p-4 flex items-center shadow-sm">
-                <div className="bg-blue-100 rounded-full p-2 mr-3">
-                  <Phone className="h-5 w-5 text-blue-600" />
-                </div>
+        <main className="flex-1 p-6 overflow-auto bg-gray-50">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-gray-500">Total Calls</div>
-                  <div className="text-xl font-bold">{totalCalls}</div>
+                  <p className="text-blue-100 text-sm font-medium mb-1">Total Calls</p>
+                  <p className="text-3xl font-bold">{totalCalls}</p>
                 </div>
-              </div>
-              <div className="bg-green-50 rounded-lg p-4 flex items-center shadow-sm">
-                <div className="bg-green-100 rounded-full p-2 mr-3">
-                  <Clock className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <div className="text-sm text-gray-500">Avg. Duration</div>
-                  <div className="text-xl font-bold">{formattedAvgDuration}</div>
-                </div>
-              </div>
-              <div className="bg-purple-50 rounded-lg p-4 flex items-center shadow-sm">
-                <div className="bg-purple-100 rounded-full p-2 mr-3">
-                  <BarChart className="h-5 w-5 text-purple-600" />
-                </div>
-                <div>
-                  <div className="text-sm text-gray-500">Resolution Rate</div>
-                  <div className="text-xl font-bold">{resolutionRate}%</div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <Phone className="h-6 w-6 text-white" />
                 </div>
               </div>
             </div>
             
-            <div className="p-4 flex flex-wrap gap-3 items-center">
-              <div className="relative grow md:max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search calls..."
-                  className="pl-9 pr-4 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-300 text-sm font-medium mb-1">Avg. Duration</p>
+                  <p className="text-3xl font-bold">{formattedAvgDuration}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
               </div>
-              <Button variant="outline" size="sm" className="flex items-center">
-                <Filter className="mr-2 h-4 w-4" />
-                Filters
-              </Button>
-              <div className="ml-auto">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      Status: {statusFilter === "all" ? "All" : statusFilter}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-white">
-                    <DropdownMenuItem onClick={() => setStatusFilter("all")}>All</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter("Resolved")}>Resolved</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter("Pending")}>Pending</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setStatusFilter("Needs Review")}>Needs Review</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+            </div>
+            
+            <div className="bg-gradient-to-br from-blue-800 to-blue-900 rounded-xl p-6 text-white shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-200 text-sm font-medium mb-1">Resolution Rate</p>
+                  <p className="text-3xl font-bold">{resolutionRate}%</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <BarChart className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+            
+          <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                <div className="relative grow md:max-w-sm">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search calls..."
+                    className="pl-9 pr-4 py-2 w-full border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                
+                <div className="flex gap-2 w-full md:w-auto">
+                  <Button variant="outline" size="sm" className="flex items-center">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Filters
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        Status: {statusFilter === "all" ? "All" : statusFilter}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-white">
+                      <DropdownMenuItem onClick={() => setStatusFilter("all")}>All</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setStatusFilter("Resolved")}>Resolved</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setStatusFilter("Pending")}>Pending</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setStatusFilter("Needs Review")}>Needs Review</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             </div>
             
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-gray-50">
                   <TableRow>
                     <TableHead className="cursor-pointer" onClick={() => handleSort("caller_number")}>
                       Caller Number
@@ -477,23 +517,22 @@ const CallHistory = () => {
                 <TableBody>
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-24 text-center">
-                        <div className="flex items-center justify-center">
-                          <Spinner size="lg" className="mr-3" />
-                          <span className="text-muted-foreground">Loading call data...</span>
+                      <TableCell colSpan={5} className="h-52">
+                        <div className="flex items-center justify-center h-full">
+                          <Loading text="Loading call data" size="md" />
                         </div>
                       </TableCell>
                     </TableRow>
                   ) : callLogs.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-24 text-center">
+                      <TableCell colSpan={5} className="h-24 text-center text-gray-500">
                         No {statusFilter === "all" ? "" : statusFilter.toLowerCase()} calls found.
                       </TableCell>
                     </TableRow>
-                  ) : (
+                  ) :
                     callLogs.map((call) => (
-                      <TableRow key={call.id} className="hover:bg-gray-50">
-                        <TableCell>{call.caller_number || 'Unknown'}</TableCell>
+                      <TableRow key={call.id} className="hover:bg-gray-50 transition-colors">
+                        <TableCell className="font-medium">{call.caller_number || 'Unknown'}</TableCell>
                         <TableCell>{formatDate(call.call_datetime)}</TableCell>
                         <TableCell className="max-w-xs truncate">
                           {call.notes || "No notes available"}
@@ -501,58 +540,85 @@ const CallHistory = () => {
                         <TableCell>
                           <Badge 
                             variant={call.status === "Resolved" ? "default" : call.status === "Unresolved" ? "destructive" : "secondary"}
-                            className={call.status === "Resolved" ? "bg-green-100 text-green-800 border-green-200" 
-                                     : call.status === "Unresolved" ? "bg-yellow-100 text-yellow-800 border-yellow-200"
-                                     : "bg-blue-100 text-blue-800 border-blue-200"}
+                            className={
+                              call.status === "Resolved" 
+                                ? "bg-blue-100 text-blue-800 hover:bg-blue-200 border-none" 
+                                : call.status === "Unresolved" 
+                                ? "bg-gray-100 text-gray-800 hover:bg-gray-200 border-none"
+                                : "bg-black bg-opacity-10 text-gray-800 hover:bg-opacity-20 border-none"
+                            }
                           >
                             {call.status === 'Unresolved' ? 'Pending' : call.status}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end space-x-1">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 px-2"
-                              onClick={() => openNotesDialog(call)}
-                            >
-                              <FileEdit className="h-4 w-4" />
-                              <span className="sr-only">Edit Notes</span>
-                            </Button>
-                            
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="h-8 px-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                              onClick={() => flagTechnicalIssue(call)}
-                              disabled={!selectedAgent}
-                              title={selectedAgent ? "Flag for Technical Review" : "Select an agent first"}
-                            >
-                              <AlertTriangle className="h-4 w-4" />
-                              <span className="sr-only">Flag Technical Issue</span>
-                            </Button>
-                            
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 px-2">Status</Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="bg-white">
-                                <DropdownMenuItem onClick={() => updateCallStatus(call.id, "Resolved")}>
-                                  <CheckCircle className="h-4 w-4 mr-2 text-green-600" /> Mark Resolved
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-white">
+                              <DropdownMenuItem
+                                onClick={() => openNotesDialog(call)}
+                                className="cursor-pointer"
+                              >
+                                <FileEdit className="mr-2 h-4 w-4" />
+                                <span>Edit Notes</span>
+                              </DropdownMenuItem>
+
+                              {call.status !== "Resolved" && (
+                                <DropdownMenuItem
+                                  onClick={() => updateCallStatus(call.id, "Resolved")}
+                                  className="cursor-pointer"
+                                >
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  <span>Mark Resolved</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => updateCallStatus(call.id, "Unresolved")}>
-                                  <Clock className="h-4 w-4 mr-2 text-yellow-600" /> Mark Pending
+                              )}
+
+                              {call.status !== "Needs Review" && (
+                                <DropdownMenuItem
+                                  onClick={() => updateCallStatus(call.id, "Needs Review")}
+                                  className="cursor-pointer"
+                                >
+                                  <AlertCircle className="mr-2 h-4 w-4" />
+                                  <span>Needs Review</span>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => updateCallStatus(call.id, "Needs Review")}>
-                                  <AlertCircle className="h-4 w-4 mr-2 text-blue-600" /> Mark Needs Review
+                              )}
+
+                              {call.status !== "Unresolved" && (
+                                <DropdownMenuItem
+                                  onClick={() => updateCallStatus(call.id, "Unresolved")}
+                                  className="cursor-pointer"
+                                >
+                                  <AlertTriangle className="mr-2 h-4 w-4" />
+                                  <span>Mark Pending</span>
                                 </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                              )}
+
+                              <DropdownMenuItem 
+                                onClick={() => flagTechnicalIssue(call)}
+                                className="cursor-pointer"
+                              >
+                                <XCircle className="mr-2 h-4 w-4" />
+                                <span>Flag Technical Issue</span>
+                              </DropdownMenuItem>
+
+                              <DropdownMenuItem 
+                                onClick={() => handleDeleteCall(call.id)}
+                                className="cursor-pointer text-red-600 hover:text-red-700 focus:text-red-700"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Delete</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))
-                  )}
+                  }
                 </TableBody>
               </Table>
             </div>
@@ -560,27 +626,51 @@ const CallHistory = () => {
         </main>
       </div>
 
+      {/* Notes Dialog */}
       <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Call Notes</DialogTitle>
+            <DialogTitle>Edit Call Notes</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
+          <div className="space-y-4 py-2">
             <Textarea
-              className="min-h-[150px]"
+              className="min-h-[150px] text-base"
               placeholder="Enter notes about this call..."
               value={editNotes}
               onChange={(e) => setEditNotes(e.target.value)}
             />
           </div>
-          <DialogFooter className="sm:justify-between">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsNoteDialogOpen(false)}
-            >
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsNoteDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={saveNotes}>Save Notes</Button>
+            <Button onClick={saveNotes} className="bg-blue-600 hover:bg-blue-700">
+              Save Notes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <div className="py-3">
+            <p>Are you sure you want to delete this call record? This action cannot be undone.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteCall}
+              className="bg-gray-900 hover:bg-gray-800 border-none"
+            >
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

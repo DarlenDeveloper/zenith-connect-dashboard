@@ -26,7 +26,8 @@ import {
   Smile,
   User,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  BarChart2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -143,65 +144,81 @@ const Dashboard = () => {
             <p className="text-sm text-gray-600">Welcome back, here's your dashboard overview.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 lg:px-4 mb-4 lg:mb-4">
-            <Card className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
-              <div className="flex justify-between items-start mb-3">
-                <div className="p-2 bg-blue-100 rounded-md">
-                  <Phone className="h-6 w-6 text-blue-600" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 lg:px-4 mb-6">
+            <Card className="bg-[#1a56db] text-white rounded-lg shadow-md overflow-hidden">
+              <CardContent className="p-6 relative">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-blue-100">Total Calls</p>
+                    {loading ? (
+                      <Skeleton className="h-10 w-20 mt-1 bg-[#3b75e0]" />
+                    ) : (
+                      <p className="text-4xl font-bold mt-1">{overviewData?.total_calls ?? 0}</p>
+                    )}
+                  </div>
+                  <div className="p-3 bg-[#3b75e0] bg-opacity-50 rounded-full">
+                    <Phone className="h-6 w-6" />
+                  </div>
                 </div>
-              </div>
-              <div>
-                {loading ? (
-                  <Skeleton className="h-9 w-16 mb-1" />
-                ) : (
-                  <h3 className="text-3xl font-bold text-gray-900 mb-1">{overviewData?.total_calls ?? 0}</h3>
-                )}
-                <p className="text-sm text-gray-500">Total Calls</p>
-              </div>
+              </CardContent>
             </Card>
-            <Card className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
-              <div className="flex justify-between items-start mb-3">
-                <div className="p-2 bg-green-100 rounded-md">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
+            
+            <Card className="bg-[#1b1f24] text-white rounded-lg shadow-md overflow-hidden">
+              <CardContent className="p-6 relative">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-300">Avg. Duration</p>
+                    {loading ? (
+                      <Skeleton className="h-10 w-20 mt-1 bg-gray-700" />
+                    ) : (
+                      <p className="text-4xl font-bold mt-1">N/A</p>
+                    )}
+                  </div>
+                  <div className="p-3 bg-gray-700 bg-opacity-50 rounded-full">
+                    <Clock className="h-6 w-6" />
+                  </div>
                 </div>
-              </div>
-              <div>
-                {loading ? (
-                  <Skeleton className="h-9 w-16 mb-1" />
-                ) : (
-                  <h3 className="text-3xl font-bold text-gray-900 mb-1">{Math.round(overviewData?.resolution_rate ?? 0)}%</h3>
-                )}
-                <p className="text-sm text-gray-500">Resolution Rate</p>
-              </div>
+              </CardContent>
             </Card>
-            <Card className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
-              <div className="flex justify-between items-start mb-3">
-                <div className="p-2 bg-purple-100 rounded-md">
-                  <Clock className="h-6 w-6 text-purple-600" />
+            
+            <Card className="bg-[#1f3b8a] text-white rounded-lg shadow-md overflow-hidden">
+              <CardContent className="p-6 relative">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-blue-100">Resolution Rate</p>
+                    {loading ? (
+                      <Skeleton className="h-10 w-20 mt-1 bg-[#3659b5]" />
+                    ) : (
+                      <p className="text-4xl font-bold mt-1">{Math.round(overviewData?.resolution_rate ?? 0)}%</p>
+                    )}
+                  </div>
+                  <div className="p-3 bg-[#3659b5] bg-opacity-50 rounded-full">
+                    <BarChart2 className="h-6 w-6" />
+                  </div>
                 </div>
-              </div>
-              <div>
-                {loading ? (
-                  <Skeleton className="h-9 w-16 mb-1" />
-                ) : (
-                  <h3 className="text-3xl font-bold text-gray-900 mb-1">N/A</h3>
-                )}
-                <p className="text-sm text-gray-500">Average Call Time</p>
-              </div>
+              </CardContent>
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 lg:px-4 pb-4 lg:pb-4">
-            <Card className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200">
-              <CardContent className="p-5 lg:p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-base font-medium text-gray-700">Call Activity</h3>
+          <div className="flex items-center justify-between px-4 mb-2">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-medium text-gray-800">Activity Summary</h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 lg:px-4 pb-6">
+            <Card className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-md">
+              <CardHeader className="pb-0">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg font-medium text-gray-800">Call Activity</CardTitle>
                   <p className="text-sm text-gray-500">Last 7 days</p>
                 </div>
+              </CardHeader>
+              <CardContent className="p-5 lg:p-6">
                 <div className="h-60">
                   {loading ? (
-                    <div className="flex items-center justify-center h-full text-gray-500">
-                      <Loading text="Loading chart data" size="md" />
+                    <div className="flex flex-col items-center justify-center h-full space-y-2">
+                      <Skeleton className="h-[200px] w-full rounded-md" />
                     </div>
                   ) : (
                     <ResponsiveContainer width="100%" height="100%">
@@ -210,7 +227,7 @@ const Dashboard = () => {
                         <XAxis dataKey="call_day" axisLine={false} tickLine={false} stroke="#6b7280" fontSize={12} dy={10} />
                         <YAxis axisLine={false} tickLine={false} stroke="#6b7280" fontSize={12} dx={-10} allowDecimals={false} />
                         <Tooltip cursor={{ fill: 'rgba(229, 245, 235, 0.7)' }} contentStyle={{ background: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', color: '#1f2937', border: '1px solid #e5e7eb' }} formatter={(value: number) => [`${value}`, 'Calls']} />
-                        <Line type="monotone" dataKey="call_count" stroke="#10B981" strokeWidth={2.5} dot={{ stroke: '#10B981', strokeWidth: 2, r: 4, fill: 'white' }} activeDot={{ stroke: '#10B981', strokeWidth: 2, r: 6, fill: '#10B981' }} />
+                        <Line type="monotone" dataKey="call_count" stroke="#1a56db" strokeWidth={2.5} dot={{ stroke: '#1a56db', strokeWidth: 2, r: 4, fill: 'white' }} activeDot={{ stroke: '#1a56db', strokeWidth: 2, r: 6, fill: '#1a56db' }} />
                       </LineChart>
                     </ResponsiveContainer>
                   )}
@@ -218,10 +235,10 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="lg:col-span-1 bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200">
+            <Card className="lg:col-span-1 bg-white border border-gray-200 rounded-lg shadow-md">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-base font-medium">Recent Calls</CardTitle>
-                <Link to="/call-history" className="text-sm text-blue-600 hover:underline flex items-center">
+                <CardTitle className="text-lg font-medium text-gray-800">Recent Calls</CardTitle>
+                <Link to="/call-history" className="text-sm text-[#1a56db] hover:underline flex items-center">
                   <span className="mr-1">View All</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -259,7 +276,14 @@ const Dashboard = () => {
                             <p className="text-xs text-gray-500">{formatDate(call.call_datetime)}</p>
                           </div>
                         </div>
-                        <Badge variant={call.status === "Resolved" ? "default" : call.status === "Unresolved" ? "destructive" : "secondary"} className={`text-xs ${call.status === "Resolved" ? "bg-green-100 text-green-800 border-green-200" : call.status === "Unresolved" ? "bg-yellow-100 text-yellow-800 border-yellow-200" : "bg-blue-100 text-blue-800 border-blue-200"}`}>
+                        <Badge 
+                          className={`
+                            ${call.status === "Resolved" ? "bg-green-100 text-green-800 border-green-200" : 
+                              call.status === "Unresolved" ? "bg-yellow-100 text-yellow-800 border-yellow-200" : 
+                              "bg-blue-100 text-blue-800 border-blue-200"}
+                            text-xs font-medium px-2.5 py-0.5 rounded
+                          `}
+                        >
                           {call.status === 'Unresolved' ? 'Pending' : call.status}
                         </Badge>
                       </div>

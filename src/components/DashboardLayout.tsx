@@ -180,12 +180,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <SidebarProvider>
       <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0">
         <Sidebar
-          className="bg-sun-950 border-r border-sun-800 w-[220px] text-gray-300 flex-shrink-0"
+          className="bg-[#1b1f24] border-r border-[#2c3038] w-[220px] text-white flex-shrink-0"
           collapsible="none"
         >
-          <SidebarHeader className="h-14 flex items-center px-4 border-b border-sun-800">
+          <SidebarHeader className="h-14 flex items-center px-4 border-b border-[#2c3038]">
             <Link to="/dashboard" className="flex items-center">
-              <ZenithLogo className="text-white" />
+              <span className="text-white font-bold text-xl">AIRIES</span>
             </Link>
           </SidebarHeader>
           
@@ -197,10 +197,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     asChild 
                     isActive={item.active}
                     tooltip={item.name}
-                    className={`h-10 text-sm px-3 rounded-md mx-2 ${
+                    className={`h-10 text-sm px-3 rounded-none mx-0 ${
                       item.active 
-                        ? 'bg-sun-500 text-white font-semibold'
-                        : 'text-gray-300 hover:bg-sun-800 hover:text-white'
+                        ? 'bg-[#1a56db] text-white font-medium'
+                        : 'text-white hover:bg-[#32363c] hover:text-white'
                     }`}
                   >
                     <Link to={item.path} className="flex items-center gap-2.5">
@@ -213,23 +213,23 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </SidebarMenu>
           </SidebarContent>
           
-          <SidebarFooter className="mt-auto border-t border-sun-800 py-4 px-3">
+          <SidebarFooter className="mt-auto border-t border-[#2c3038] py-4 px-3">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-sun-700 text-gray-100">
+                  <AvatarFallback className="bg-[#1a56db] text-white">
                     {profileName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="text-xs">
-                  <p className="text-gray-100 font-medium">{profileName || user?.email?.split('@')[0] || 'User'}</p>
+                  <p className="text-white font-medium">{profileName || user?.email?.split('@')[0] || 'User'}</p>
                   <p className="text-gray-400">{profileEmail || 'loading...'}</p>
                 </div>
               </div>
             </div>
             <Button 
               variant="ghost" 
-              className="w-full justify-start text-gray-400 hover:text-white hover:bg-sun-800 h-9 text-sm px-3"
+              className="w-full justify-start text-white hover:text-white hover:bg-[#32363c] h-9 text-sm px-3"
               onClick={handleLogout}
             >
               <LogOut size={18} className="mr-2.5" />
@@ -239,7 +239,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </Sidebar>
 
         <div className="flex-1 flex flex-col overflow-y-auto w-full bg-gray-50 p-0 m-0">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-white px-4 lg:px-6 shadow-sm mt-2">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-gray-200 bg-white px-4 lg:px-6 shadow-sm mt-2">
             {isMobile && <SidebarTrigger className="text-muted-foreground" />}
             <div className="ml-auto flex items-center gap-3">
               <Select 
@@ -247,7 +247,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 onValueChange={handleAgentChange}
                 disabled={loadingAgents || agents.length === 0}
               >
-                <SelectTrigger className="w-[180px] h-9 text-sm">
+                <SelectTrigger className="w-[180px] h-9 text-sm border-gray-200">
                   <div className="flex items-center gap-2">
                     <UserCheck className="h-4 w-4 text-gray-500" />
                     <SelectValue placeholder={loadingAgents ? "Loading agents..." : "Select Agent"} />
@@ -258,7 +258,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     <SelectItem 
                       key={agent.id} 
                       value={agent.id}
-                      className={authenticatedAgentIds.includes(agent.id) ? "text-green-600 font-medium" : ""}
+                      className={authenticatedAgentIds.includes(agent.id) ? "text-[#1a56db] font-medium" : ""}
                     >
                       {agent.name} ({agent.agent_ref_id})
                       {authenticatedAgentIds.includes(agent.id) && " ✓"}
@@ -278,7 +278,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   >
                     <Bell className="h-5 w-5" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#1a56db] text-[10px] font-medium text-white">
                         {formatCount(unreadCount)}
                       </span>
                     )}
@@ -293,7 +293,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </PopoverContent>
               </Popover>
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-sun-500 text-white">
+                <AvatarFallback className="bg-[#1a56db] text-white">
                   {profileName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
