@@ -137,8 +137,8 @@ const Analytics = () => {
           ) : (
             <>
               {/* Stats overview */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 lg:px-4 mb-4 lg:mb-4">
+                <Card className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
                   <div className="flex justify-between items-start mb-3">
                     <div className="p-2 bg-blue-100 rounded-md">
                       <Phone className="h-6 w-6 text-blue-600" />
@@ -150,7 +150,7 @@ const Analytics = () => {
                   </div>
                 </Card>
                 
-                <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-5">
+                <Card className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
                   <div className="flex justify-between items-start mb-3">
                     <div className="p-2 bg-green-100 rounded-md">
                       <CheckCircle className="h-6 w-6 text-green-600" /> {/* Changed Icon */} 
@@ -162,7 +162,7 @@ const Analytics = () => {
                   </div>
                 </Card>
                 
-                <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-5">
+                <Card className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
                    {/* Placeholder for Avg Call Time - needs duration data */}
                    <div className="flex justify-between items-start mb-3">
                      <div className="p-2 bg-purple-100 rounded-md">
@@ -177,9 +177,9 @@ const Analytics = () => {
               </div>
               
               {/* Charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 lg:px-4 pb-4 lg:pb-4">
                 {/* Daily Call Activity Chart */}
-                <Card className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-5">
+                <Card className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-base font-medium text-gray-700">Call Activity</h3>
                     <p className="text-sm text-gray-500">Last {timeRange} days</p>
@@ -198,7 +198,7 @@ const Analytics = () => {
                 </Card>
 
                 {/* Call Status Distribution Chart */}
-                <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-5">
+                <Card className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-base font-medium text-gray-700">Call Status</h3>
                   </div>

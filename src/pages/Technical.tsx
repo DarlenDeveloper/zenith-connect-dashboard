@@ -182,7 +182,7 @@ const Technical = () => {
               <p>Loading technical issues...</p>
             </div>
           ) : flaggedIssues.length === 0 ? (
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center max-w-3xl mx-auto">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 p-8 text-center max-w-3xl mx-auto">
               <AlertTriangle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h2 className="text-xl font-medium text-gray-800 mb-2">No Technical Issues</h2>
               <p className="text-gray-600 mb-4">
@@ -194,7 +194,7 @@ const Technical = () => {
               </Button>
             </div>
           ) : (
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm max-w-6xl mx-auto">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-200 max-w-6xl mx-auto">
               <div className="border-b border-gray-200 p-4 flex justify-between items-center">
                 <h2 className="font-medium">Flagged Technical Issues</h2>
                 <p className="text-sm text-gray-500">{flaggedIssues.length} issues found</p>

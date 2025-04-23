@@ -166,49 +166,52 @@ const Agents = () => {
 
         {/* Main content - Agent List Table */}
         <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
-          <Card>
-            <CardHeader>
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-200">
+            <CardHeader className="pb-3">
               <CardTitle>Your Agents</CardTitle>
-              {/* Optional: Add search/filter controls here later */}
             </CardHeader>
             <CardContent>
               {loadingAgents ? (
-                <p>Loading agents...</p>
+                <p className="py-8 text-center text-gray-500">Loading agents...</p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Agent ID</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Phone Number</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {agents.length === 0 ? (
-                      <TableRow><TableCell colSpan={5} className="h-24 text-center">No agents found. Add one using the button above.</TableCell></TableRow>
-                    ) : (
-                      agents.map((agent) => (
-                        <TableRow key={agent.id}>
-                          <TableCell className="font-medium">{agent.agent_ref_id}</TableCell>
-                          <TableCell>{agent.name}</TableCell>
-                          <TableCell>{agent.phone_number || 'N/A'}</TableCell>
-                          <TableCell>
+                agents.length === 0 ? (
+                  <div className="h-40 text-center flex flex-col items-center justify-center">
+                    <Users className="h-10 w-10 text-gray-300 mb-2" />
+                    <p className="text-gray-500">No agents found. Add one using the button above.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 px-2 sm:px-4">
+                    {agents.map((agent) => (
+                      <Card 
+                        key={agent.id} 
+                        className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                      >
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4 px-4">
+                          <div className="flex items-center">
+                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                              <Users className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div className="text-sm font-medium">{agent.agent_ref_id}</div>
+                          </div>
+                          <div className="text-xs text-gray-400">
                             <Badge variant={agent.is_active ? "default" : "secondary"} className={agent.is_active ? 'bg-green-100 text-green-800' : ''}>
                               {agent.is_active ? 'Active' : 'Inactive'}
                             </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
+                          </div>
+                        </CardHeader>
+                        <CardContent className="px-4 py-3">
+                          <div className="text-sm text-gray-700 font-medium mb-1">{agent.name}</div>
+                          <div className="text-xs text-gray-500">{agent.email || 'No email'}</div>
+                          <div className="text-xs text-gray-500">{agent.phone_number || 'No phone number'}</div>
+                          <div className="flex justify-end mt-4 space-x-1">
                             <Button variant="ghost" size="icon" onClick={() => handleEditAgent(agent)} className="h-8 w-8"><Edit className="h-4 w-4" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => handleDeleteAgent(agent)} className="h-8 w-8 text-red-600 hover:text-red-700"><Trash2 className="h-4 w-4" /></Button>
-                            {/* Add toggle active button later */}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )
               )}
             </CardContent>
           </Card>

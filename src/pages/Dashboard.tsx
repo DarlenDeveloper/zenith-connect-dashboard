@@ -142,7 +142,7 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 lg:px-4 mb-4 lg:mb-4">
-            <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-5">
+            <Card className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
               <div className="flex justify-between items-start mb-3">
                 <div className="p-2 bg-blue-100 rounded-md">
                   <Phone className="h-6 w-6 text-blue-600" />
@@ -153,7 +153,7 @@ const Dashboard = () => {
                 <p className="text-sm text-gray-500">Total Calls</p>
               </div>
             </Card>
-            <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-5">
+            <Card className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
               <div className="flex justify-between items-start mb-3">
                 <div className="p-2 bg-green-100 rounded-md">
                   <CheckCircle className="h-6 w-6 text-green-600" />
@@ -164,7 +164,7 @@ const Dashboard = () => {
                 <p className="text-sm text-gray-500">Resolution Rate</p>
               </div>
             </Card>
-            <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-5">
+            <Card className="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 p-5">
               <div className="flex justify-between items-start mb-3">
                 <div className="p-2 bg-purple-100 rounded-md">
                   <Clock className="h-6 w-6 text-purple-600" />
@@ -178,7 +178,7 @@ const Dashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-4 lg:px-4 pb-4 lg:pb-4">
-            <Card className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+            <Card className="lg:col-span-2 bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200">
               <CardContent className="p-5 lg:p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-base font-medium text-gray-700">Call Activity</h3>
@@ -204,7 +204,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="lg:col-span-1 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+            <Card className="lg:col-span-1 bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-base font-medium">Recent Calls</CardTitle>
                 <Link to="/call-history" className="text-sm text-blue-600 hover:underline flex items-center">

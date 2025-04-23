@@ -300,7 +300,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </div>
           </header>
           
-          <div className="flex-1 flex flex-col w-full mx-auto" style={{ maxWidth: "1920px" }}>
+          <div className="flex-1 flex flex-col w-full mx-auto pb-16" style={{ maxWidth: "1920px" }}>
             {children}
           </div>
           

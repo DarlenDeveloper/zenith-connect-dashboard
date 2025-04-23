@@ -127,7 +127,7 @@ const StatusUpdates = () => {
         {/* Main content */}
         <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6 space-y-6">
           {/* System Status Card - Redesigned List */}
-          <Card>
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-200">
             <CardHeader>
               <CardTitle>Current System Status</CardTitle>
             </CardHeader>
@@ -167,7 +167,7 @@ const StatusUpdates = () => {
           </Card>
 
           {/* Announcements Card */}
-          <Card>
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-200">
             <CardHeader>
               <CardTitle>Announcements</CardTitle>
             </CardHeader>
