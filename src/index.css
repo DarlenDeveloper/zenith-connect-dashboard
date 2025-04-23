@@ -16,9 +16,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 7%;
 
-    /* Primary uses sun-500 for main, sun-50 for foreground */
-    --primary: 37 100% 50%; /* HSL approximation of #ffae00 */
-    --primary-foreground: 48 100% 98%; /* HSL approximation of #fffdea */
+    /* Primary - changed from orange to blue */
+    --primary: 215 86% 48%; /* Blue instead of orange */
+    --primary-foreground: 213 100% 98%; /* Light blue foreground */
 
     /* Secondary uses light gray */
     --secondary: 0 0% 96%; 
@@ -27,8 +27,8 @@
     --muted: 0 0% 96%; 
     --muted-foreground: 0 0% 45%;
 
-    /* Accent uses sun-600 */
-    --accent: 33 100% 44%; /* HSL approximation of #e28400 */
+    /* Accent - changed from orange to blue */
+    --accent: 215 86% 44%; /* Darker blue for accent */
     --accent-foreground: 0 0% 100%; /* White text on accent */
 
     --destructive: 0 84.2% 60.2%;
@@ -36,20 +36,20 @@
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    /* Ring uses sun-400 */
-    --ring: 47 100% 55%; /* HSL approximation of #ffcf1b */
+    /* Ring - changed from orange to blue */
+    --ring: 213 94% 68%; /* Light blue ring */
 
     --radius: 0.5rem;
 
-    /* Sidebar variables (assuming light sidebar) */
-    --sidebar-background: 37 50% 10%; /* Dark brown background */
-    --sidebar-foreground: 48 100% 98%;   /* Light text */
-    --sidebar-primary: 37 100% 50%; /* sun-500 */
+    /* Sidebar variables - changed from orange brown to dark gray blue */
+    --sidebar-background: 215 14% 15%; /* Dark gray-blue background */
+    --sidebar-foreground: 213 100% 98%; /* Light text */
+    --sidebar-primary: 215 86% 48%; /* Blue primary */
     --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 33 100% 44%; /* sun-600 */
-    --sidebar-accent-foreground: 48 100% 98%; /* Light text */
-    --sidebar-border: 35 60% 20%; /* Dark border */
-    --sidebar-ring: 47 100% 55%; /* sun-400 */
+    --sidebar-accent: 215 86% 44%; /* Darker blue accent */
+    --sidebar-accent-foreground: 213 100% 98%; /* Light text */
+    --sidebar-border: 215 14% 20%; /* Dark blue-gray border */
+    --sidebar-ring: 213 94% 68%; /* Light blue ring */
   }
 
   /* Dark Theme Variables - Update these if you implement dark mode */
@@ -63,9 +63,9 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    /* Dark primary uses sun-500, foreground sun-50 */
-    --primary: 37 100% 50%; /* sun-500 */
-    --primary-foreground: 48 100% 98%; /* sun-50 */ 
+    /* Primary - changed from orange to blue */
+    --primary: 215 86% 48%; /* Blue primary */
+    --primary-foreground: 213 100% 98%; /* Light blue foreground */
 
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -73,27 +73,27 @@
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 0 0% 63%;
 
-    /* Dark accent uses sun-400 */
-    --accent: 47 100% 55%; /* sun-400 */
-    --accent-foreground: 27 100% 14%; /* sun-950 */
+    /* Accent - changed from orange to blue */
+    --accent: 213 94% 68%; /* Light blue accent */
+    --accent-foreground: 215 14% 15%; /* Dark gray-blue background */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    /* Dark ring uses sun-300 */
-    --ring: 50 100% 57%; /* sun-300 */
+    /* Ring - changed from orange to blue */
+    --ring: 213 94% 68%; /* Light blue ring */
     
-    /* Sidebar dark variables */
-    --sidebar-background: 27 100% 14%; /* sun-950 bg */
-    --sidebar-foreground: 48 100% 98%;     /* Light fg */
-    --sidebar-primary: 37 100% 50%;    /* sun-500 */
-    --sidebar-primary-foreground: 48 100% 98%; /* sun-50 */
-    --sidebar-accent: 33 100% 44%;   /* sun-600 */
-    --sidebar-accent-foreground: 48 100% 98%; /* Light fg */
-    --sidebar-border: 29 85% 32%; /* sun-800 */
-    --sidebar-ring: 50 100% 57%;       /* sun-300 */
+    /* Sidebar dark variables - changed from orange brown to dark gray blue */
+    --sidebar-background: 215 14% 15%; /* Dark gray-blue background */
+    --sidebar-foreground: 213 100% 98%; /* Light text */
+    --sidebar-primary: 215 86% 48%; /* Blue primary */
+    --sidebar-primary-foreground: 213 100% 98%; /* Light blue foreground */
+    --sidebar-accent: 215 86% 44%; /* Darker blue accent */
+    --sidebar-accent-foreground: 213 100% 98%; /* Light text */
+    --sidebar-border: 215 14% 20%; /* Dark blue-gray border */
+    --sidebar-ring: 213 94% 68%; /* Light blue ring */
   }
 }
 

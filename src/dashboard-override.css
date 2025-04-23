@@ -1,17 +1,49 @@
-/* Override for orange menu active state */
+/* Override for orange/amber active states and backgrounds throughout the app */
 [data-active=true], 
 .bg-\[\#ff8c00\], 
+.bg-\[\#f97316\],
+.bg-\[\#ffae00\],
+.bg-\[\#ffa500\],
+.bg-\[\#e28400\],
+.bg-amber-400,
+.bg-amber-500,
+.bg-amber-600,
+.bg-orange-400,
+.bg-orange-500,
+.bg-orange-600,
 [class*="bg-orange"], 
 [class*="bg-amber"],
 li:has(a[aria-current="page"]) button,
 button.bg-\[\#ff8c00\],
+button.orange,
+button.amber,
 a[aria-current="page"] {
   background-color: #1a56db !important;
 }
 
-/* Override any text or border with orange color */
+/* Override any text or border with orange/amber color */
 .text-\[\#ff8c00\], 
+.text-\[\#f97316\],
+.text-\[\#ffae00\],
+.text-\[\#ffa500\],
+.text-\[\#e28400\],
+.text-amber-400,
+.text-amber-500,
+.text-amber-600,
+.text-orange-400,
+.text-orange-500,
+.text-orange-600,
 .border-\[\#ff8c00\], 
+.border-\[\#f97316\],
+.border-\[\#ffae00\],
+.border-\[\#ffa500\],
+.border-\[\#e28400\],
+.border-amber-400,
+.border-amber-500,
+.border-amber-600,
+.border-orange-400,
+.border-orange-500,
+.border-orange-600,
 [class*="text-orange"], 
 [class*="text-amber"], 
 [class*="border-orange"], 
@@ -24,4 +56,124 @@ a[aria-current="page"] {
 a[href="/dashboard"] button[data-active=true],
 a[href="/dashboard"]:has(button[data-active=true]) {
   background-color: #1a56db !important;
+}
+
+/* Override Dashboard sidebar orange styling */
+#root .bg-orange-500,
+#root [class*="bg-orange"],
+#root [class*="bg-amber"],
+#root button[data-active=true],
+#root a[aria-current="page"],
+#root .bg-\[\#f97316\],
+#root .bg-\[\#ff8c00\],
+#root .bg-\[\#ffae00\],
+#root .bg-\[\#ffa500\] {
+  background-color: #1a56db !important;
+}
+
+/* Target specific components on login/signup pages */
+.login-btn,
+.signup-btn,
+button[type="submit"],
+.auth-button,
+.primary-button {
+  background-color: #1a56db !important;
+  border-color: #1a56db !important;
+}
+
+/* Links and anchor tags with orange/amber color */
+a:not([class*="bg-"]):not([class*="text-gray"]):not([class*="text-white"]):not([class*="text-blue"]) {
+  color: #1a56db !important;
+}
+
+/* Target the specific Dashboard orange sidebar */
+.Dashboard .bg-\[\#f97316\], 
+.Dashboard [class*="bg-orange"], 
+div[role="navigation"] li a[aria-current="page"],
+nav aside, 
+.sidebar, 
+.side-navigation {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+/* Directly target the Dashboard sidebar */
+div.flex.h-screen.w-screen.overflow-hidden > aside,
+div.flex.h-screen.w-screen.overflow-hidden > div.sidebar,
+.SidebarContent,
+.Sidebar {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+/* Target specific sidebar component from DashboardLayout */
+div[data-sidebar="sidebar"] {
+  background-color: #1f2937 !important;
+}
+
+/* Target the orange Dashboard button */
+a[href="/dashboard"] button {
+  background-color: #1a56db !important; 
+}
+
+/* Target both the active and hover states on nav links */
+button[data-active=true],
+button:hover {
+  background-color: #1a56db !important;
+}
+
+/* Target the parent container holding the sidebar */
+.group\/sidebar-wrapper {
+  background-color: #1f2937 !important;
+}
+
+/* Target form elements in auth pages */
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  border-color: #1a56db !important;
+  outline-color: #1a56db !important;
+  ring-color: #1a56db !important;
+}
+
+/* Target any elements with orange-specific colors used in auth pages */
+[class*="ring-orange"],
+[class*="ring-amber"],
+[class*="focus:ring-orange"],
+[class*="focus:ring-amber"] {
+  --tw-ring-color: #1a56db !important;
+}
+
+/* Target action buttons in auth forms */
+.login-container button,
+.signup-container button,
+.auth-container button,
+.reset-password-container button {
+  background-color: #1a56db !important;
+}
+
+/* Override general theme colors for consistency */
+.theme-orange,
+.theme-amber,
+[class*="theme-orange"],
+[class*="theme-amber"] {
+  --theme-color: #1a56db !important;
+  --theme-color-dark: #1a46a8 !important;
+  --theme-color-light: #60a5fa !important;
+}
+
+/* Override Root CSS Variables for Sidebar */
+:root {
+  --sidebar-background: 215 14% 15% !important; /* Dark gray instead of orange/brown */
+  --sidebar-primary: 215 86% 48% !important; /* Blue instead of orange */
+  --sidebar-accent: 215 86% 44% !important; /* Darker blue for accent */
+  --sidebar-border: 215 14% 20% !important; /* Dark blue-gray border */
+  --sidebar-ring: 213 94% 68% !important; /* Light blue ring */
+  
+  /* Replaces any primary orange colors with blue */
+  --primary: 215 86% 48% !important; 
+  --accent: 215 86% 44% !important;
 } 

@@ -180,7 +180,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <SidebarProvider>
       <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0">
         <Sidebar
-          className="bg-[#1b1f24] border-r border-[#2c3038] w-[220px] text-white flex-shrink-0"
+          className="bg-[#1f2937] border-r border-[#2c3038] w-[220px] text-white flex-shrink-0"
           collapsible="none"
         >
           <SidebarHeader className="h-14 flex items-center px-4 border-b border-[#2c3038]">

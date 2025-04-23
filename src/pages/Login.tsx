@@ -129,7 +129,7 @@ const Login = () => {
             <CardFooter className="flex flex-col space-y-4 px-8 pb-8">
               <Button 
                 type="submit" 
-                className="w-full bg-sun-500 hover:bg-sun-600 text-white"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -143,7 +143,7 @@ const Login = () => {
                 Don't have an account?{" "}
                 <Link 
                   to="/signup" 
-                  className="text-black-bean-600 hover:text-black-bean-700 font-medium"
+                  className="text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Sign up
                 </Link>
