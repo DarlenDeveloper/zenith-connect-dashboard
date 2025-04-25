@@ -47,6 +47,7 @@ import {
   PopoverContent,
   PopoverTrigger
 } from "@/components/ui/popover";
+import NoAgentSelected from "@/components/NoAgentSelected";
 
 interface CallLog {
   id: string;
@@ -61,7 +62,7 @@ interface CallLog {
 const CallHistory = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { selectedAgent } = useAgent();
+  const { selectedAgent, agentRequired } = useAgent();
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCall, setSelectedCall] = useState<CallLog | null>(null);
@@ -77,6 +78,11 @@ const CallHistory = () => {
   });
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedCallId, setSelectedCallId] = useState<string | null>(null);
+
+  // If agent selection is required but none is selected, show the NoAgentSelected component
+  if (agentRequired && !selectedAgent) {
+    return <NoAgentSelected />;
+  }
 
   const fetchCallLogs = async () => {
     setLoading(true);

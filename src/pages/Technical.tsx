@@ -12,6 +12,7 @@ import { logAction } from "@/lib/logging";
 import { useAgent } from "@/contexts/AgentContext";
 import { Loading } from "@/components/ui/loading";
 import { Input } from "@/components/ui/input";
+import NoAgentSelected from "@/components/NoAgentSelected";
 
 interface TechnicalIssue {
   id: string;
@@ -30,12 +31,17 @@ const Technical = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { selectedAgent } = useAgent();
+  const { selectedAgent, agentRequired } = useAgent();
   const [flaggedIssues, setFlaggedIssues] = useState<TechnicalIssue[]>([]);
   const [loading, setLoading] = useState(true);
   const [highlightedIssueId, setHighlightedIssueId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  // If agent selection is required but none is selected, show the NoAgentSelected component
+  if (agentRequired && !selectedAgent) {
+    return <NoAgentSelected />;
+  }
 
   const fetchTechnicalIssues = async () => {
     setLoading(true);

@@ -28,6 +28,7 @@ import Activity from "./pages/Activity";
 
 // Components
 import ProtectedRoute from "@/components/ProtectedRoute";
+import RequireAgent from "@/components/RequireAgent";
 import { Toaster } from "./components/ui/sonner";
 
 const queryClient = new QueryClient();
@@ -71,43 +72,43 @@ function App() {
     },
     {
       path: "/dashboard",
-      element: <ProtectedRoute><Dashboard /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><Dashboard /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/products",
-      element: <ProtectedRoute><Products /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><Products /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/subscription",
-      element: <ProtectedRoute><Subscription /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><Subscription /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/notifications",
-      element: <ProtectedRoute><Notifications /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><Notifications /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/settings",
-      element: <ProtectedRoute><Settings /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><Settings /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/call-history",
-      element: <ProtectedRoute><CallHistory /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><CallHistory /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/ai-voice-settings",
-      element: <ProtectedRoute><AIVoiceSettings /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><AIVoiceSettings /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/analytics",
-      element: <ProtectedRoute><Analytics /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><Analytics /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/technical",
-      element: <ProtectedRoute><Technical /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><Technical /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/status-updates",
-      element: <ProtectedRoute><StatusUpdates /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><StatusUpdates /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/agents",
@@ -115,7 +116,7 @@ function App() {
     },
     {
       path: "/activity",
-      element: <ProtectedRoute><Activity /></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAgent><Activity /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "*",

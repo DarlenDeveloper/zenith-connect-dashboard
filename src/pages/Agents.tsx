@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAgent, Agent } from "@/contexts/AgentContext";
@@ -37,9 +37,19 @@ type NewAgentFormData = z.infer<typeof newAgentSchema>;
 
 const Agents = () => {
   const { user } = useAuth();
-  const { agents, loadingAgents } = useAgent(); // Get agents from context
+  const { agents, loadingAgents, setAgentRequired } = useAgent(); // Get agents and setAgentRequired from context
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAddAgentDialogOpen, setIsAddAgentDialogOpen] = useState(false);
+
+  // Set agent not required when entering Agents page
+  useEffect(() => {
+    setAgentRequired(false);
+    
+    // Restore the requirement when leaving the page
+    return () => {
+      setAgentRequired(true);
+    };
+  }, [setAgentRequired]);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<NewAgentFormData>({
     resolver: zodResolver(newAgentSchema),

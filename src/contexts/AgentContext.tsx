@@ -23,6 +23,8 @@ interface AgentContextType {
   loadingAgents: boolean;
   authenticateAgent: (agentId: string, password: string) => Promise<boolean>;
   authenticatedAgentIds: string[];
+  agentRequired: boolean;
+  setAgentRequired: (required: boolean) => void;
 }
 
 // Create the context
@@ -36,6 +38,8 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
   const [loadingAgents, setLoadingAgents] = useState(true);
   // Track which agents are authenticated
   const [authenticatedAgentIds, setAuthenticatedAgentIds] = useState<string[]>([]);
+  // Track if agent authentication is required
+  const [agentRequired, setAgentRequired] = useState<boolean>(true);
 
   // Load initial selected agent from sessionStorage if it exists in authenticated agents
   useEffect(() => {
@@ -174,8 +178,10 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     setSelectedAgentId,
     loadingAgents,
     authenticateAgent,
-    authenticatedAgentIds
-  }), [agents, selectedAgent, setSelectedAgentId, loadingAgents, authenticateAgent, authenticatedAgentIds]);
+    authenticatedAgentIds,
+    agentRequired,
+    setAgentRequired
+  }), [agents, selectedAgent, setSelectedAgentId, loadingAgents, authenticateAgent, authenticatedAgentIds, agentRequired]);
 
   return (
     <AgentContext.Provider value={value}>

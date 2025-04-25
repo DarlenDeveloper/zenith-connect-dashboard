@@ -30,6 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import AgentPasswordDialog from "@/components/AgentPasswordDialog";
 import { toast } from "sonner";
+import AgentRequiredBanner from "@/components/AgentRequiredBanner";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -233,9 +234,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               </SidebarTrigger>
               <div className="flex-grow flex items-center">
                 {selectedAgent && (
-                  <div className="hidden md:flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-full text-xs text-gray-700">
-                    <UserCheck size={14} />
-                    <span>{selectedAgent.name} • Active</span>
+                  <div className="hidden md:flex items-center gap-1 bg-green-100 px-3 py-1.5 rounded-full text-sm text-green-700 font-medium border border-green-200">
+                    <UserCheck size={16} className="text-green-600" />
+                    <span>Agent: {selectedAgent.name}</span>
+                  </div>
+                )}
+                {!selectedAgent && (
+                  <div className="hidden md:flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-full text-sm text-amber-700 font-medium border border-amber-200">
+                    <AlertTriangle size={16} className="text-amber-600" />
+                    <span>No Agent Selected</span>
                   </div>
                 )}
               </div>
@@ -243,24 +250,29 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
             <div className="flex items-center gap-2">
               {agents && agents.length > 0 && (
-                <div className="relative hidden sm:block">
-                  <Select value={selectedAgent?.id || null} onValueChange={handleAgentChange}>
+                <div className="relative">
+                  <Select value={selectedAgent?.id || ""} onValueChange={handleAgentChange}>
                     <SelectTrigger className="w-[180px] text-sm">
                       <SelectValue placeholder="Select Agent" />
                     </SelectTrigger>
                     <SelectContent>
                       {loadingAgents ? (
-                        <div className="py-2 px-2 text-center">
-                          <span className="loading loading-spinner loading-xs"></span>
-                        </div>
-                      ) : agents.length > 0 ? (
-                        agents.map((agent) => (
-                          <SelectItem key={agent.id} value={agent.id}>
-                            {agent.name} {authenticatedAgentIds.includes(agent.id) && "✓"}
-                          </SelectItem>
-                        ))
+                        <SelectItem value="loading" disabled>Loading agents...</SelectItem>
                       ) : (
-                        <div className="py-2 px-2 text-sm">No agents found</div>
+                        <>
+                          {agents.map((agent) => (
+                            <SelectItem key={agent.id} value={agent.id}>
+                              <div className="flex items-center gap-2">
+                                <span>{agent.name}</span>
+                                {authenticatedAgentIds.includes(agent.id) && (
+                                  <span className="bg-green-100 text-green-700 text-xs py-0.5 px-1.5 rounded-full">
+                                    Auth
+                                  </span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </>
                       )}
                     </SelectContent>
                   </Select>
@@ -302,17 +314,26 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </div>
           </header>
           
+          {/* Agent Required Banner */}
+          <AgentRequiredBanner />
+          
           <main className="flex-grow overflow-auto bg-gray-50">
             {children}
           </main>
         </div>
         
-        <AgentPasswordDialog 
-          isOpen={isPasswordDialogOpen} 
-          onClose={() => setIsPasswordDialogOpen(false)}
-          agentId={pendingAgentId}
-          onVerified={handleAgentPasswordVerification}
-        />
+        {/* Agent Authentication Dialog */}
+        {pendingAgentId && (
+          <AgentPasswordDialog
+            isOpen={isPasswordDialogOpen}
+            onClose={() => {
+              setIsPasswordDialogOpen(false);
+              setPendingAgentId(null);
+            }}
+            agent={agents.find(a => a.id === pendingAgentId) || null}
+            onVerify={handleAgentPasswordVerification}
+          />
+        )}
       </div>
     </SidebarProvider>
   );

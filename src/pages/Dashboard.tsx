@@ -37,6 +37,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Loading } from "@/components/ui/loading";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAgent } from "@/contexts/AgentContext";
+import NoAgentSelected from "@/components/NoAgentSelected";
 
 interface AnalyticsOverview {
   total_calls: number;
@@ -59,6 +61,7 @@ interface RecentCall {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { selectedAgent, agentRequired } = useAgent();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [overviewData, setOverviewData] = useState<AnalyticsOverview | null>(null);
@@ -66,6 +69,10 @@ const Dashboard = () => {
   const [recentCalls, setRecentCalls] = useState<RecentCall[]>([]);
   const subscriptionStatus = searchParams.get('subscription');
   
+  if (agentRequired && !selectedAgent) {
+    return <NoAgentSelected />;
+  }
+
   useEffect(() => {
     if (subscriptionStatus === 'success') {
       toast.success('Subscription activated successfully! Welcome to the premium plan.');
