@@ -182,12 +182,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0">
         <Sidebar
           className="bg-[#1f2937] border-r border-[#2c3038] w-[220px] md:w-[220px] text-white flex-shrink-0"
-          collapsible="sm"
-          collapsedWidth="0"
+          collapsible="offcanvas"
         >
-          <SidebarHeader className="h-14 flex items-center px-4 border-b border-[#2c3038]">
-            <Link to="/dashboard" className="flex items-center">
-              <span className="text-white font-bold text-xl">AIRIES</span>
+          <SidebarHeader className="h-14 flex items-center px-4 border-b-0">
+            <Link to="/dashboard" className="flex items-center w-full">
+              <span className="text-white font-bold text-xl">Dashboard</span>
             </Link>
           </SidebarHeader>
           
@@ -213,7 +212,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </SidebarMenu>
           </SidebarContent>
           
-          <SidebarFooter className="h-14 px-3 flex items-center justify-center border-t border-[#2c3038] mt-auto">
+          <SidebarFooter className="h-14 px-3 flex items-center justify-center border-t-0 mt-auto">
             <Button 
               variant="ghost" 
               size="sm" 
@@ -279,27 +278,26 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </div>
               )}
 
-              <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
-                <PopoverTrigger asChild>
-                  <Button size="icon" variant="ghost" className="relative">
-                    <Bell size={18} />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
-                        {formatCount(unreadCount)}
-                      </span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-[380px] p-0">
-                  <NotificationsDropdown 
-                    onClose={() => setIsNotificationOpen(false)} 
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <div className="border-l border-[#e2e8f0] h-8 mx-2 hidden sm:block"></div>
-
               <div className="flex items-center gap-2">
+                <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
+                  <PopoverTrigger asChild>
+                    <Button size="icon" variant="ghost" className="relative">
+                      <Bell size={18} />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                          {formatCount(unreadCount)}
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-[380px] p-0">
+                    <NotificationsDropdown 
+                      onClose={() => setIsNotificationOpen(false)}
+                      onReadAll={() => setUnreadCount(0)}
+                    />
+                  </PopoverContent>
+                </Popover>
+
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={`https://ui-avatars.com/api/?name=${profileName || "User"}&background=1d4fd8&color=fff`} />
                   <AvatarFallback>

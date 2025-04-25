@@ -5,6 +5,7 @@ import "./dashboard-override.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
 import { AgentProvider } from "./contexts/AgentContext";
+import LoadingScreen from "@/components/LoadingScreen";
 
 // Pages
 import Index from "./pages/Index";
@@ -37,16 +38,16 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 500);
+    // This ensures the loading screen is shown for at least 5 seconds
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <span className="loading loading-dots loading-lg"></span>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   const routes = [

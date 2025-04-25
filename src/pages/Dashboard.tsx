@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import ZenithLogo from "@/components/ZenithLogo";
+import AIRIESLogo from "@/components/AIRIESLogo";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Loading } from "@/components/ui/loading";
@@ -147,8 +148,12 @@ const Dashboard = () => {
       <div className="w-full h-full p-0 m-0 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           <div className="mb-4 px-4 pt-4">
-            <h1 className="text-2xl font-semibold text-gray-900">Hello, {firstName}!</h1>
-            <p className="text-sm text-gray-600">Welcome back, here's your dashboard overview.</p>
+            <div className="flex items-center space-x-4 mb-2">
+              <div>
+                <h1 className="text-2xl font-semibold text-gray-900">Hello, {firstName}!</h1>
+                <p className="text-sm text-gray-600">Welcome back, here's your dashboard overview.</p>
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 mb-6">
