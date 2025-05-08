@@ -259,9 +259,9 @@ const Agents = () => {
                               <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg">
                                 {agent.name.charAt(0)}
                               </div>
-                              <div className="ml-3">
-                                <h3 className="font-semibold text-gray-900">{agent.name}</h3>
-                                <p className="text-sm text-gray-500">{agent.agent_ref_id}</p>
+                              <div className="ml-3 max-w-[150px] overflow-hidden">
+                                <h3 className="font-semibold text-gray-900 truncate" title={agent.name}>{agent.name}</h3>
+                                <p className="text-sm text-gray-500 truncate" title={agent.agent_ref_id}>{agent.agent_ref_id}</p>
                               </div>
                             </div>
                             <Badge 

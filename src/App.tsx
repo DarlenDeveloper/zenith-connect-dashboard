@@ -19,7 +19,7 @@ import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import CallHistory from "./pages/CallHistory";
-import AIVoiceSettings from "./pages/AIVoiceSettings";
+import FeatureRequests from "./pages/FeatureRequests";
 import Analytics from "./pages/Analytics";
 import Technical from "./pages/Technical";
 import StatusUpdates from "./pages/StatusUpdates";
@@ -96,8 +96,8 @@ function App() {
       element: <ProtectedRoute><RequireAgent><CallHistory /></RequireAgent></ProtectedRoute>,
     },
     {
-      path: "/ai-voice-settings",
-      element: <ProtectedRoute><RequireAgent><AIVoiceSettings /></RequireAgent></ProtectedRoute>,
+      path: "/feature-requests",
+      element: <ProtectedRoute><RequireAgent><FeatureRequests /></RequireAgent></ProtectedRoute>,
     },
     {
       path: "/analytics",

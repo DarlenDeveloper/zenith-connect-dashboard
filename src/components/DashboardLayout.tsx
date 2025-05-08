@@ -5,7 +5,7 @@ import {
   Settings, LogOut, InboxIcon, Menu, 
   PhoneCall, BarChart2, PlusCircle, MicIcon,
   FileText, Headphones, Bell, Calendar, Users, 
-  Activity, AlertTriangle, UserCheck
+  Activity, AlertTriangle, UserCheck, Lightbulb
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAgent } from "@/contexts/AgentContext";
@@ -133,7 +133,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Call History", path: "/call-history", icon: <PhoneCall size={18} />, active: location.pathname === "/call-history" },
     { name: "Analytics", path: "/analytics", icon: <BarChart2 size={18} />, active: location.pathname === "/analytics" },
     { name: "Technical", path: "/technical", icon: <AlertTriangle size={18} />, active: location.pathname === "/technical" },
-    { name: "AI Voice", path: "/ai-voice-settings", icon: <MicIcon size={18} />, active: location.pathname === "/ai-voice-settings" },
+    { name: "Feature Requests", path: "/feature-requests", icon: <Lightbulb size={18} />, active: location.pathname === "/feature-requests" },
     { name: "Status & Updates", path: "/status-updates", icon: <Bell size={18} />, active: location.pathname === "/status-updates" },
     { name: "Agents", path: "/agents", icon: <Users size={18} />, active: location.pathname === "/agents" },
     { name: "Activity", path: "/activity", icon: <Activity size={18} />, active: location.pathname === "/activity" },
@@ -186,7 +186,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         >
           <SidebarHeader className="h-14 flex items-center px-3 sm:px-4 border-b-0">
             <Link to="/dashboard" className="flex items-center w-full">
-              <span className="text-white font-bold text-base sm:text-lg md:text-xl truncate">Dashboard</span>
+              <span className="text-white font-bold text-base sm:text-lg md:text-xl truncate">AIRIES</span>
             </Link>
           </SidebarHeader>
           
