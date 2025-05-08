@@ -579,8 +579,30 @@ const CallHistory = () => {
                       <TableRow key={call.id} className="hover:bg-gray-50 transition-colors">
                         <TableCell className="font-medium">{call.caller_number || 'Unknown'}</TableCell>
                         <TableCell>{formatDate(call.call_datetime)}</TableCell>
-                        <TableCell className="max-w-xs truncate">
-                          {call.notes || "No notes available"}
+                        <TableCell className="max-w-xs">
+                          <div className="flex items-center">
+                            <div className="relative group cursor-pointer">
+                              <div className="max-w-xs truncate">
+                                {call.notes || "No notes available"}
+                              </div>
+                              {call.notes && call.notes.length > 50 && (
+                                <div className="absolute z-50 invisible group-hover:visible bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-96 max-h-80 overflow-y-auto left-0 mt-1">
+                                  <div className="font-medium text-sm mb-2 text-blue-600">Call Notes:</div>
+                                  <div className="whitespace-pre-wrap text-sm">{call.notes}</div>
+                                </div>
+                              )}
+                            </div>
+                            {call.notes && call.notes.length > 50 && (
+                              <Button 
+                                variant="ghost" 
+                                className="h-6 w-6 p-0 ml-2" 
+                                onClick={() => openNotesDialog(call)}
+                              >
+                                <span className="sr-only">View full notes</span>
+                                <FileEdit className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Badge 
@@ -673,19 +695,52 @@ const CallHistory = () => {
 
       {/* Notes Dialog */}
       <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Edit Call Notes</DialogTitle>
+            <DialogTitle className="flex items-center">
+              <FileEdit className="mr-2 h-5 w-5 text-blue-600" />
+              {selectedCall ? (
+                <span>Call Notes - {selectedCall.caller_number || 'Unknown'}</span>
+              ) : (
+                <span>Edit Call Notes</span>
+              )}
+            </DialogTitle>
+            {selectedCall && selectedCall.call_datetime && (
+              <div className="text-sm text-gray-500 mt-1">
+                Call Date: {formatDate(selectedCall.call_datetime)}
+              </div>
+            )}
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <Textarea
-              className="min-h-[150px] text-base"
-              placeholder="Enter notes about this call..."
-              value={editNotes}
-              onChange={(e) => setEditNotes(e.target.value)}
-            />
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <div className="bg-gray-50 p-3 mb-3 rounded-md">
+              <div className="text-sm font-medium text-gray-700 mb-2">Call Status: 
+                <Badge 
+                  variant={selectedCall?.status === "Resolved" ? "default" : selectedCall?.status === "Unresolved" ? "destructive" : "secondary"}
+                  className="ml-2"
+                >
+                  {selectedCall?.status === 'Unresolved' ? 'Pending' : selectedCall?.status}
+                </Badge>
+              </div>
+              {selectedCall?.issue_summary && (
+                <div className="text-sm text-gray-700 mb-2">
+                  <span className="font-medium">Issue Summary:</span> {selectedCall.issue_summary}
+                </div>
+              )}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <Textarea
+                className="min-h-[250px] text-base w-full h-full resize-none font-mono"
+                placeholder="Enter notes about this call..."
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
+              />
+            </div>
+            <div className="text-xs text-gray-500 mt-2 flex justify-between">
+              <span>Character count: {editNotes.length}</span>
+              <span>Line count: {editNotes.split('\n').length}</span>
+            </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setIsNoteDialogOpen(false)}>
               Cancel
             </Button>
