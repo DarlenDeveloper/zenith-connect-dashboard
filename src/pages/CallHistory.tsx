@@ -64,6 +64,7 @@ const CallHistory = () => {
   const { user } = useAuth();
   const { selectedAgent, agentRequired } = useAgent();
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
+  const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCall, setSelectedCall] = useState<CallLog | null>(null);
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
@@ -71,6 +72,7 @@ const CallHistory = () => {
   const [sortField, setSortField] = useState<string>("call_datetime");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>({
     from: undefined,
@@ -117,7 +119,9 @@ const CallHistory = () => {
       if (error) {
         throw error;
       }
-      setCallLogs(data || []);
+      const fetchedLogs = data || [];
+      setCallLogs(fetchedLogs);
+      setFilteredCallLogs(fetchedLogs);
     } catch (error: any) {
       console.error("Error fetching call logs:", error);
       toast.error(`Failed to load call history: ${error.message}`);
@@ -147,6 +151,32 @@ const CallHistory = () => {
       supabase.removeChannel(callsSubscription);
     };
   }, [user, statusFilter, sortField, sortDirection, dateRange]);
+  
+  // Effect to filter call logs based on search query
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredCallLogs(callLogs);
+      return;
+    }
+    
+    const query = searchQuery.toLowerCase().trim();
+    const filtered = callLogs.filter(call => {
+      const callerNumber = (call.caller_number || "").toLowerCase();
+      const notes = (call.notes || "").toLowerCase();
+      const summary = (call.issue_summary || "").toLowerCase();
+      const status = call.status.toLowerCase();
+      
+      return (
+        callerNumber.includes(query) ||
+        notes.includes(query) ||
+        summary.includes(query) ||
+        status.includes(query) ||
+        formatDate(call.call_datetime).toLowerCase().includes(query)
+      );
+    });
+    
+    setFilteredCallLogs(filtered);
+  }, [searchQuery, callLogs]);
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
@@ -334,8 +364,8 @@ const CallHistory = () => {
     }
   };
 
-  const totalCalls = callLogs.length;
-  const resolvedCalls = callLogs.filter(call => call.status === "Resolved").length;
+  const totalCalls = filteredCallLogs.length;
+  const resolvedCalls = filteredCallLogs.filter(call => call.status === "Resolved").length;
   const resolutionRate = totalCalls > 0 ? Math.round((resolvedCalls / totalCalls) * 100) : 0;
   const formattedAvgDuration = "N/A";
 
@@ -367,10 +397,14 @@ const CallHistory = () => {
     }
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-full">
-        <header className="h-16 shrink-0 bg-white flex items-center px-6 justify-between border-b border-gray-100 shadow-sm">
+      <div className="flex flex-col h-full px-4 py-4 md:px-6 lg:px-8">
+        <header className="h-16 shrink-0 bg-white flex items-center px-4 sm:px-6 justify-between border-b border-gray-100 shadow-sm rounded-t-lg">
           <div className="flex items-center">
             <PhoneCall className="mr-2 h-5 w-5 text-blue-600" />
             <h1 className="text-xl font-semibold text-gray-900">Call History</h1>
@@ -415,7 +449,7 @@ const CallHistory = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-6 overflow-auto bg-gray-50">
+        <main className="flex-1 p-4 sm:p-6 overflow-auto bg-gray-50 rounded-b-lg">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white shadow-lg">
               <div className="flex items-center justify-between">
@@ -463,6 +497,8 @@ const CallHistory = () => {
                     type="text"
                     placeholder="Search calls..."
                     className="pl-9 pr-4 py-2 w-full border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
                   />
                 </div>
                 
@@ -529,14 +565,17 @@ const CallHistory = () => {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ) : callLogs.length === 0 ? (
+                  ) : filteredCallLogs.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="h-24 text-center text-gray-500">
-                        No {statusFilter === "all" ? "" : statusFilter.toLowerCase()} calls found.
+                        {searchQuery ? 
+                          `No calls matching "${searchQuery}" found.` : 
+                          `No ${statusFilter === "all" ? "" : statusFilter.toLowerCase()} calls found.`
+                        }
                       </TableCell>
                     </TableRow>
                   ) :
-                    callLogs.map((call) => (
+                    filteredCallLogs.map((call) => (
                       <TableRow key={call.id} className="hover:bg-gray-50 transition-colors">
                         <TableCell className="font-medium">{call.caller_number || 'Unknown'}</TableCell>
                         <TableCell>{formatDate(call.call_datetime)}</TableCell>

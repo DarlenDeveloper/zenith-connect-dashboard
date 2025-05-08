@@ -179,14 +179,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0">
+      <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0 max-w-full relative">
         <Sidebar
-          className="bg-[#1f2937] border-r border-[#2c3038] w-[220px] md:w-[220px] text-white flex-shrink-0"
+          className="bg-[#1f2937] w-[200px] sm:w-[220px] md:w-[220px] lg:w-[240px] text-white flex-shrink-0 shadow-md transition-all duration-300 ease-in-out"
           collapsible="offcanvas"
         >
-          <SidebarHeader className="h-14 flex items-center px-4 border-b-0">
+          <SidebarHeader className="h-14 flex items-center px-3 sm:px-4 border-b-0">
             <Link to="/dashboard" className="flex items-center w-full">
-              <span className="text-white font-bold text-xl">Dashboard</span>
+              <span className="text-white font-bold text-base sm:text-lg md:text-xl truncate">Dashboard</span>
             </Link>
           </SidebarHeader>
           
@@ -198,7 +198,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     asChild 
                     isActive={item.active}
                     tooltip={item.name}
-                    className={`h-10 text-sm px-3 rounded-none mx-0 ${
+                    className={`h-9 sm:h-10 text-xs sm:text-sm px-2 sm:px-3 rounded-md mx-0 my-0.5 transition-all duration-200 ${
                       item.active ? "bg-[#34445c] text-white" : "text-gray-300 hover:bg-[#2c3038] hover:text-white"
                     }`}
                   >
@@ -212,35 +212,35 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </SidebarMenu>
           </SidebarContent>
           
-          <SidebarFooter className="h-14 px-3 flex items-center justify-center border-t-0 mt-auto">
+          <SidebarFooter className="h-12 sm:h-14 px-2 sm:px-3 flex items-center justify-center border-t-0 mt-auto">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-400 hover:text-white w-full justify-start px-2"
+              className="text-gray-400 hover:text-white w-full justify-start px-2 h-8 sm:h-9 text-xs sm:text-sm"
               onClick={handleLogout}
             >
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
               <span>Logout</span>
             </Button>
           </SidebarFooter>
         </Sidebar>
 
         <div className="flex flex-col flex-grow overflow-hidden">
-          <header className="h-14 border-b border-[#e2e8f0] bg-white flex items-center justify-between px-4 md:px-6 flex-shrink-0">
+          <header className="h-14 border-b border-[#e2e8f0] bg-white flex items-center justify-between px-2 sm:px-4 md:px-6 flex-shrink-0 overflow-hidden">
             <div className="flex items-center">
               <SidebarTrigger className="lg:hidden mr-2">
                 <Menu size={20} />
               </SidebarTrigger>
               <div className="flex-grow flex items-center">
                 {selectedAgent && (
-                  <div className="hidden md:flex items-center gap-1 bg-green-100 px-3 py-1.5 rounded-full text-sm text-green-700 font-medium border border-green-200">
-                    <UserCheck size={16} className="text-green-600" />
-                    <span>Agent: {selectedAgent.name}</span>
+                  <div className="hidden sm:flex items-center gap-1 bg-green-100 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm text-green-700 font-medium border border-green-200 whitespace-nowrap">
+                    <UserCheck size={14} className="text-green-600 hidden xs:inline" />
+                    <span className="truncate max-w-[120px] sm:max-w-none">Agent: {selectedAgent.name}</span>
                   </div>
                 )}
                 {!selectedAgent && (
-                  <div className="hidden md:flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-full text-sm text-amber-700 font-medium border border-amber-200">
-                    <AlertTriangle size={16} className="text-amber-600" />
+                  <div className="hidden sm:flex items-center gap-1 bg-amber-100 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm text-amber-700 font-medium border border-amber-200 whitespace-nowrap">
+                    <AlertTriangle size={14} className="text-amber-600 hidden xs:inline" />
                     <span>No Agent Selected</span>
                   </div>
                 )}
@@ -251,7 +251,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               {agents && agents.length > 0 && (
                 <div className="relative">
                   <Select value={selectedAgent?.id || ""} onValueChange={handleAgentChange}>
-                    <SelectTrigger className="w-[180px] text-sm">
+                    <SelectTrigger className="w-[100px] xs:w-[120px] sm:w-[150px] md:w-[180px] text-xs sm:text-sm h-8 sm:h-9">
                       <SelectValue placeholder="Select Agent" />
                     </SelectTrigger>
                     <SelectContent>
@@ -278,7 +278,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </div>
               )}
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Popover open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
                   <PopoverTrigger asChild>
                     <Button size="icon" variant="ghost" className="relative">
@@ -290,7 +290,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent align="end" className="w-[380px] p-0">
+                  <PopoverContent align="end" className="w-[280px] sm:w-[320px] md:w-[380px] p-0">
                     <NotificationsDropdown 
                       onClose={() => setIsNotificationOpen(false)}
                       onReadAll={() => setUnreadCount(0)}
@@ -298,15 +298,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   </PopoverContent>
                 </Popover>
 
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
                   <AvatarImage src={`https://ui-avatars.com/api/?name=${profileName || "User"}&background=1d4fd8&color=fff`} />
                   <AvatarFallback>
                     {profileName ? profileName?.charAt(0).toUpperCase() : 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <div className="hidden md:block">
-                  <p className="text-sm font-medium">{profileName || "User"}</p>
-                  <p className="text-xs text-muted-foreground">{profileEmail || ""}</p>
+                <div className="hidden sm:block">
+                  <p className="text-xs sm:text-sm font-medium truncate max-w-[80px] md:max-w-[120px] lg:max-w-none">{profileName || "User"}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate max-w-[80px] md:max-w-[120px] lg:max-w-none">{profileEmail || ""}</p>
                 </div>
               </div>
             </div>
@@ -315,7 +315,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           {/* Agent Required Banner */}
           <AgentRequiredBanner />
           
-          <main className="flex-grow overflow-auto bg-gray-50">
+          <main className="flex-grow overflow-auto bg-gray-50 w-full">
             {children}
           </main>
         </div>

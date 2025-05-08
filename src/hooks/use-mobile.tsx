@@ -2,11 +2,13 @@ import * as React from "react"
 
 // Tailwind-aligned breakpoints
 export const BREAKPOINTS = {
-  XS: 480,  // Extra small
+  XXS: 360, // Extra extra small (mobile)
+  XS: 480,  // Extra small (larger mobile)
   SM: 640,  // Small screens (sm)
   MD: 768,  // Medium screens (md)
   LG: 1024, // Large screens (lg)
-  XL: 1280  // Extra large (xl)
+  XL: 1280, // Extra large (xl)
+  XXL: 1536 // Extra extra large (2xl)
 }
 
 export function useIsMobile() {
@@ -27,28 +29,34 @@ export function useIsMobile() {
 
 export function useBreakpoint() {
   const [breakpoint, setBreakpoint] = React.useState<{
+    isXxs: boolean;
     isXs: boolean;
     isSm: boolean;
     isMd: boolean;
     isLg: boolean;
     isXl: boolean;
+    isXxl: boolean;
   }>({
+    isXxs: false,
     isXs: false,
     isSm: false,
     isMd: false,
     isLg: false,
-    isXl: false
+    isXl: false,
+    isXxl: false
   })
 
   React.useEffect(() => {
     const updateBreakpoint = () => {
       const width = window.innerWidth
       setBreakpoint({
-        isXs: width < BREAKPOINTS.SM,
+        isXxs: width < BREAKPOINTS.XXS,
+        isXs: width >= BREAKPOINTS.XXS && width < BREAKPOINTS.SM,
         isSm: width >= BREAKPOINTS.SM && width < BREAKPOINTS.MD,
         isMd: width >= BREAKPOINTS.MD && width < BREAKPOINTS.LG,
         isLg: width >= BREAKPOINTS.LG && width < BREAKPOINTS.XL,
-        isXl: width >= BREAKPOINTS.XL
+        isXl: width >= BREAKPOINTS.XL && width < BREAKPOINTS.XXL,
+        isXxl: width >= BREAKPOINTS.XXL
       })
     }
 
@@ -59,8 +67,8 @@ export function useBreakpoint() {
 
   return {
     ...breakpoint,
-    isMobile: breakpoint.isXs || breakpoint.isSm,
-    isTablet: breakpoint.isMd,
-    isDesktop: breakpoint.isLg || breakpoint.isXl
+    isMobile: breakpoint.isXxs || breakpoint.isXs || breakpoint.isSm,
+    isTablet: breakpoint.isMd || breakpoint.isLg,
+    isDesktop: breakpoint.isXl || breakpoint.isXxl
   }
 }
