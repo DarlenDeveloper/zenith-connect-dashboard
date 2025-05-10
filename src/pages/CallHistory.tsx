@@ -409,6 +409,17 @@ const CallHistory = () => {
     if (!user) return;
     
     try {
+      // First check if the function exists
+      const { data: functionExists, error: checkError } = await supabase
+        .rpc('get_average_call_duration', { p_user_id: user.id })
+        .maybeSingle();
+        
+      if (checkError && checkError.message.includes("function") && checkError.message.includes("does not exist")) {
+        console.log("get_average_call_duration function does not exist yet");
+        setAvgDuration(null);
+        return;
+      }
+      
       const { data, error } = await supabase.rpc(
         'get_average_call_duration',
         { p_user_id: user.id }
