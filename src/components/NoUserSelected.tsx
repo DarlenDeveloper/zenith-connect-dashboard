@@ -54,12 +54,12 @@ const NoUserSelected = () => {
               <div className="bg-gray-100 rounded-full p-4 inline-flex items-center justify-center mb-4">
                 <Users className="h-10 w-10 text-gray-400" />
               </div>
-              <p className="text-gray-600 mb-4">No users found. Please create a user first.</p>
+              <p className="text-gray-600 mb-4">No users found. You must create a user first.</p>
               <Button 
-                onClick={() => navigate('/users')}
+                onClick={() => navigate('/users?createUser=true')}
                 className="bg-blue-600 hover:bg-blue-700"
               >
-                Go to Users Management
+                Create First User
               </Button>
             </div>
           ) : (

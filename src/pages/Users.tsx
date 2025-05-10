@@ -26,6 +26,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Loading } from "@/components/ui/loading";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Zod schema for new user form
 const newUserSchema = z.object({
@@ -57,6 +58,9 @@ const Users = () => {
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const [isFirstUser, setIsFirstUser] = useState(false);
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
   // Set user selection not required when entering Users page
   useEffect(() => {
     setUserRequired(false);
@@ -70,7 +74,18 @@ const Users = () => {
   // Check if this is the first user being created
   useEffect(() => {
     setIsFirstUser(users.length === 0);
-  }, [users]);
+    
+    // Check if we should automatically open the add user dialog
+    // Either when there are no users or when the URL has a specific parameter
+    if (!loadingUsers && (users.length === 0 || location.search.includes('createUser=true'))) {
+      setIsAddUserDialogOpen(true);
+      
+      // Remove the query parameter to avoid reopening the dialog on page refresh
+      if (location.search.includes('createUser=true')) {
+        navigate('/users', { replace: true });
+      }
+    }
+  }, [users, loadingUsers, location.search, navigate]);
 
   // Add user form
   const { 
