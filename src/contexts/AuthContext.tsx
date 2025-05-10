@@ -1,8 +1,8 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
+import { logUserAction, LogActions } from "@/utils/user-logs";
 
 interface AuthUser {
   id: string;
@@ -129,6 +129,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Create a function to log authentication events with admin ID
+  const logAuthEvent = async (
+    eventType: 'LOGIN' | 'LOGOUT',
+    userId: string,
+    userEmail?: string
+  ) => {
+    try {
+      // For login/logout, we use the admin's ID as the user_id since there is no selected user yet
+      await logUserAction(
+        eventType === 'LOGIN' ? LogActions.LOGIN : LogActions.LOGOUT,
+        {
+          auth_user_email: userEmail,
+          timestamp: new Date().toISOString()
+        }
+      );
+    } catch (error) {
+      console.error(`Error logging ${eventType}:`, error);
+    }
+  };
+
   const login = async (email: string, password: string) => {
     setLoading(true);
     
@@ -139,6 +159,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) throw error;
+
+      // Log the login event after successful authentication
+      if (data?.user) {
+        setTimeout(() => {
+          logAuthEvent('LOGIN', data.user.id, data.user.email);
+        }, 1000); // Small delay to ensure authentication completes
+      }
 
       toast({
         title: "Login Successful",
@@ -200,6 +227,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      // Log the logout event before actually logging out
+      if (supabaseUser?.id) {
+        await logAuthEvent('LOGOUT', supabaseUser.id, supabaseUser.email);
+      }
+      
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       

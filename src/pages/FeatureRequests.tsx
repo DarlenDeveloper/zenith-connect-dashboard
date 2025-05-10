@@ -125,7 +125,7 @@ const FeatureRequests = () => {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto bg-[#f9f9f9] p-4 sm:p-6 rounded-b-lg">
+        <main className="flex-1 overflow-auto bg-white p-4 sm:p-6 rounded-b-lg">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             {/* New Request Form Card */}

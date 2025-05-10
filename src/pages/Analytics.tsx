@@ -146,7 +146,7 @@ const Analytics = () => {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto bg-gray-50 p-6">
+        <main className="flex-1 overflow-auto bg-white p-6">
           {loading ? (
             <div className="min-h-[300px] flex items-center justify-center">
               <Loading text="Loading analytics" size="md" />

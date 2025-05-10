@@ -125,7 +125,7 @@ const StatusUpdates = () => {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6 space-y-6">
+        <main className="flex-1 overflow-auto bg-white p-6 space-y-6">
           {/* System Status Card - Redesigned List */}
           <Card className="shadow-lg hover:shadow-xl transition-shadow duration-200">
             <CardHeader>

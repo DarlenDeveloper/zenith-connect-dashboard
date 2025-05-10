@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -87,7 +86,7 @@ const ContactSales = () => {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
+        <main className="flex-1 overflow-auto bg-white p-6">
           <div className="max-w-2xl mx-auto">
             <Card className="shadow-md border-0">
               <CardHeader className="bg-gradient-to-r from-slate-50 to-white">

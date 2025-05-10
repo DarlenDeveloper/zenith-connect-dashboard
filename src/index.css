@@ -116,6 +116,9 @@
 
   body {
     @apply bg-background text-foreground font-['Inter',sans-serif];
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 }
 
@@ -205,7 +208,21 @@
 
 /* Remove all scrollbars from the application */
 ::-webkit-scrollbar {
-  display: none !important;
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 * {

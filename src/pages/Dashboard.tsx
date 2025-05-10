@@ -38,8 +38,9 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Loading } from "@/components/ui/loading";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAgent } from "@/contexts/AgentContext";
-import NoAgentSelected from "@/components/NoAgentSelected";
+import { useUser } from "@/contexts/UserContext";
+import NoUserSelected from "@/components/NoUserSelected";
+import CompanyPhoneNumber from "@/components/CompanyPhoneNumber";
 
 interface AnalyticsOverview {
   total_calls: number;
@@ -62,7 +63,7 @@ interface RecentCall {
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { selectedAgent, agentRequired } = useAgent();
+  const { selectedUser, userRequired } = useUser();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [overviewData, setOverviewData] = useState<AnalyticsOverview | null>(null);
@@ -70,8 +71,8 @@ const Dashboard = () => {
   const [recentCalls, setRecentCalls] = useState<RecentCall[]>([]);
   const subscriptionStatus = searchParams.get('subscription');
   
-  if (agentRequired && !selectedAgent) {
-    return <NoAgentSelected />;
+  if (userRequired && !selectedUser) {
+    return <NoUserSelected />;
   }
 
   useEffect(() => {
@@ -145,9 +146,9 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="w-full h-full p-0 m-0 overflow-y-auto">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-4 px-4 pt-4">
+      <div className="flex-1 h-screen overflow-y-auto bg-white">
+        <div className="max-w-[2000px] mx-auto px-4 py-6">
+          <div className="mb-6">
             <div className="flex items-center space-x-4 mb-2">
               <div>
                 <h1 className="text-2xl font-semibold text-gray-900">Hello, {firstName}!</h1>
@@ -156,7 +157,8 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <CompanyPhoneNumber />
             <Card className="bg-[#1a56db] text-white rounded-lg shadow-md overflow-hidden">
               <CardContent className="p-6 relative">
                 <div className="flex items-center justify-between">

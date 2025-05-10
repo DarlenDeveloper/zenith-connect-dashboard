@@ -8,7 +8,7 @@ import {
   Activity, AlertTriangle, UserCheck, Lightbulb
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAgent } from "@/contexts/AgentContext";
+import { useUser } from "@/contexts/UserContext";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ZenithLogo from "@/components/ZenithLogo";
@@ -28,9 +28,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import NotificationsDropdown from "@/components/NotificationsDropdown";
-import AgentPasswordDialog from "@/components/AgentPasswordDialog";
+import UserPasswordDialog from "@/components/UserPasswordDialog";
 import { toast } from "sonner";
-import AgentRequiredBanner from "@/components/AgentRequiredBanner";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -45,7 +44,7 @@ interface NavItem {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout } = useAuth();
-  const { agents, selectedAgent, setSelectedAgentId, loadingAgents, authenticateAgent, authenticatedAgentIds } = useAgent();
+  const { users, selectedUser, setSelectedUserId, loadingUsers, authenticateUser, authenticatedUserIds } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -54,8 +53,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   
-  // Agent authentication states
-  const [pendingAgentId, setPendingAgentId] = useState<string | null>(null);
+  // User authentication states
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -135,7 +134,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Technical", path: "/technical", icon: <AlertTriangle size={18} />, active: location.pathname === "/technical" },
     { name: "Feature Requests", path: "/feature-requests", icon: <Lightbulb size={18} />, active: location.pathname === "/feature-requests" },
     { name: "Status & Updates", path: "/status-updates", icon: <Bell size={18} />, active: location.pathname === "/status-updates" },
-    { name: "Agents", path: "/agents", icon: <Users size={18} />, active: location.pathname === "/agents" },
+    { name: "Users", path: "/users", icon: <Users size={18} />, active: location.pathname === "/users" },
     { name: "Activity", path: "/activity", icon: <Activity size={18} />, active: location.pathname === "/activity" },
     { name: "Subscription", path: "/subscription", icon: <CreditCard size={18} />, active: location.pathname === "/subscription" },
     { name: "Settings", path: "/settings", icon: <Settings size={18} />, active: location.pathname === "/settings" },
@@ -147,41 +146,41 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return count.toString();
   };
 
-  const handleAgentChange = (agentId: string | null) => {
-    if (!agentId) {
-      setSelectedAgentId(null);
+  const handleUserChange = (userId: string | null) => {
+    if (!userId) {
+      setSelectedUserId(null);
       return;
     }
     
-    // Check if agent is already authenticated
-    if (authenticatedAgentIds.includes(agentId)) {
-      setSelectedAgentId(agentId);
-      toast.success(`Agent ${agents.find(a => a.id === agentId)?.name} is now active`);
+    // Check if user is already authenticated
+    if (authenticatedUserIds.includes(userId)) {
+      setSelectedUserId(userId);
+      toast.success(`User ${users.find(u => u.id === userId)?.name} is now active`);
     } else {
       // Open password dialog for authentication
-      setPendingAgentId(agentId);
+      setPendingUserId(userId);
       setIsPasswordDialogOpen(true);
     }
   };
 
-  const handleAgentPasswordVerification = (success: boolean) => {
-    if (success && pendingAgentId) {
-      setSelectedAgentId(pendingAgentId);
-      const agent = agents.find(a => a.id === pendingAgentId);
-      toast.success(`Agent ${agent?.name} authenticated successfully`);
+  const handleUserPasswordVerification = (success: boolean) => {
+    if (success && pendingUserId) {
+      setSelectedUserId(pendingUserId);
+      const user = users.find(u => u.id === pendingUserId);
+      toast.success(`User ${user?.name} authenticated successfully`);
     }
     
-    // Clear pending agent if verification failed
+    // Clear pending user if verification failed
     if (!success) {
-      setPendingAgentId(null);
+      setPendingUserId(null);
     }
   };
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0 max-w-full relative">
+      <div className="flex h-screen w-screen overflow-hidden font-['Inter', sans-serif] m-0 p-0 max-w-[100vw] relative bg-white">
         <Sidebar
-          className="bg-[#1f2937] w-[200px] sm:w-[220px] md:w-[220px] lg:w-[240px] text-white flex-shrink-0 shadow-md transition-all duration-300 ease-in-out"
+          className="bg-[#1f2937] w-[200px] sm:w-[220px] md:w-[220px] lg:w-[240px] text-white flex-shrink-0 shadow-md transition-all duration-300 ease-in-out h-screen"
           collapsible="offcanvas"
         >
           <SidebarHeader className="h-14 flex items-center px-3 sm:px-4 border-b-0">
@@ -190,10 +189,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </Link>
           </SidebarHeader>
           
-          <SidebarContent className="py-2">
+          <SidebarContent className="flex flex-col flex-grow overflow-y-auto">
             <SidebarMenu>
               {navItems.map((item) => (
-                <SidebarMenuItem key={item.path}>
+                <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton 
                     asChild 
                     isActive={item.active}
@@ -232,38 +231,38 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <Menu size={20} />
               </SidebarTrigger>
               <div className="flex-grow flex items-center">
-                {selectedAgent && (
+                {selectedUser && (
                   <div className="hidden sm:flex items-center gap-1 bg-green-100 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm text-green-700 font-medium border border-green-200 whitespace-nowrap">
                     <UserCheck size={14} className="text-green-600 hidden xs:inline" />
-                    <span className="truncate max-w-[120px] sm:max-w-none">Agent: {selectedAgent.name}</span>
+                    <span className="truncate max-w-[120px] sm:max-w-none">{selectedUser.role.charAt(0).toUpperCase() + selectedUser.role.slice(1)}: {selectedUser.name}</span>
                   </div>
                 )}
-                {!selectedAgent && (
+                {!selectedUser && (
                   <div className="hidden sm:flex items-center gap-1 bg-amber-100 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm text-amber-700 font-medium border border-amber-200 whitespace-nowrap">
                     <AlertTriangle size={14} className="text-amber-600 hidden xs:inline" />
-                    <span>No Agent Selected</span>
+                    <span>No User Selected</span>
                   </div>
                 )}
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              {agents && agents.length > 0 && (
+              {users && users.length > 0 && (
                 <div className="relative">
-                  <Select value={selectedAgent?.id || ""} onValueChange={handleAgentChange}>
+                  <Select value={selectedUser?.id || ""} onValueChange={handleUserChange}>
                     <SelectTrigger className="w-[100px] xs:w-[120px] sm:w-[150px] md:w-[180px] text-xs sm:text-sm h-8 sm:h-9">
-                      <SelectValue placeholder="Select Agent" />
+                      <SelectValue placeholder="Select User" />
                     </SelectTrigger>
                     <SelectContent>
-                      {loadingAgents ? (
-                        <SelectItem value="loading" disabled>Loading agents...</SelectItem>
+                      {loadingUsers ? (
+                        <SelectItem value="loading" disabled>Loading users...</SelectItem>
                       ) : (
                         <>
-                          {agents.map((agent) => (
-                            <SelectItem key={agent.id} value={agent.id}>
+                          {users.map((user) => (
+                            <SelectItem key={user.id} value={user.id}>
                               <div className="flex items-center gap-2">
-                                <span>{agent.name}</span>
-                                {authenticatedAgentIds.includes(agent.id) && (
+                                <span>{user.name}</span>
+                                {authenticatedUserIds.includes(user.id) && (
                                   <span className="bg-green-100 text-green-700 text-xs py-0.5 px-1.5 rounded-full">
                                     Auth
                                   </span>
@@ -312,24 +311,21 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </div>
           </header>
           
-          {/* Agent Required Banner */}
-          <AgentRequiredBanner />
-          
-          <main className="flex-grow overflow-auto bg-gray-50 w-full">
+          <main className="flex-grow overflow-auto bg-white w-full">
             {children}
           </main>
         </div>
         
-        {/* Agent Authentication Dialog */}
-        {pendingAgentId && (
-          <AgentPasswordDialog
+        {/* User Authentication Dialog */}
+        {pendingUserId && (
+          <UserPasswordDialog
             isOpen={isPasswordDialogOpen}
             onClose={() => {
               setIsPasswordDialogOpen(false);
-              setPendingAgentId(null);
+              setPendingUserId(null);
             }}
-            agent={agents.find(a => a.id === pendingAgentId) || null}
-            onVerify={handleAgentPasswordVerification}
+            user={users.find(u => u.id === pendingUserId) || null}
+            onVerify={handleUserPasswordVerification}
           />
         )}
       </div>

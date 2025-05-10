@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { 
   PhoneCall, Calendar, Clock, User, BarChart, Phone,
-  Search, Filter, FileEdit, CheckCircle, Download, 
+  Search, Filter, Eye, CheckCircle, Download, 
   AlertCircle, ArrowUp, ArrowDown, AlertTriangle, XCircle,
   Trash2, MoreHorizontal
 } from "lucide-react";
@@ -35,8 +35,8 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAgent } from "@/contexts/AgentContext";
-import { logAction } from "@/lib/logging";
+import { useUser } from "@/contexts/UserContext";
+import { logUserAction, LogActions } from "@/utils/user-logs";
 import { Spinner } from "@/components/ui/spinner";
 import { Loading } from "@/components/ui/loading";
 import { format } from "date-fns";
@@ -47,7 +47,7 @@ import {
   PopoverContent,
   PopoverTrigger
 } from "@/components/ui/popover";
-import NoAgentSelected from "@/components/NoAgentSelected";
+import NoUserSelected from "@/components/NoUserSelected";
 
 interface CallLog {
   id: string;
@@ -62,7 +62,7 @@ interface CallLog {
 const CallHistory = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { selectedAgent, agentRequired } = useAgent();
+  const { selectedUser, userRequired } = useUser();
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [filteredCallLogs, setFilteredCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,10 +80,11 @@ const CallHistory = () => {
   });
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedCallId, setSelectedCallId] = useState<string | null>(null);
+  const [avgDuration, setAvgDuration] = useState<number | null>(null);
 
-  // If agent selection is required but none is selected, show the NoAgentSelected component
-  if (agentRequired && !selectedAgent) {
-    return <NoAgentSelected />;
+  // If user selection is required but none is selected, show the NoUserSelected component
+  if (userRequired && !selectedUser) {
+    return <NoUserSelected />;
   }
 
   const fetchCallLogs = async () => {
@@ -134,6 +135,7 @@ const CallHistory = () => {
     if (!user) return;
 
     fetchCallLogs();
+    fetchAverageDuration();
 
     const callsSubscription = supabase
       .channel('custom-calls-channel')
@@ -142,7 +144,8 @@ const CallHistory = () => {
         { event: '*', schema: 'public', table: 'calls' },
         (payload) => {
           console.log('Change received!', payload);
-          fetchCallLogs(); 
+          fetchCallLogs();
+          fetchAverageDuration();
         }
       )
       .subscribe();
@@ -210,16 +213,14 @@ const CallHistory = () => {
       if (error) throw error;
       toast.success(`Call status updated to ${newStatus}`);
       
-      if (user) {
-        await logAction({
-          userId: user.id,
-          agentId: selectedAgent?.id || null,
-          actionType: 'UPDATE_CALL_STATUS',
-          targetTable: 'calls',
-          targetId: id,
-          details: { newStatus: newStatus }
-        });
-      }
+      await logUserAction(
+        LogActions.UPDATE_CALL_STATUS,
+        { 
+          call_id: id,
+          newStatus: newStatus,
+          table: 'calls'
+        }
+      );
     } catch (error: any) {
       console.error("Error updating call status:", error);
       toast.error(`Failed to update status: ${error.message}`);
@@ -249,18 +250,15 @@ const CallHistory = () => {
       setIsNoteDialogOpen(false);
       toast.success("Notes saved successfully");
 
-      if (user && trimmedNewNotes !== (originalNotes || "").trim()) {
-        await logAction({
-          userId: user.id,
-          agentId: selectedAgent?.id || null,
-          actionType: 'SAVE_CALL_NOTES',
-          targetTable: 'calls',
-          targetId: selectedCall.id,
-          details: { 
-            previousNotesLength: originalNotes.length, 
-            newNotesLength: editNotes.length 
-          } 
-        });
+      if (trimmedNewNotes !== (originalNotes || "").trim()) {
+        await logUserAction(
+          LogActions.SAVE_CALL_NOTES,
+          { 
+            call_id: selectedCall.id,
+            notesUpdated: true,
+            table: 'calls'
+          }
+        );
       }
     } catch (error: any) {
       console.error("Error saving notes:", error);
@@ -269,55 +267,48 @@ const CallHistory = () => {
   };
 
   const flagTechnicalIssue = async (call: CallLog) => {
-    if (!user) {
-      toast.error("You must be logged in to flag issues.");
+    if (!selectedUser) {
+      toast.error("Please select an active user from the header dropdown before flagging issues.");
       return;
     }
-    if (!selectedAgent) {
-      toast.error("Please select an active agent from the header dropdown before flagging issues.");
-      return;
-    }
-    
-    let newIssueId: string | undefined = undefined;
-    
+
     try {
+      // Create a new technical issue record
       const { data: issueData, error: issueError } = await supabase
         .from('technical_issues')
         .insert({
-          user_id: user.id,
-          call_id: call.id,
-          title: `Tech Issue: Call ${call.caller_number || 'Unknown'}`,
-          description: call.notes || "Call flagged for technical review.",
-          status: "Open",
+          description: call.notes || `Technical issue reported for call ${call.id}`,
+          status: 'Open',
           priority: "Medium",
-          reported_by: user.id,
-          acting_agent_id: selectedAgent.id
+          reported_by: user?.id,
+          user_id: user?.id,
+          call_id: call.id
         })
         .select('id')
         .single();
         
       if (issueError) throw issueError;
       
-      newIssueId = issueData?.id;
-      toast.success(`Flagged call for technical review (Agent: ${selectedAgent.name}).`);
+      let newIssueId = issueData?.id;
+      toast.success(`Flagged call for technical review (User: ${selectedUser.name}).`);
       
-      await logAction({
-        userId: user.id,
-        agentId: selectedAgent.id,
-        actionType: 'FLAG_TECHNICAL_ISSUE',
-        targetTable: 'technical_issues',
-        targetId: newIssueId,
-        details: { flaggedCallId: call.id } 
-      });
+      await logUserAction(
+        LogActions.FLAG_TECHNICAL_ISSUE,
+        { 
+          call_id: call.id,
+          issue_id: newIssueId,
+          table: 'technical_issues'
+        }
+      );
 
       if (newIssueId) {
         const { error: notificationError } = await supabase
           .from('notifications')
           .insert({
-            user_id: user.id,
+            user_id: user?.id,
             type: 'tech_issue_flagged',
             title: 'New Technical Issue Flagged',
-            message: `Issue flagged for call from ${call.caller_number || 'Unknown'} by Agent ${selectedAgent.name}`,
+            message: `Issue flagged for call from ${call.caller_number || 'Unknown'} by User ${selectedUser.name}`,
             target_table: 'technical_issues',
             target_id: newIssueId
           });
@@ -358,6 +349,14 @@ const CallHistory = () => {
       toast.success("Call record deleted successfully");
       setIsDeleteDialogOpen(false);
       fetchCallLogs();
+      
+      await logUserAction(
+        LogActions.DELETE_CALL,
+        { 
+          call_id: selectedCallId,
+          table: 'calls'
+        }
+      );
     } catch (error: any) {
       console.error("Error deleting call:", error);
       toast.error(`Failed to delete call: ${error.message}`);
@@ -367,7 +366,11 @@ const CallHistory = () => {
   const totalCalls = filteredCallLogs.length;
   const resolvedCalls = filteredCallLogs.filter(call => call.status === "Resolved").length;
   const resolutionRate = totalCalls > 0 ? Math.round((resolvedCalls / totalCalls) * 100) : 0;
-  const formattedAvgDuration = "N/A";
+  
+  // Format the average duration for display
+  const formattedAvgDuration = avgDuration ? 
+    `${Math.floor(avgDuration)}:${Math.round((avgDuration % 1) * 60).toString().padStart(2, '0')}` : 
+    "N/A";
 
   const clearDateFilter = () => {
     setDateRange({ from: undefined, to: undefined });
@@ -399,6 +402,25 @@ const CallHistory = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+  };
+
+  // Function to fetch the average call duration
+  const fetchAverageDuration = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase.rpc(
+        'get_average_call_duration',
+        { p_user_id: user.id }
+      );
+      
+      if (error) throw error;
+      
+      setAvgDuration(data || null);
+    } catch (error: any) {
+      console.error("Error fetching average call duration:", error);
+      setAvgDuration(null);
+    }
   };
 
   return (
@@ -449,7 +471,7 @@ const CallHistory = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6 overflow-auto bg-gray-50 rounded-b-lg">
+        <main className="flex-1 p-4 sm:p-6 overflow-auto bg-white rounded-b-lg">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white shadow-lg">
               <div className="flex items-center justify-between">
@@ -468,6 +490,9 @@ const CallHistory = () => {
                 <div>
                   <p className="text-gray-300 text-sm font-medium mb-1">Avg. Duration</p>
                   <p className="text-3xl font-bold">{formattedAvgDuration}</p>
+                  <p className="text-gray-400 text-xs mt-1">
+                    {avgDuration !== null ? "Overall average" : "No data available"}
+                  </p>
                 </div>
                 <div className="bg-white/20 rounded-full p-3">
                   <Clock className="h-6 w-6 text-white" />
@@ -586,7 +611,7 @@ const CallHistory = () => {
                                 {call.notes || "No notes available"}
                               </div>
                               {call.notes && call.notes.length > 50 && (
-                                <div className="absolute z-50 invisible group-hover:visible bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-96 max-h-80 overflow-y-auto left-0 mt-1">
+                                <div className="fixed z-50 invisible group-hover:visible bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-96 max-h-80 overflow-y-auto" style={{ top: '20%', left: '50%', transform: 'translateX(-50%)' }}>
                                   <div className="font-medium text-sm mb-2 text-blue-600">Call Notes:</div>
                                   <div className="whitespace-pre-wrap text-sm">{call.notes}</div>
                                 </div>
@@ -599,7 +624,7 @@ const CallHistory = () => {
                                 onClick={() => openNotesDialog(call)}
                               >
                                 <span className="sr-only">View full notes</span>
-                                <FileEdit className="h-3 w-3" />
+                                <Eye className="h-3 w-3" />
                               </Button>
                             )}
                           </div>
@@ -631,8 +656,8 @@ const CallHistory = () => {
                                 onClick={() => openNotesDialog(call)}
                                 className="cursor-pointer"
                               >
-                                <FileEdit className="mr-2 h-4 w-4" />
-                                <span>Edit Notes</span>
+                                <Eye className="mr-2 h-4 w-4" />
+                                <span>View Call</span>
                               </DropdownMenuItem>
 
                               {call.status !== "Resolved" && (
@@ -698,11 +723,11 @@ const CallHistory = () => {
         <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center">
-              <FileEdit className="mr-2 h-5 w-5 text-blue-600" />
+              <Eye className="mr-2 h-5 w-5 text-blue-600" />
               {selectedCall ? (
                 <span>Call Notes - {selectedCall.caller_number || 'Unknown'}</span>
               ) : (
-                <span>Edit Call Notes</span>
+                <span>View Call</span>
               )}
             </DialogTitle>
             {selectedCall && selectedCall.call_datetime && (

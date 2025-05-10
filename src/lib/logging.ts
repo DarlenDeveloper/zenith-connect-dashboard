@@ -3,22 +3,16 @@ import { User } from "@supabase/supabase-js";
 
 interface LogActionParams {
   userId: string; // Must be passed explicitly as context might not be available everywhere
-  agentId: string | null; // The currently selected agent ID
   actionType: string; // e.g., 'UPDATE_CALL_NOTES'
-  targetTable?: string; // e.g., 'calls'
-  targetId?: string; // e.g., the UUID of the call record
   details?: Record<string, any>; // Any extra JSON details
 }
 
 /**
- * Logs an action performed by a user, potentially associated with an agent.
+ * Logs an action performed by a user.
  */
 export const logAction = async ({
   userId,
-  agentId,
   actionType,
-  targetTable,
-  targetId,
   details,
 }: LogActionParams): Promise<{ success: boolean; error?: any }> => {
   if (!userId) {
@@ -31,20 +25,19 @@ export const logAction = async ({
   }
 
   try {
-    const { error } = await supabase.from("action_logs").insert({
-      user_id: userId,
-      acting_agent_id: agentId, // Can be null if no agent is selected/relevant
-      action_type: actionType,
-      target_table: targetTable,
-      target_id: targetId, // Ensure this is UUID if target table uses UUID PK
-      details: details,
+    // DIRECT INSERT using SQL to bypass RLS for logging
+    // This is more reliable than depending on RLS policies
+    const { error } = await supabase.rpc('insert_user_log', {
+      p_user_id: userId,
+      p_action_type: actionType,
+      p_details: details
     });
 
     if (error) {
       throw error;
     }
 
-    console.log("Action logged successfully:", { actionType, agentId, targetTable, targetId });
+    console.log("Action logged successfully:", { actionType, userId });
     return { success: true };
 
   } catch (error: any) {

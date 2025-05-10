@@ -101,10 +101,13 @@ const SubscriptionPage = () => {
         {/* Header */}
         <header className="h-16 shrink-0 border-b border-gray-200 bg-white flex items-center px-6 justify-between shadow-sm sticky top-0 z-10">
           <h1 className="text-xl font-medium">Subscription</h1>
+          <div className="bg-amber-100 text-amber-800 px-3 py-1 rounded-md text-sm font-medium flex items-center">
+            Admin-only area
+          </div>
         </header>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
+        <main className="flex-1 overflow-auto bg-white p-6">
           <div className="max-w-4xl mx-auto">
             {currentPlanName ? (
               <>

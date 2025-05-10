@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -83,7 +82,7 @@ const PaymentRequired = () => {
           </Button>
         </header>
         
-        <main className="flex-1 overflow-auto bg-[#f9f9f9] p-6">
+        <main className="flex-1 overflow-auto bg-white p-6">
           <div className="max-w-3xl mx-auto">
             {checkoutError && (
               <Alert variant="destructive" className="mb-6">

@@ -10,6 +10,8 @@ import { Eye, EyeOff } from "lucide-react";
 import PhoneInput from "@/components/PhoneInput";
 import ZenithLogo from "@/components/ZenithLogo";
 import { Spinner } from "@/components/ui/spinner";
+import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator";
+import { toast } from "sonner";
 
 const Signup = () => {
   const [formData, setFormData] = useState<SignupData>({
@@ -24,11 +26,29 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
+  const validatePassword = (password: string) => {
+    const requirements = [
+      /.{8,}/,         // At least 8 characters
+      /[A-Z]/,         // Contains uppercase
+      /[a-z]/,         // Contains lowercase
+      /[0-9]/,         // Contains number
+      /[^A-Za-z0-9]/,  // Contains special character
+    ];
+    
+    return requirements.every(regex => regex.test(password));
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    
+    if (name === 'password') {
+      setIsPasswordValid(validatePassword(value));
+    }
+    
     setFormData({
       ...formData,
       [name]: type === "checkbox" ? checked : value,
@@ -50,6 +70,11 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isPasswordValid) {
+      toast.error("Please ensure your password meets all requirements");
+      return;
+    }
     
     if (formData.password !== confirmPassword) {
       setPasswordsMatch(false);
@@ -155,6 +180,9 @@ const Signup = () => {
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
+                  </div>
+                  <div className="mt-2">
+                    <PasswordStrengthIndicator password={formData.password} />
                   </div>
                 </div>
 

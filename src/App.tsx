@@ -4,7 +4,7 @@ import "./App.css";
 import "./dashboard-override.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
-import { AgentProvider } from "./contexts/AgentContext";
+import { UserProvider } from "./contexts/UserContext";
 import LoadingScreen from "@/components/LoadingScreen";
 
 // Pages
@@ -24,12 +24,13 @@ import Analytics from "./pages/Analytics";
 import Technical from "./pages/Technical";
 import StatusUpdates from "./pages/StatusUpdates";
 import ContactSales from "./pages/ContactSales";
-import Agents from "./pages/Agents";
+import Users from "./pages/Users";
 import Activity from "./pages/Activity";
 
 // Components
 import ProtectedRoute from "@/components/ProtectedRoute";
-import RequireAgent from "@/components/RequireAgent";
+import RequireUser from "./components/RequireUser";
+import RequireAdmin from "@/components/RequireAdmin";
 import { Toaster } from "./components/ui/sonner";
 
 const queryClient = new QueryClient();
@@ -73,51 +74,51 @@ function App() {
     },
     {
       path: "/dashboard",
-      element: <ProtectedRoute><RequireAgent><Dashboard /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireUser><Dashboard /></RequireUser></ProtectedRoute>,
     },
     {
       path: "/products",
-      element: <ProtectedRoute><RequireAgent><Products /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireUser><Products /></RequireUser></ProtectedRoute>,
     },
     {
       path: "/subscription",
-      element: <ProtectedRoute><RequireAgent><Subscription /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAdmin><Subscription /></RequireAdmin></ProtectedRoute>,
     },
     {
       path: "/notifications",
-      element: <ProtectedRoute><RequireAgent><Notifications /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireUser><Notifications /></RequireUser></ProtectedRoute>,
     },
     {
       path: "/settings",
-      element: <ProtectedRoute><RequireAgent><Settings /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireAdmin><Settings /></RequireAdmin></ProtectedRoute>,
     },
     {
       path: "/call-history",
-      element: <ProtectedRoute><RequireAgent><CallHistory /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireUser><CallHistory /></RequireUser></ProtectedRoute>,
     },
     {
       path: "/feature-requests",
-      element: <ProtectedRoute><RequireAgent><FeatureRequests /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireUser><FeatureRequests /></RequireUser></ProtectedRoute>,
     },
     {
       path: "/analytics",
-      element: <ProtectedRoute><RequireAgent><Analytics /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireUser><Analytics /></RequireUser></ProtectedRoute>,
     },
     {
       path: "/technical",
-      element: <ProtectedRoute><RequireAgent><Technical /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireUser><Technical /></RequireUser></ProtectedRoute>,
     },
     {
       path: "/status-updates",
-      element: <ProtectedRoute><RequireAgent><StatusUpdates /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireUser><StatusUpdates /></RequireUser></ProtectedRoute>,
     },
     {
-      path: "/agents",
-      element: <ProtectedRoute><Agents /></ProtectedRoute>,
+      path: "/users",
+      element: <ProtectedRoute><RequireUser><Users /></RequireUser></ProtectedRoute>,
     },
     {
       path: "/activity",
-      element: <ProtectedRoute><RequireAgent><Activity /></RequireAgent></ProtectedRoute>,
+      element: <ProtectedRoute><RequireUser><Activity /></RequireUser></ProtectedRoute>,
     },
     {
       path: "*",
@@ -128,10 +129,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <AgentProvider>
+        <UserProvider>
           <RouterProvider router={createBrowserRouter(routes)} />
           <Toaster />
-        </AgentProvider>
+        </UserProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

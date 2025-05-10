@@ -1,22 +1,19 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase/client'; // Assuming supabase client path
+import { supabase } from '@/integrations/supabase/client'; // Correct path
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns'; // For date formatting
 
-// Define the structure of an action log based on the SQL schema
+// Define the structure of an action log based on the simplified schema
 interface ActionLog {
   id: number;
   user_id: string;
-  acting_agent_id: string | null;
   action_type: string;
-  target_table: string | null;
-  target_id: string | null; // Changed to string to match UUID retrieval
-  details: Record<string, any> | null; // Assuming JSONB maps to an object
-  created_at: string; // Comes as ISO string
+  details: Record<string, any> | null;
+  created_at: string;
 }
 
 export default function ActivityLogPage() {
@@ -29,18 +26,18 @@ export default function ActivityLogPage() {
       setLoading(true);
       setError(null);
 
-      const { data, error } = await supabase
-        .from('action_logs')
-        .select('*') // Select all columns for now
-        .order('created_at', { ascending: false }) // Show newest logs first
-        .limit(100); // Limit results for performance
-
-      if (error) {
-        console.error('Error fetching action logs:', error);
+      try {
+        const { data, error } = await supabase
+          .from('userlogsorg')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        setLogs(data || []);
+      } catch (error) {
+        console.error('Error fetching logs:', error);
         setError(`Failed to fetch logs: ${error.message}`);
         setLogs([]);
-      } else {
-        setLogs(data || []);
       }
       setLoading(false);
     };
@@ -77,15 +74,14 @@ export default function ActivityLogPage() {
                 <TableRow>
                   <TableHead>Timestamp</TableHead>
                   <TableHead>Action Type</TableHead>
-                  <TableHead>Agent ID</TableHead>
-                  <TableHead>Target</TableHead>
+                  <TableHead>User ID</TableHead>
                   <TableHead>Details</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {logs.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center">No activity logs found.</TableCell>
+                    <TableCell colSpan={4} className="text-center">No activity logs found.</TableCell>
                   </TableRow>
                 ) : (
                   logs.map((log) => (
@@ -94,10 +90,7 @@ export default function ActivityLogPage() {
                       <TableCell>
                         <Badge variant="outline">{log.action_type}</Badge>
                       </TableCell>
-                      <TableCell className="font-mono text-xs">{log.acting_agent_id || '-'}</TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {log.target_table ? `${log.target_table} (${log.target_id || 'N/A'})` : '-'}
-                      </TableCell>
+                      <TableCell className="font-mono text-xs">{log.user_id}</TableCell>
                       <TableCell>{renderDetails(log.details)}</TableCell>
                     </TableRow>
                   ))

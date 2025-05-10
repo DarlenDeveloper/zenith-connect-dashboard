@@ -8,11 +8,11 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
-import { logAction } from "@/lib/logging";
-import { useAgent } from "@/contexts/AgentContext";
+import { logUserAction, LogActions } from "@/utils/user-logs";
+import { useUser } from "@/contexts/UserContext";
 import { Loading } from "@/components/ui/loading";
 import { Input } from "@/components/ui/input";
-import NoAgentSelected from "@/components/NoAgentSelected";
+import NoUserSelected from "@/components/NoUserSelected";
 
 interface TechnicalIssue {
   id: string;
@@ -31,16 +31,16 @@ const Technical = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { selectedAgent, agentRequired } = useAgent();
+  const { selectedUser, userRequired } = useUser();
   const [flaggedIssues, setFlaggedIssues] = useState<TechnicalIssue[]>([]);
   const [loading, setLoading] = useState(true);
   const [highlightedIssueId, setHighlightedIssueId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // If agent selection is required but none is selected, show the NoAgentSelected component
-  if (agentRequired && !selectedAgent) {
-    return <NoAgentSelected />;
+  // If agent selection is required but none is selected, show the NoUserSelected component
+  if (userRequired && !selectedUser) {
+    return <NoUserSelected />;
   }
 
   const fetchTechnicalIssues = async () => {
@@ -114,16 +114,14 @@ const Technical = () => {
       toast.success("Issue marked as resolved");
       if (issueId === highlightedIssueId) setHighlightedIssueId(null);
       
-      if (user) {
-        await logAction({
-          userId: user.id,
-          agentId: selectedAgent?.id || null,
-          actionType: 'RESOLVE_TECHNICAL_ISSUE',
-          targetTable: 'technical_issues',
-          targetId: issueId,
-          details: { resolution: "Issue marked as resolved by user." }
-        });
-      }
+      await logUserAction(
+        LogActions.RESOLVE_TECHNICAL_ISSUE, 
+        { 
+          issue_id: issueId,
+          status: 'resolved',
+          table: 'technical_issues'
+        }
+      );
     } catch (error: any) {
       console.error("Error resolving issue:", error);
       toast.error(`Failed to resolve issue: ${error.message}`);
@@ -141,16 +139,14 @@ const Technical = () => {
       toast.success("Issue removed successfully");
       if (issueId === highlightedIssueId) setHighlightedIssueId(null);
       
-      if (user) {
-        await logAction({
-          userId: user.id,
-          agentId: selectedAgent?.id || null,
-          actionType: 'DELETE_TECHNICAL_ISSUE',
-          targetTable: 'technical_issues',
-          targetId: issueId,
-          details: { issueId: issueId }
-        });
-      }
+      await logUserAction(
+        LogActions.DELETE_TECHNICAL_ISSUE, 
+        { 
+          issue_id: issueId,
+          status: 'deleted',
+          table: 'technical_issues'
+        }
+      );
     } catch (error: any) {
       console.error("Error deleting issue:", error);
       toast.error(`Failed to delete issue: ${error.message}`);
@@ -200,7 +196,7 @@ const Technical = () => {
           </Button>
         </header>
 
-        <main className="flex-1 overflow-auto bg-gray-50 p-6">
+        <main className="flex-1 overflow-auto bg-white p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 text-white shadow-lg">
               <div className="flex items-center justify-between">
@@ -252,7 +248,7 @@ const Technical = () => {
                 <h2 className="text-xl font-medium text-gray-800 mb-2">No Technical Issues</h2>
                 <p className="text-gray-600 mb-6 max-w-md">
                   There are currently no calls flagged for technical review. 
-                  When an agent flags a call with technical issues, it will appear here.
+                  When a user flags a call with technical issues, it will appear here.
                 </p>
                 <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => navigate('/call-history')}>
                   Go to Call History
@@ -263,7 +259,7 @@ const Technical = () => {
             <Card className="bg-white rounded-xl shadow-md overflow-hidden border-none">
               <CardHeader className="pb-0">
                 <CardTitle>Technical Issues</CardTitle>
-                <CardDescription>Manage and resolve technical issues reported by agents</CardDescription>
+                <CardDescription>Manage and resolve technical issues reported by users</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col md:flex-row gap-4 items-start md:items-center pt-4 pb-5">
