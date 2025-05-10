@@ -26,6 +26,7 @@ import StatusUpdates from "./pages/StatusUpdates";
 import ContactSales from "./pages/ContactSales";
 import Users from "./pages/Users";
 import Activity from "./pages/Activity";
+import NotificationDemo from "./pages/NotificationDemo";
 
 // Components
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -119,6 +120,10 @@ function App() {
     {
       path: "/activity",
       element: <ProtectedRoute><RequireUser><Activity /></RequireUser></ProtectedRoute>,
+    },
+    {
+      path: "/notification-demo",
+      element: <ProtectedRoute><RequireUser><NotificationDemo /></RequireUser></ProtectedRoute>,
     },
     {
       path: "*",

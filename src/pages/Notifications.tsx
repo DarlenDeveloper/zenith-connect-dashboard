@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Bell, CheckCircle2, Users, Bot, MessageSquare, Info, Settings, BellRing } from "lucide-react";
 import { toast } from "sonner";
+import { notifySuccess } from "@/utils/notification";
 
 interface Notification {
   id: string;
@@ -128,7 +129,7 @@ const Notifications = () => {
     setNotifications(
       notifications.map((notification) => ({ ...notification, read: true }))
     );
-    toast.success("All notifications marked as read");
+    notifySuccess("All notifications marked as read");
   };
 
   const filteredNotifications = activeTab === "all" 

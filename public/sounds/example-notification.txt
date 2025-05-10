@@ -1,0 +1,33 @@
+To create a simple notification sound MP3 file, you can use any of the following methods:
+
+1. Use a free online tone generator to create a simple notification sound:
+   - Visit: https://www.audiocheck.net/audiocheck_signalgenerator.php
+   - Create a simple sine wave tone
+   - Export as MP3
+   - Save to this directory as "notification.mp3"
+
+2. Download free notification sounds from:
+   - https://mixkit.co/free-sound-effects/notification/
+   - https://notificationsounds.com/
+
+3. Generate a simple notification sound using Text-to-Speech:
+   - Use a TTS service to say "Notification"
+   - Save the audio as MP3
+   - Place the file in this directory
+
+4. Quick test MP3 file creation using ffmpeg (if available):
+   ```bash
+   # Create a simple notification sound using ffmpeg
+   ffmpeg -f lavfi -i "sine=frequency=700:duration=0.5" notification.mp3
+   ffmpeg -f lavfi -i "sine=frequency=900:duration=0.5" success.mp3
+   ffmpeg -f lavfi -i "sine=frequency=500:duration=0.5" error.mp3
+   ffmpeg -f lavfi -i "sine=frequency=800:duration=0.5" info.mp3
+   ffmpeg -f lavfi -i "sine=frequency=600:duration=0.5" warning.mp3
+   ```
+
+Once you have created or downloaded your notification sounds, place them in this directory with the following names:
+- notification.mp3 (default)
+- success.mp3
+- error.mp3
+- info.mp3
+- warning.mp3 

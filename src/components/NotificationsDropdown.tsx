@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { formatDistanceToNow } from 'date-fns';
 import { BellRing, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
+import { notifySuccess, notifyError } from "@/utils/notification";
 
 interface Notification {
   id: number;
@@ -75,11 +76,11 @@ const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ onClose, 
       // Update local state immediately
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       onReadAll(); // Update the indicator in the layout
-      toast.success("Marked all as read");
+      notifySuccess("Marked all as read");
 
     } catch (err: any) {
       console.error("Error marking all as read:", err);
-      toast.error("Failed to mark notifications as read");
+      notifyError("Failed to mark notifications as read");
     }
   };
 

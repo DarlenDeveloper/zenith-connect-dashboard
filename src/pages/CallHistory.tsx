@@ -48,6 +48,7 @@ import {
   PopoverTrigger
 } from "@/components/ui/popover";
 import NoUserSelected from "@/components/NoUserSelected";
+import { notifySuccess, notifyError, notifyTechIssue } from "@/utils/notification";
 
 interface CallLog {
   id: string;
@@ -268,7 +269,7 @@ const CallHistory = () => {
 
   const flagTechnicalIssue = async (call: CallLog) => {
     if (!selectedUser) {
-      toast.error("Please select an active user from the header dropdown before flagging issues.");
+      notifyError("Please select an active user from the header dropdown before flagging issues.");
       return;
     }
 
@@ -290,7 +291,7 @@ const CallHistory = () => {
       if (issueError) throw issueError;
       
       let newIssueId = issueData?.id;
-      toast.success(`Flagged call for technical review (User: ${selectedUser.name}).`);
+      notifySuccess(`Flagged call for technical review (User: ${selectedUser.name}).`);
       
       await logUserAction(
         LogActions.FLAG_TECHNICAL_ISSUE,
@@ -315,6 +316,12 @@ const CallHistory = () => {
         
         if (notificationError) {
           console.error("Error creating notification for flagged issue:", notificationError);
+        } else {
+          // Play technical issue notification sound
+          notifyTechIssue(
+            `Issue flagged for call from ${call.caller_number || 'Unknown'} by User ${selectedUser.name}`,
+            'New Technical Issue Flagged'
+          );
         }
       }
 
@@ -323,9 +330,9 @@ const CallHistory = () => {
     } catch (error: any) {
       console.error("Error flagging technical issue:", error);
       if (error.message.includes('row-level security policy')) {
-        toast.error(`Failed to flag issue: Permission denied. Please check RLS setup.`);
+        notifyError(`Failed to flag issue: Permission denied. Please check RLS setup.`);
       } else {
-        toast.error(`Failed to flag issue: ${error.message}`);
+        notifyError(`Failed to flag issue: ${error.message}`);
       }
     }
   };

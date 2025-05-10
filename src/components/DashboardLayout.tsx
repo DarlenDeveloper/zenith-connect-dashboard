@@ -5,7 +5,7 @@ import {
   Settings, LogOut, InboxIcon, Menu, 
   PhoneCall, BarChart2, PlusCircle, MicIcon,
   FileText, Headphones, Bell, Calendar, Users, 
-  Activity, AlertTriangle, UserCheck, Lightbulb
+  Activity, AlertTriangle, UserCheck, Lightbulb, BellRing
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUser } from "@/contexts/UserContext";
@@ -30,6 +30,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import NotificationsDropdown from "@/components/NotificationsDropdown";
 import UserPasswordDialog from "@/components/UserPasswordDialog";
 import { toast } from "sonner";
+import { notifyInfo } from "@/utils/notification";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;

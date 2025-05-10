@@ -13,6 +13,7 @@ import { useUser } from "@/contexts/UserContext";
 import { Loading } from "@/components/ui/loading";
 import { Input } from "@/components/ui/input";
 import NoUserSelected from "@/components/NoUserSelected";
+import { notifySuccess, notifyError, notifyTechIssue } from "@/utils/notification";
 
 interface TechnicalIssue {
   id: string;
@@ -59,7 +60,7 @@ const Technical = () => {
 
     } catch (error: any) {
       console.error("Error fetching technical issues:", error);
-      toast.error(`Failed to load technical issues: ${error.message}`);
+      notifyError(`Failed to load technical issues: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -75,7 +76,7 @@ const Technical = () => {
     if (issueId) {
       setHighlightedIssueId(issueId);
       navigate('/technical', { replace: true });
-      toast.info("New technical issue flagged. Highlighted below.");
+      notifyTechIssue("New technical issue flagged. Highlighted below.", "Technical Issue Flagged");
     }
   }, [user]);
 
@@ -111,7 +112,7 @@ const Technical = () => {
         .eq('id', issueId);
 
       if (error) throw error;
-      toast.success("Issue marked as resolved");
+      notifySuccess("Issue marked as resolved");
       if (issueId === highlightedIssueId) setHighlightedIssueId(null);
       
       await logUserAction(
@@ -124,7 +125,7 @@ const Technical = () => {
       );
     } catch (error: any) {
       console.error("Error resolving issue:", error);
-      toast.error(`Failed to resolve issue: ${error.message}`);
+      notifyError(`Failed to resolve issue: ${error.message}`);
     }
   };
 
@@ -136,7 +137,7 @@ const Technical = () => {
         .eq('id', issueId);
 
       if (error) throw error;
-      toast.success("Issue removed successfully");
+      notifySuccess("Issue removed successfully");
       if (issueId === highlightedIssueId) setHighlightedIssueId(null);
       
       await logUserAction(
@@ -149,7 +150,7 @@ const Technical = () => {
       );
     } catch (error: any) {
       console.error("Error deleting issue:", error);
-      toast.error(`Failed to delete issue: ${error.message}`);
+      notifyError(`Failed to delete issue: ${error.message}`);
     }
   };
 
