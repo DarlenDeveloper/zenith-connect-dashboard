@@ -71,79 +71,97 @@ const Users = () => {
     };
   }, [setUserRequired]);
   
+  // Use a separate state to track if we've attempted to create the admin user
+  const [adminUserCreationAttempted, setAdminUserCreationAttempted] = useState(false);
+  
+  // Function to create the admin user
+  const createAdminUser = async () => {
+    if (!user) return false;
+    setIsSubmitting(true);
+    
+    try {
+      // Double-check that there are still no users (in case of race conditions)
+      const { data: latestUsers, error: checkError } = await supabase
+        .from('users')
+        .select('id')
+        .limit(1);
+        
+      if (checkError) throw checkError;
+      
+      // If users already exist, don't create a default admin
+      if (latestUsers && latestUsers.length > 0) {
+        return true; // Users exist, so return success
+      }
+      
+      // Get user email from auth user
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      
+      const email = userData.user.email || '';
+      
+      // Generate the admin user ID (first user is always USR0001)
+      const userRefId = 'USR0001';
+      
+      // Insert the default admin user
+      const { error: insertError } = await supabase
+        .from('users')
+        .insert({
+          name: 'ADMIN',
+          email: email,
+          phone_number: '',
+          pin: '1221',  // Default PIN
+          role: 'admin',
+          user_ref_id: userRefId,
+          user_id: user.id, // Link to the authenticated user
+          is_active: true,
+        });
+      
+      if (insertError) throw insertError;
+      
+      toast.success('Default admin created with PIN: 1221');
+      
+      return true;
+    } catch (error: any) {
+      console.error('Error creating admin user:', error);
+      
+      toast.error('Admin user creation failed: ' + (error.message || 'Please create a user manually'));
+      
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
   // Automatically create an admin user when there are no users in the system
   useEffect(() => {
     // Set flag for first user
     const noUsers = users.length === 0;
     setIsFirstUser(noUsers);
     
-    // If there are no users and we're not still loading
-    if (!loadingUsers && noUsers) {
-      // Automatically create an admin user if authenticated
-      if (user) {
-        const createAdminUser = async () => {
-          try {
-            setIsSubmitting(true);
-            
-            // Get user email from auth user
-            const { data: userData, error: userError } = await supabase.auth.getUser();
-            if (userError) throw userError;
-            
-            const email = userData.user.email || '';
-            
-            // Generate the admin user ID (first user is always USR0001)
-            const userRefId = 'USR0001';
-            
-            // Insert the default admin user
-            const { error: insertError } = await supabase
-              .from('users')
-              .insert({
-                name: 'ADMIN',
-                email: email,
-                phone_number: '',
-                pin: '1221',  // Default PIN
-                role: 'admin',
-                user_ref_id: userRefId,
-                user_id: user.id, // Link to the authenticated user
-                is_active: true,
-              });
-            
-            if (insertError) throw insertError;
-            
-            toast.success(`Admin user created with PIN: 1221`, {
-              description: 'You can now use this user to access the system',
-              duration: 6000
-            });
-          } catch (error: any) {
-            console.error('Error creating admin user:', error);
-            toast.error('Could not create admin user automatically', {
-              description: 'Please try creating a user manually',
-              duration: 6000
-            });
-            
-            // Only open the dialog if auto-creation fails
-            setTimeout(() => {
-              setIsAddUserDialogOpen(true);
-            }, 100);
-          } finally {
-            setIsSubmitting(false);
-          }
-        };
-        
-        createAdminUser();
-      } else {
-        // If URL parameter is set, open the dialog for manual creation
-        if (location.search.includes('createUser=true')) {
+    // If there are no users, we're not still loading, and we haven't attempted to create the admin yet
+    if (!loadingUsers && noUsers && !adminUserCreationAttempted && user) {
+      // Set the flag immediately to prevent multiple attempts
+      setAdminUserCreationAttempted(true);
+      
+      // Create the admin user
+      createAdminUser().then(success => {
+        // If creation failed or no admin was created, show the dialog
+        if (!success) {
           setTimeout(() => {
             setIsAddUserDialogOpen(true);
           }, 100);
-          
-          // Remove the query parameter to avoid reopening the dialog on refresh
-          navigate('/users', { replace: true });
         }
-      }
+      });
+    } else if (!loadingUsers && location.search.includes('createUser=true')) {
+      // If URL parameter is set, open the dialog for manual creation
+      setTimeout(() => {
+        setIsAddUserDialogOpen(true);
+      }, 100);
+      
+      // Remove the query parameter to avoid reopening the dialog on refresh
+      navigate('/users', { replace: true });
     }
-  }, [users, loadingUsers, user, location.search, navigate]);
+  }, [users, loadingUsers, user, adminUserCreationAttempted, location.search, navigate]);
 
   // Add user form
   const { 
