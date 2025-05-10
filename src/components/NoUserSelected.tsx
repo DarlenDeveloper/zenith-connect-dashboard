@@ -6,12 +6,14 @@ import { UserCheck, Users, Search } from "lucide-react";
 import UserPasswordDialog from "@/components/UserPasswordDialog";
 import { Loading } from "@/components/ui/loading";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 const NoUserSelected = () => {
   const { users, loadingUsers } = useUser();
   const [selectedUserForAuth, setSelectedUserForAuth] = useState<User | null>(null);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   const handleUserClick = (user: User) => {
     setSelectedUserForAuth(user);
@@ -54,7 +56,7 @@ const NoUserSelected = () => {
               </div>
               <p className="text-gray-600 mb-4">No users found. Please create a user first.</p>
               <Button 
-                onClick={() => window.location.href = '/users'}
+                onClick={() => navigate('/users')}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 Go to Users Management
