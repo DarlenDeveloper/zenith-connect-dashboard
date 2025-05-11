@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { BarChart2, Calendar, ArrowUpRight, ArrowDownRight, Clock, Users, Phone, MessageSquare, CheckCircle, ChevronDown, Info } from "lucide-react";
+import { BarChart2, Calendar, ArrowUpRight, ArrowDownRight, Clock, Users, Phone, MessageSquare, CheckCircle, ChevronDown, Info, TrendingUp, TrendingDown, ZoomIn } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -14,7 +14,8 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Area
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +41,7 @@ interface AnalyticsOverview {
 interface DailyCallCount {
   call_day: string; // Date string
   call_count: number;
+  date_obj?: Date; // Added for sorting and calculation
 }
 
 // Interface for status counts
@@ -106,6 +108,34 @@ const renderActiveShape = (props: any) => {
   );
 };
 
+// Custom tooltip for the line chart
+const CustomLineTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const callCount = data.call_count;
+    const dateStr = data.call_day;
+    const isIncreasing = payload[0].payload.trend > 0;
+    const trendPercent = Math.abs(payload[0].payload.trend || 0);
+    const showTrend = payload[0].payload.trend !== undefined;
+    
+    return (
+      <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200 min-w-[200px] animate-in fade-in duration-200">
+        <p className="font-medium text-gray-900 mb-2">{dateStr}</p>
+        <div className="text-2xl font-bold text-gray-900 flex items-center gap-2 mb-1">
+          {callCount} {callCount === 1 ? 'call' : 'calls'}
+        </div>
+        {showTrend && (
+          <div className={`flex items-center text-sm gap-1 ${isIncreasing ? 'text-green-600' : 'text-red-600'}`}>
+            {isIncreasing ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            <span>{trendPercent}% {isIncreasing ? 'more' : 'fewer'} than previous</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+  return null;
+};
+
 const Analytics = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -115,9 +145,19 @@ const Analytics = () => {
   const [timeRange, setTimeRange] = useState(7); // Default to last 7 days
   const [avgDuration, setAvgDuration] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [focusBar, setFocusBar] = useState<number | null>(null);
+  const [lineChartZoomed, setLineChartZoomed] = useState(false);
   
   const onPieEnter = (_: any, index: number) => {
     setActiveIndex(index);
+  };
+  
+  const onLineChartBarClick = (data: any, index: number) => {
+    setFocusBar(index === focusBar ? null : index);
+  };
+  
+  const toggleLineChartZoom = () => {
+    setLineChartZoomed(!lineChartZoomed);
   };
 
   const fetchAnalyticsData = async () => {
@@ -135,11 +175,37 @@ const Analytics = () => {
       setOverviewData(overviewResult.data?.[0] || { total_calls: 0, resolved_calls: 0, resolution_rate: 0 });
 
       if (dailyResult.error) throw dailyResult.error;
-      // Format daily data for the chart
-      const formattedDailyData = (dailyResult.data || []).map(d => ({
-        call_day: new Date(d.call_day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), // Format date
-        call_count: d.call_count
-      }));
+      // Format daily data for the chart with trend calculation
+      const sortedData = [...(dailyResult.data || [])].sort((a, b) => 
+        new Date(a.call_day).getTime() - new Date(b.call_day).getTime()
+      );
+      
+      const formattedDailyData = sortedData.map((d, index) => {
+        const dateObj = new Date(d.call_day);
+        const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        
+        // Calculate trend compared to previous day if available
+        let trend;
+        if (index > 0) {
+          const prev = sortedData[index-1].call_count;
+          const current = d.call_count;
+          if (prev > 0) {
+            trend = Math.round(((current - prev) / prev) * 100);
+          } else if (current > 0) {
+            trend = 100; // If previous was 0 and current is > 0, 100% increase
+          } else {
+            trend = 0;
+          }
+        }
+        
+        return {
+          call_day: formattedDate,
+          call_count: d.call_count,
+          date_obj: dateObj,
+          trend
+        };
+      });
+      
       setDailyData(formattedDailyData);
 
       if (statusResult.error) throw statusResult.error;
@@ -292,38 +358,166 @@ const Analytics = () => {
                 {/* Daily Call Activity Chart */}
                 <Card className="lg:col-span-2 bg-white rounded-xl shadow-md overflow-hidden border-none">
                   <CardHeader className="pb-0">
-                    <CardTitle>Call Activity</CardTitle>
-                    <CardDescription>Call volume over the past {timeRange} days</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-6">
-                    <div className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={dailyData} margin={{ top: 10, right: 10, left: -20, bottom: 10 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                          <XAxis dataKey="call_day" axisLine={false} tickLine={false} stroke="#6b7280" fontSize={12} dy={10}/>
-                          <YAxis axisLine={false} tickLine={false} stroke="#6b7280" fontSize={12} dx={-10} allowDecimals={false}/>
-                          <Tooltip 
-                            cursor={{ fill: 'rgba(219, 234, 254, 0.3)' }} 
-                            contentStyle={{ 
-                              background: 'white', 
-                              borderRadius: '8px', 
-                              boxShadow: '0 4px 6px rgba(0,0,0,0.1)', 
-                              color: '#1f2937', 
-                              border: '1px solid #e5e7eb' 
-                            }} 
-                            formatter={(value: number) => [`${value}`, 'Calls']}
-                          />
-                          <Line 
-                            type="monotone" 
-                            dataKey="call_count" 
-                            stroke="#2563EB" 
-                            strokeWidth={2.5} 
-                            dot={{ stroke: '#2563EB', strokeWidth: 2, r: 4, fill: 'white' }} 
-                            activeDot={{ stroke: '#2563EB', strokeWidth: 2, r: 6, fill: '#2563EB' }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <CardTitle>Call Activity</CardTitle>
+                        <CardDescription>Call volume over the past {timeRange} days</CardDescription>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={toggleLineChartZoom}
+                          className="p-1.5 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors"
+                          title={lineChartZoomed ? "Reset zoom" : "Enhance view"}
+                        >
+                          <ZoomIn className="h-4 w-4 text-blue-600" />
+                        </button>
+                        <div className="p-1.5 bg-blue-50 rounded-full cursor-help group relative">
+                          <Info className="h-4 w-4 text-blue-600" />
+                          <div className="absolute right-0 mt-2 w-64 p-3 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 text-xs text-gray-600">
+                            Click on any bar to focus on it. The chart shows call volume trend with percentage changes from previous days.
+                          </div>
+                        </div>
+                      </div>
                     </div>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <div className={`${lineChartZoomed ? 'h-[400px]' : 'h-[300px]'} transition-all duration-300`}>
+                      {dailyData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart 
+                            data={dailyData} 
+                            margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+                            onClick={(data) => data && data.activeTooltipIndex !== undefined && onLineChartBarClick(data, data.activeTooltipIndex)}
+                          >
+                            <defs>
+                              <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#2563EB" stopOpacity={0.2}/>
+                                <stop offset="95%" stopColor="#2563EB" stopOpacity={0}/>
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" opacity={0.6} />
+                            <XAxis 
+                              dataKey="call_day" 
+                              axisLine={false} 
+                              tickLine={false} 
+                              stroke="#6b7280" 
+                              fontSize={12} 
+                              dy={10}
+                              tick={({ x, y, payload, index }) => {
+                                const isFocused = index === focusBar;
+                                return (
+                                  <text 
+                                    x={x} 
+                                    y={y + 10} 
+                                    textAnchor="middle" 
+                                    fill={isFocused ? "#2563EB" : "#6b7280"}
+                                    fontSize={isFocused ? 13 : 12}
+                                    fontWeight={isFocused ? "bold" : "normal"}
+                                  >
+                                    {payload.value}
+                                  </text>
+                                );
+                              }}
+                            />
+                            <YAxis 
+                              axisLine={false} 
+                              tickLine={false} 
+                              stroke="#6b7280" 
+                              fontSize={12} 
+                              dx={-10} 
+                              allowDecimals={false}
+                            />
+                            <Tooltip 
+                              content={<CustomLineTooltip />}
+                              cursor={{ 
+                                stroke: '#2563EB', 
+                                strokeWidth: 1, 
+                                strokeDasharray: '3 3',
+                                fill: 'rgba(219, 234, 254, 0.2)' 
+                              }}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="call_count" 
+                              stroke="#2563EB" 
+                              strokeWidth={3} 
+                              dot={({ cx, cy, index }) => (
+                                <circle 
+                                  cx={cx} 
+                                  cy={cy} 
+                                  r={index === focusBar ? 6 : 4} 
+                                  stroke={index === focusBar ? "#1E40AF" : "#2563EB"} 
+                                  strokeWidth={index === focusBar ? 3 : 2} 
+                                  fill={index === focusBar ? "#2563EB" : "white"} 
+                                  className="transition-all duration-300"
+                                  cursor="pointer"
+                                />
+                              )} 
+                              activeDot={{ 
+                                stroke: '#1E40AF', 
+                                strokeWidth: 3, 
+                                r: 7, 
+                                fill: '#2563EB' 
+                              }}
+                              name="Calls"
+                              isAnimationActive={true}
+                              animationDuration={1000}
+                              animationEasing="ease-out"
+                            />
+                            <Area 
+                              type="monotone" 
+                              dataKey="call_count" 
+                              stroke="none" 
+                              fill="url(#colorCalls)" 
+                              fillOpacity={1}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                          <Phone className="h-10 w-10 mb-2 text-gray-300" />
+                          <p>No call data available for this period</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Stats summary */}
+                    {dailyData.length > 0 && (
+                      <div className="grid grid-cols-3 gap-4 mt-4">
+                        <div className="border border-gray-100 rounded-lg p-3 bg-gray-50">
+                          <p className="text-xs text-gray-500 mb-1">Average Calls/Day</p>
+                          <p className="text-lg font-medium">
+                            {(dailyData.reduce((acc, day) => acc + day.call_count, 0) / dailyData.length).toFixed(1)}
+                          </p>
+                        </div>
+                        <div className="border border-gray-100 rounded-lg p-3 bg-gray-50">
+                          <p className="text-xs text-gray-500 mb-1">Highest Volume</p>
+                          <p className="text-lg font-medium">
+                            {Math.max(...dailyData.map(day => day.call_count))}
+                          </p>
+                        </div>
+                        <div className="border border-gray-100 rounded-lg p-3 bg-gray-50">
+                          <p className="text-xs text-gray-500 mb-1">Overall Trend</p>
+                          {dailyData.length >= 2 && (
+                            <div className="flex items-center gap-1">
+                              {dailyData[dailyData.length-1].call_count > dailyData[0].call_count ? (
+                                <>
+                                  <TrendingUp className="h-4 w-4 text-green-600" />
+                                  <p className="text-lg font-medium text-green-600">Increasing</p>
+                                </>
+                              ) : dailyData[dailyData.length-1].call_count < dailyData[0].call_count ? (
+                                <>
+                                  <TrendingDown className="h-4 w-4 text-red-600" />
+                                  <p className="text-lg font-medium text-red-600">Decreasing</p>
+                                </>
+                              ) : (
+                                <p className="text-lg font-medium text-gray-600">Stable</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
