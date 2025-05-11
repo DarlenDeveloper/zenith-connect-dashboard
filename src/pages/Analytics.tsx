@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { BarChart2, Calendar, ArrowUpRight, ArrowDownRight, Clock, Users, Phone, MessageSquare, CheckCircle, ChevronDown } from "lucide-react";
+import { BarChart2, Calendar, ArrowUpRight, ArrowDownRight, Clock, Users, Phone, MessageSquare, CheckCircle, ChevronDown, Info } from "lucide-react";
 import {
   LineChart,
   Line,
   PieChart,
   Pie,
   Cell,
+  Sector,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -56,6 +57,55 @@ const STATUS_COLORS: { [key: string]: string } = {
   default: '#6B7280' // Gray for any other status
 };
 
+// Custom tooltip component for the pie chart
+const CustomPieTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200 max-w-xs animate-in fade-in duration-300">
+        <div className="flex items-center mb-2">
+          <div 
+            className="w-3 h-3 rounded-full mr-2" 
+            style={{ backgroundColor: payload[0].color }}
+          />
+          <span className="font-medium text-gray-900">{data.name}</span>
+        </div>
+        <div className="text-2xl font-bold text-gray-900 mb-1">{data.value} calls</div>
+        <div className="text-sm text-gray-500">
+          {(payload[0].percent * 100).toFixed(1)}% of total
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+// Custom active shape for the pie chart with hover effect
+const renderActiveShape = (props: any) => {
+  const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+  
+  return (
+    <g>
+      <text x={cx} y={cy - 10} dy={8} textAnchor="middle" fill="#333" className="text-sm font-medium">
+        {payload.name}
+      </text>
+      <text x={cx} y={cy + 10} dy={8} textAnchor="middle" fill="#333" className="text-lg font-bold">
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 8}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+        cornerRadius={4}
+      />
+    </g>
+  );
+};
+
 const Analytics = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -64,6 +114,11 @@ const Analytics = () => {
   const [statusData, setStatusData] = useState<StatusCount[]>([]);
   const [timeRange, setTimeRange] = useState(7); // Default to last 7 days
   const [avgDuration, setAvgDuration] = useState<number | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  
+  const onPieEnter = (_: any, index: number) => {
+    setActiveIndex(index);
+  };
 
   const fetchAnalyticsData = async () => {
     setLoading(true);
@@ -275,40 +330,74 @@ const Analytics = () => {
                 {/* Call Status Distribution Chart */}
                 <Card className="bg-white rounded-xl shadow-md overflow-hidden border-none">
                   <CardHeader className="pb-0">
-                    <CardTitle>Call Status Distribution</CardTitle>
-                    <CardDescription>Breakdown of call status types</CardDescription>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <CardTitle>Call Status Distribution</CardTitle>
+                        <CardDescription>Breakdown of call status types</CardDescription>
+                      </div>
+                      <div className="p-1 bg-blue-50 rounded-full cursor-help group relative">
+                        <Info className="h-4 w-4 text-blue-600" />
+                        <div className="absolute right-0 mt-2 w-64 p-3 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 text-xs text-gray-600">
+                          This chart shows the distribution of calls by their status. Hover over segments for more details.
+                        </div>
+                      </div>
+                    </div>
                   </CardHeader>
-                  <CardContent className="pt-6">
-                    <div className="h-[300px] flex items-center justify-center">
+                  <CardContent className="pt-2">
+                    <div className="h-[320px] flex items-center justify-center">
                       {pieChartData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={pieChartData}
-                              cx="50%"
-                              cy="50%"
-                              labelLine={false}
-                              outerRadius={90}
-                              fill="#8884d8"
-                              dataKey="value"
-                              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                            >
-                              {pieChartData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.name] || STATUS_COLORS.default} />
-                              ))}
-                            </Pie>
-                            <Tooltip 
-                              formatter={(value: number, name: string) => [`${value} calls`, name]}
-                              contentStyle={{ 
-                                background: 'white', 
-                                borderRadius: '8px', 
-                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)', 
-                                color: '#1f2937', 
-                                border: '1px solid #e5e7eb' 
-                              }} 
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
+                        <div className="w-full h-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                activeIndex={activeIndex}
+                                activeShape={renderActiveShape}
+                                data={pieChartData}
+                                cx="50%"
+                                cy="45%"
+                                innerRadius={40}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                                onMouseEnter={onPieEnter}
+                                paddingAngle={2}
+                                animationBegin={0}
+                                animationDuration={1000}
+                                animationEasing="ease-out"
+                              >
+                                {pieChartData.map((entry, index) => (
+                                  <Cell 
+                                    key={`cell-${index}`} 
+                                    fill={STATUS_COLORS[entry.name] || STATUS_COLORS.default}
+                                    className="transition-opacity hover:opacity-90 cursor-pointer"
+                                    stroke="#fff"
+                                    strokeWidth={1}
+                                  />
+                                ))}
+                              </Pie>
+                              <Tooltip content={<CustomPieTooltip />} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                          
+                          {/* Legend */}
+                          <div className="flex flex-wrap justify-center mt-2 gap-4">
+                            {pieChartData.map((entry, index) => (
+                              <div 
+                                key={`legend-${index}`} 
+                                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => setActiveIndex(index)}
+                              >
+                                <div 
+                                  className={`w-3 h-3 rounded-sm ${activeIndex === index ? 'ring-2 ring-offset-1 ring-gray-400' : ''}`}
+                                  style={{ backgroundColor: STATUS_COLORS[entry.name] || STATUS_COLORS.default }}
+                                />
+                                <span className="text-xs font-medium text-gray-700">
+                                  {entry.name} ({entry.value})
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       ) : (
                         <div className="text-center text-gray-500">
                           <p>No status data available</p>
