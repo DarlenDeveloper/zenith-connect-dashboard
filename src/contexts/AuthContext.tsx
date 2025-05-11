@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import { logUserAction, LogActions } from "@/utils/user-logs";
+import { toast } from "sonner";
 
 interface AuthUser {
   id: string;
@@ -20,6 +20,8 @@ interface AuthContextType {
   signup: (userData: SignupData) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  resendConfirmationEmail: (email: string) => Promise<void>;
+  isEmailConfirmed: boolean;
 }
 
 export interface SignupData {
@@ -46,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [supabaseUser, setSupabaseUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const [isEmailConfirmed, setIsEmailConfirmed] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -54,12 +56,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(currentSession);
         setSupabaseUser(currentSession?.user ?? null);
         
+        // Check if email is confirmed
         if (currentSession?.user) {
+          setIsEmailConfirmed(currentSession.user.email_confirmed_at !== null);
           setTimeout(() => {
             getUserProfile(currentSession.user.id);
           }, 0);
         } else {
           setUser(null);
+          setIsEmailConfirmed(false);
+        }
+        
+        // Handle email confirmation event
+        if (event === 'USER_UPDATED') {
+          // This event is fired when a user confirms their email
+          if (currentSession?.user?.email_confirmed_at) {
+            toast.success("Email Confirmed", {
+              description: "Your email has been confirmed successfully!"
+            });
+          }
         }
       }
     );
@@ -153,29 +168,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // First check if the email is confirmed by getting user
+      const { data: userData, error: userError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) throw error;
+      if (userError) throw userError;
+      
+      // Check if email is confirmed
+      if (userData?.user && userData.user.email_confirmed_at === null) {
+        // Email not confirmed, show a message and ask to confirm
+        toast.error("Email Not Confirmed", {
+          description: "Please check your inbox and confirm your email before logging in."
+        });
+        
+        // Offer to resend the confirmation email
+        toast("Resend Confirmation", {
+          description: "Didn't receive the email? Click to resend.",
+          action: {
+            label: "Resend",
+            onClick: () => resendConfirmationEmail(email)
+          },
+          duration: 10000 // Show for 10 seconds
+        });
+        
+        // Sign out since we don't want unconfirmed users to be logged in
+        await supabase.auth.signOut();
+        throw new Error("Please confirm your email address before logging in.");
+      }
 
       // Log the login event after successful authentication
-      if (data?.user) {
+      if (userData?.user) {
         setTimeout(() => {
-          logAuthEvent('LOGIN', data.user.id, data.user.email);
+          logAuthEvent('LOGIN', userData.user.id, userData.user.email);
         }, 1000); // Small delay to ensure authentication completes
       }
 
-      toast({
-        title: "Login Successful",
-        description: "Welcome back to Zenith Portal",
+      toast.success("Login Successful", {
+        description: "Welcome back to Zenith Portal"
       });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Login Failed",
-        description: error.message || "An unknown error occurred",
+      toast.error("Login Failed", {
+        description: error.message || "An unknown error occurred"
       });
       throw error;
     } finally {
@@ -195,10 +230,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error("You must agree to the terms and conditions");
       }
 
+      // Sign up with email confirmation enabled
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
         options: {
+          emailRedirectTo: window.location.origin + '/login', // Redirect to login page after confirmation
           data: {
             name: userData.name,
             organizationName: userData.organizationName,
@@ -208,16 +245,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) throw error;
-
-      toast({
-        title: "Account Created",
-        description: "Welcome to Zenith Portal",
-      });
+      
+      // Check if email confirmation was sent
+      if (data?.user && data.user.email_confirmed_at === null) {
+        toast.info("Verification Email Sent", {
+          description: "Please check your inbox and confirm your email address to complete signup.",
+          duration: 10000
+        });
+      } else {
+        toast.success("Account Created", {
+          description: "Welcome to Zenith Portal"
+        });
+      }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Signup Failed",
-        description: error.message || "An unknown error occurred",
+      toast.error("Signup Failed", {
+        description: error.message || "An unknown error occurred"
       });
       throw error;
     } finally {
@@ -258,15 +300,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
-      toast({
-        title: "Password Reset Email Sent",
-        description: "Check your inbox for instructions to reset your password",
+      toast.success("Password Reset Email Sent", {
+        description: "Check your inbox for instructions to reset your password"
       });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Password Reset Failed",
-        description: error.message || "An unknown error occurred",
+      toast.error("Password Reset Failed", {
+        description: error.message || "An unknown error occurred"
       });
       throw error;
     } finally {
@@ -274,6 +313,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Function to resend confirmation email
+  const resendConfirmationEmail = async (email: string) => {
+    setLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: window.location.origin + '/login',
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Confirmation Email Sent", {
+        description: "Please check your inbox for the confirmation link"
+      });
+    } catch (error: any) {
+      toast.error("Failed to Send Email", {
+        description: error.message || "An unknown error occurred"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const value = {
     user,
     isAuthenticated: !!user,
@@ -282,6 +348,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signup,
     logout,
     resetPassword,
+    resendConfirmationEmail,
+    isEmailConfirmed,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -63,6 +63,7 @@ const Analytics = () => {
   const [dailyData, setDailyData] = useState<DailyCallCount[]>([]);
   const [statusData, setStatusData] = useState<StatusCount[]>([]);
   const [timeRange, setTimeRange] = useState(7); // Default to last 7 days
+  const [avgDuration, setAvgDuration] = useState<number | null>(null);
 
   const fetchAnalyticsData = async () => {
     setLoading(true);
@@ -105,6 +106,7 @@ const Analytics = () => {
   useEffect(() => {
     if (!user) return; // Wait for user
     fetchAnalyticsData();
+    fetchAverageDuration();
   }, [user, timeRange]); // Refetch if user or timeRange changes
 
   // Prepare data for Pie chart (needs name/value format)
@@ -112,6 +114,41 @@ const Analytics = () => {
     name: item.status, 
     value: item.status_count
   }));
+
+  // Function to fetch the average call duration
+  const fetchAverageDuration = async () => {
+    if (!user) return;
+    
+    try {
+      // First check if the function exists
+      const { data: functionExists, error: checkError } = await supabase
+        .rpc('get_average_call_duration', { p_user_id: user.id })
+        .maybeSingle();
+        
+      if (checkError && checkError.message.includes("function") && checkError.message.includes("does not exist")) {
+        console.log("get_average_call_duration function does not exist yet");
+        setAvgDuration(null);
+        return;
+      }
+      
+      const { data, error } = await supabase.rpc(
+        'get_average_call_duration',
+        { p_user_id: user.id }
+      );
+      
+      if (error) throw error;
+      
+      setAvgDuration(data || null);
+    } catch (error: any) {
+      console.error("Error fetching average call duration:", error);
+      setAvgDuration(null);
+    }
+  };
+
+  // Format the average duration for display
+  const formattedAvgDuration = avgDuration ? 
+    `${Math.floor(avgDuration)}:${Math.round((avgDuration % 1) * 60).toString().padStart(2, '0')}` : 
+    "N/A";
 
   const timeRangeLabels = {
     7: 'Last 7 Days',
@@ -171,7 +208,10 @@ const Analytics = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-gray-300 text-sm font-medium mb-1">Average Call Time</p>
-                      <p className="text-3xl font-bold">N/A</p>
+                      <p className="text-3xl font-bold">{formattedAvgDuration}</p>
+                      <p className="text-gray-400 text-xs mt-1">
+                        {avgDuration !== null ? "Overall average" : "No data available"}
+                      </p>
                     </div>
                     <div className="bg-white/20 rounded-full p-3">
                       <Clock className="h-6 w-6 text-white" />

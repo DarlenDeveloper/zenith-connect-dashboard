@@ -69,6 +69,7 @@ const Dashboard = () => {
   const [overviewData, setOverviewData] = useState<AnalyticsOverview | null>(null);
   const [dailyData, setDailyData] = useState<DailyCallCount[]>([]);
   const [recentCalls, setRecentCalls] = useState<RecentCall[]>([]);
+  const [avgDuration, setAvgDuration] = useState<number | null>(null);
   const subscriptionStatus = searchParams.get('subscription');
   
   if (userRequired && !selectedUser) {
@@ -119,6 +120,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
+    fetchAverageDuration();
 
     const callsSubscription = supabase
       .channel('dashboard-calls-channel')
@@ -141,6 +143,41 @@ const Dashboard = () => {
       return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }).format(date);
     } catch (e) { return 'Invalid Date'; }
   };
+
+  // Function to fetch the average call duration
+  const fetchAverageDuration = async () => {
+    if (!user) return;
+    
+    try {
+      // First check if the function exists
+      const { data: functionExists, error: checkError } = await supabase
+        .rpc('get_average_call_duration', { p_user_id: user.id })
+        .maybeSingle();
+        
+      if (checkError && checkError.message.includes("function") && checkError.message.includes("does not exist")) {
+        console.log("get_average_call_duration function does not exist yet");
+        setAvgDuration(null);
+        return;
+      }
+      
+      const { data, error } = await supabase.rpc(
+        'get_average_call_duration',
+        { p_user_id: user.id }
+      );
+      
+      if (error) throw error;
+      
+      setAvgDuration(data || null);
+    } catch (error: any) {
+      console.error("Error fetching average call duration:", error);
+      setAvgDuration(null);
+    }
+  };
+
+  // Format the average duration for display
+  const formattedAvgDuration = avgDuration ? 
+    `${Math.floor(avgDuration)}:${Math.round((avgDuration % 1) * 60).toString().padStart(2, '0')}` : 
+    "N/A";
 
   const firstName = user?.name?.split(' ')[0] || 'User';
 
@@ -185,8 +222,11 @@ const Dashboard = () => {
                     {loading ? (
                       <Skeleton className="h-10 w-20 mt-1 bg-gray-700" />
                     ) : (
-                      <p className="text-4xl font-bold mt-1">N/A</p>
+                      <p className="text-4xl font-bold mt-1">{formattedAvgDuration}</p>
                     )}
+                    <p className="text-gray-400 text-xs mt-1">
+                      {avgDuration !== null ? "Overall average" : "No data available"}
+                    </p>
                   </div>
                   <div className="p-3 bg-gray-700 bg-opacity-50 rounded-full">
                     <Clock className="h-6 w-6" />
