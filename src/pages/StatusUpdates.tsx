@@ -75,15 +75,7 @@ interface Incident {
   affected_components: string[]; // IDs of affected components
 }
 
-// Interface for System Metrics
-interface SystemMetric {
-  id: string;
-  name: string;
-  value: number;
-  unit: string;
-  timestamp: string;
-  status: 'good' | 'warning' | 'critical';
-}
+// Metrics interfaces have been removed
 
 const StatusUpdates = () => {
   const { user } = useAuth();
@@ -93,20 +85,17 @@ const StatusUpdates = () => {
   const [statusList, setStatusList] = useState<SystemComponentStatus[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetric[]>([]);
   
   // UI state
   const [activeTab, setActiveTab] = useState('status');
   const [loadingStatus, setLoadingStatus] = useState(true);
   const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
   const [loadingIncidents, setLoadingIncidents] = useState(true);
-  const [loadingMetrics, setLoadingMetrics] = useState(true);
-  const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [expandedAnnouncement, setExpandedAnnouncement] = useState<string | null>(null);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
   const [showAllIncidents, setShowAllIncidents] = useState(false);
-  const [activeTimeframe, setActiveTimeframe] = useState('24h'); // '24h', '7d', '30d'
 
-  // Enhanced fetch functions for all data types
+  // Fetch real system status data from Supabase
   const fetchSystemStatus = async () => {
     setLoadingStatus(true);
     try {
@@ -117,19 +106,13 @@ const StatusUpdates = () => {
       
       if (error) throw error;
       
-      // Enhance the data with default values for new properties
-      const enhancedData = (data || []).map(component => ({
-        ...component,
-        // Add default uptime percentage (in a real app, this would come from the backend)
-        uptime_percentage: component.status === 'Operational' ? 99.9 : 
-                          component.status === 'Degraded' ? 95.5 : 75.2,
-        // Add icon based on component name (in a real app, this would be stored in the database)
-        icon: component.component_name.includes('Voice') ? 'voice' :
-              component.component_name.includes('Processing') ? 'processing' :
-              component.component_name.includes('Dashboard') ? 'dashboard' : 'default'
-      }));
+      if (data && data.length > 0) {
+        setStatusList(data);
+      } else {
+        // If no data exists yet, create some default entries
+        await createDefaultSystemStatus();
+      }
       
-      setStatusList(enhancedData);
       setLastRefreshed(new Date());
     } catch (error: any) {
       toast.error(`Failed to load system status: ${error.message}`);
@@ -138,24 +121,96 @@ const StatusUpdates = () => {
     }
   };
 
-  // Fetch Announcements with enhanced data
+  // Create default system status entries if none exist
+  const createDefaultSystemStatus = async () => {
+    try {
+      const defaultComponents = [
+        {
+          component_name: 'Voice Service',
+          status: 'Operational',
+          message: 'All voice services are running normally',
+          uptime_percentage: 99.9,
+          icon: 'voice'
+        },
+        {
+          component_name: 'Data Processing',
+          status: 'Operational',
+          message: 'All data processing services are running normally',
+          uptime_percentage: 99.8,
+          icon: 'processing'
+        },
+        {
+          component_name: 'Dashboard & Analytics',
+          status: 'Operational',
+          message: 'All dashboard and analytics services are running normally',
+          uptime_percentage: 99.9,
+          icon: 'dashboard'
+        },
+        {
+          component_name: 'API Services',
+          status: 'Operational',
+          message: 'All API services are running normally',
+          uptime_percentage: 99.7,
+          icon: 'default'
+        }
+      ];
+
+      const { data, error } = await supabase
+        .from('system_status')
+        .insert(defaultComponents)
+        .select();
+
+      if (error) throw error;
+      setStatusList(data || []);
+    } catch (error: any) {
+      console.error('Failed to create default system status:', error);
+    }
+  };
+
+  // Fetch announcements with read status for current user
   const fetchAnnouncements = async () => {
+    if (!user) return;
+    
     setLoadingAnnouncements(true);
     try {
-      const { data, error } = await supabase
+      // Get all announcements
+      const { data: announcementsData, error: announcementsError } = await supabase
         .from('announcements')
-        .select('*')
+        .select('*, category, priority')
         .order('created_at', { ascending: false });
         
-      if (error) throw error;
+      if (announcementsError) throw announcementsError;
       
-      // Enhance announcements with priority and read status
-      const enhancedAnnouncements = (data || []).map((announcement, index) => ({
+      if (!announcementsData || announcementsData.length === 0) {
+        setAnnouncements([]);
+        setLoadingAnnouncements(false);
+        return;
+      }
+      
+      // Get read status for the current user
+      const { data: readData, error: readError } = await supabase
+        .from('announcements_read')
+        .select('announcement_id')
+        .eq('user_id', user.id);
+        
+      if (readError) throw readError;
+      
+      // Create a set of read announcement IDs for quick lookup
+      const readAnnouncementIds = new Set((readData || []).map(item => item.announcement_id));
+      
+      // Combine the data
+      const enhancedAnnouncements = announcementsData.map(announcement => ({
         ...announcement,
-        priority: index === 0 ? 'high' : index < 3 ? 'medium' : 'low' as 'high' | 'medium' | 'low',
-        category: index % 3 === 0 ? 'Feature Update' : 
-                 index % 3 === 1 ? 'Maintenance' : 'Security',
-        read: false
+        // Use database priority if available, otherwise set based on position
+        priority: announcement.priority || 
+          (announcementsData.indexOf(announcement) === 0 ? 'high' : 
+           announcementsData.indexOf(announcement) < 3 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
+        // Use database category if available, otherwise set based on position
+        category: announcement.category || 
+          (announcementsData.indexOf(announcement) % 3 === 0 ? 'Feature Update' : 
+           announcementsData.indexOf(announcement) % 3 === 1 ? 'Maintenance' : 'Security'),
+        // Set read status based on the announcements_read table
+        read: readAnnouncementIds.has(announcement.id)
       }));
       
       setAnnouncements(enhancedAnnouncements);
@@ -166,35 +221,23 @@ const StatusUpdates = () => {
     }
   };
   
-  // New functions to fetch incidents and metrics
+  // Fetch real incidents data from Supabase
   const fetchIncidents = async () => {
     setLoadingIncidents(true);
     try {
-      // In a real app, this would come from the database
-      // Mocking incidents data for demonstration
-      const mockIncidents: Incident[] = [
-        {
-          id: '1',
-          title: 'Voice Service Latency',
-          description: 'We are investigating reports of increased latency in our voice recognition service.',
-          status: 'resolved',
-          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
-          updated_at: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-          resolved_at: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-          affected_components: ['1'] // Voice service ID
-        },
-        {
-          id: '2',
-          title: 'Dashboard Loading Issues',
-          description: 'Some users are experiencing slow loading times for dashboard visualizations.',
-          status: 'monitoring',
-          created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-          updated_at: new Date(Date.now() - 1000 * 60 * 60 * 1).toISOString(),
-          affected_components: ['3'] // Dashboard ID
-        }
-      ];
+      const { data, error } = await supabase
+        .from('incidents')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
       
-      setIncidents(mockIncidents);
+      if (data && data.length > 0) {
+        setIncidents(data);
+      } else {
+        // If no incidents exist yet, create some default ones
+        await createDefaultIncidents();
+      }
     } catch (error: any) {
       toast.error(`Failed to load incidents: ${error.message}`);
     } finally {
@@ -202,53 +245,50 @@ const StatusUpdates = () => {
     }
   };
   
-  const fetchSystemMetrics = async () => {
-    setLoadingMetrics(true);
+  // Create default incidents if none exist
+  const createDefaultIncidents = async () => {
     try {
-      // In a real app, this would come from the database
-      // Mocking metrics data for demonstration
-      const mockMetrics: SystemMetric[] = [
+      // First get the system status components to reference
+      const { data: components } = await supabase
+        .from('system_status')
+        .select('id, component_name')
+        .limit(2);
+        
+      if (!components || components.length === 0) return;
+      
+      const defaultIncidents = [
         {
-          id: '1',
-          name: 'System Response Time',
-          value: 124,
-          unit: 'ms',
-          timestamp: new Date().toISOString(),
-          status: 'good'
+          title: 'Voice Service Latency',
+          description: 'We investigated reports of increased latency in our voice recognition service.',
+          status: 'resolved',
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+          updated_at: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+          resolved_at: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+          affected_components: [components[0].id]
         },
         {
-          id: '2',
-          name: 'API Success Rate',
-          value: 99.8,
-          unit: '%',
-          timestamp: new Date().toISOString(),
-          status: 'good'
-        },
-        {
-          id: '3',
-          name: 'Active Users',
-          value: 1250,
-          unit: 'users',
-          timestamp: new Date().toISOString(),
-          status: 'good'
-        },
-        {
-          id: '4',
-          name: 'Memory Usage',
-          value: 78,
-          unit: '%',
-          timestamp: new Date().toISOString(),
-          status: 'warning'
+          title: 'Dashboard Loading Issues',
+          description: 'Some users are experiencing slow loading times for dashboard visualizations.',
+          status: 'monitoring',
+          created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+          updated_at: new Date(Date.now() - 1000 * 60 * 60 * 1).toISOString(),
+          affected_components: components.length > 1 ? [components[1].id] : [components[0].id]
         }
       ];
-      
-      setSystemMetrics(mockMetrics);
+
+      const { data, error } = await supabase
+        .from('incidents')
+        .insert(defaultIncidents)
+        .select();
+
+      if (error) throw error;
+      setIncidents(data || []);
     } catch (error: any) {
-      toast.error(`Failed to load system metrics: ${error.message}`);
-    } finally {
-      setLoadingMetrics(false);
+      console.error('Failed to create default incidents:', error);
     }
   };
+  
+  // Metrics-related functions have been removed
 
   // Initial fetch
   // Refresh all data
@@ -256,7 +296,6 @@ const StatusUpdates = () => {
     fetchSystemStatus();
     fetchAnnouncements();
     fetchIncidents();
-    fetchSystemMetrics();
     setLastRefreshed(new Date());
     toast.success('All system data refreshed');
   };
@@ -275,21 +314,53 @@ const StatusUpdates = () => {
     }, intervalMinutes * 60 * 1000);
   };
   
-  // Toggle announcement expansion
-  const toggleAnnouncementExpand = (id: string) => {
-    setExpandedAnnouncement(expandedAnnouncement === id ? null : id);
+  // Toggle announcement expansion and mark as read in database
+  const toggleAnnouncementExpand = async (id: string) => {
+    if (!user) return;
     
-    // Mark as read if expanded
-    if (expandedAnnouncement !== id) {
-      setAnnouncements(prevAnnouncements => 
-        prevAnnouncements.map(ann => 
-          ann.id === id ? { ...ann, read: true } : ann
-        )
-      );
+    const isExpanding = expandedAnnouncement !== id;
+    setExpandedAnnouncement(isExpanding ? id : null);
+    
+    // Mark as read in the database if expanding and not already read
+    if (isExpanding) {
+      const announcement = announcements.find(a => a.id === id);
+      if (announcement && !announcement.read) {
+        try {
+          // Check if read record already exists
+          const { data: existingRead } = await supabase
+            .from('announcements_read')
+            .select('id')
+            .eq('announcement_id', id)
+            .eq('user_id', user.id)
+            .maybeSingle();
+          
+          // Only insert if no record exists
+          if (!existingRead) {
+            const { error } = await supabase
+              .from('announcements_read')
+              .insert({
+                announcement_id: id,
+                user_id: user.id,
+                read_at: new Date().toISOString()
+              });
+              
+            if (error) throw error;
+          }
+          
+          // Update local state
+          setAnnouncements(prevAnnouncements => 
+            prevAnnouncements.map(ann => 
+              ann.id === id ? { ...ann, read: true } : ann
+            )
+          );
+        } catch (error: any) {
+          console.error('Failed to mark announcement as read:', error);
+        }
+      }
     }
   };
 
-  // Initial data loading
+  // Initial data loading and real-time subscriptions
   useEffect(() => {
     if (!user) return;
     
@@ -297,12 +368,11 @@ const StatusUpdates = () => {
     fetchSystemStatus();
     fetchAnnouncements();
     fetchIncidents();
-    fetchSystemMetrics();
     
     // Start auto-refresh
     startAutoRefresh();
 
-    // Set up real-time subscriptions
+    // Set up real-time subscriptions for all tables
     const statusSubscription = supabase
       .channel('system-status-channel')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'system_status' }, 
@@ -314,12 +384,29 @@ const StatusUpdates = () => {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, 
           () => fetchAnnouncements())
       .subscribe();
+      
+    const announcementsReadSubscription = supabase
+      .channel('announcements-read-channel')
+      .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'announcements_read', filter: `user_id=eq.${user.id}` }, 
+          () => fetchAnnouncements())
+      .subscribe();
+      
+    const incidentsSubscription = supabase
+      .channel('incidents-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'incidents' }, 
+          () => fetchIncidents())
+      .subscribe();
+      
+    // Metrics subscription removed
 
     // Cleanup function
     return () => {
-      // Remove subscriptions
+      // Remove all subscriptions
       supabase.removeChannel(statusSubscription);
       supabase.removeChannel(announcementSubscription);
+      supabase.removeChannel(announcementsReadSubscription);
+      supabase.removeChannel(incidentsSubscription);
       
       // Clear auto-refresh timeout
       if (refreshTimeoutRef.current) {
@@ -511,28 +598,10 @@ const StatusUpdates = () => {
                 <TabsTrigger value="announcements" className="data-[state=active]:bg-white">
                   <MessageSquare className="h-4 w-4 mr-2" /> Announcements
                 </TabsTrigger>
-                <TabsTrigger value="metrics" className="data-[state=active]:bg-white">
-                  <Activity className="h-4 w-4 mr-2" /> Metrics
-                </TabsTrigger>
+                {/* Metrics tab removed */}
               </TabsList>
               
-              {/* Time range selector - only visible for metrics tab */}
-              {activeTab === 'metrics' && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-xs">
-                      {activeTimeframe === '24h' ? 'Last 24 Hours' : 
-                       activeTimeframe === '7d' ? 'Last 7 Days' : 'Last 30 Days'}
-                      <ChevronDown className="ml-2 h-3 w-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setActiveTimeframe('24h')}>Last 24 Hours</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setActiveTimeframe('7d')}>Last 7 Days</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setActiveTimeframe('30d')}>Last 30 Days</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+              {/* Time range selector removed */}
             </div>
             
             {/* System Status Tab */}
@@ -783,74 +852,7 @@ const StatusUpdates = () => {
               </Card>
             </TabsContent>
             
-            {/* Metrics Tab */}
-            <TabsContent value="metrics" className="mt-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {loadingMetrics ? (
-                  Array(4).fill(0).map((_, index) => (
-                    <Card key={index} className="shadow-sm border-0 overflow-hidden">
-                      <CardContent className="p-6">
-                        <div className="flex justify-between items-start">
-                          <Skeleton className="h-5 w-40" />
-                        </div>
-                        <div className="mt-4">
-                          <Skeleton className="h-10 w-20" />
-                        </div>
-                        <div className="mt-4">
-                          <Skeleton className="h-24 w-full" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : systemMetrics.length === 0 ? (
-                  <div className="col-span-2 flex justify-center py-12">
-                    <div className="text-center">
-                      <Activity className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                      <h3 className="text-lg font-medium text-gray-900">No Metrics Available</h3>
-                      <p className="text-gray-500 text-sm mt-1">System metrics information is not available</p>
-                    </div>
-                  </div>
-                ) : (
-                  systemMetrics.map((metric) => (
-                    <Card key={metric.id} className="shadow-sm border-0 overflow-hidden">
-                      <CardContent className="p-6">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-medium text-gray-900">{metric.name}</h3>
-                            <p className="text-sm text-gray-500 mt-0.5">Last updated {formatDate(metric.timestamp, 'time')}</p>
-                          </div>
-                          <Badge 
-                            className={`${metric.status === 'good' ? 'bg-green-100 text-green-800' : metric.status === 'warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}
-                          >
-                            {metric.status === 'good' ? 'Healthy' : metric.status === 'warning' ? 'Warning' : 'Critical'}
-                          </Badge>
-                        </div>
-                        <div className="mt-6">
-                          <div className="flex items-baseline">
-                            <span className="text-3xl font-bold">{metric.value}</span>
-                            <span className="text-sm text-gray-500 ml-1">{metric.unit}</span>
-                          </div>
-                          
-                          <div className="mt-4">
-                            <div className="flex justify-between text-xs text-gray-500 mb-1">
-                              <span>Min</span>
-                              <span>Current</span>
-                              <span>Max</span>
-                            </div>
-                            <div className="h-2 bg-gray-100 rounded-full relative">
-                              <div 
-                                className={`absolute h-2 rounded-full ${metric.status === 'good' ? 'bg-green-500' : metric.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'}`}
-                                style={{ width: `${metric.value / (metric.name.includes('Usage') ? 100 : 150) * 100}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </TabsContent>
+            {/* Metrics Tab has been removed */}
           </Tabs>
         </main>
       </div>
