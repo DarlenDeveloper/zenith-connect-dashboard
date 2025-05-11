@@ -7,6 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 // Pages
 import Index from "./pages/Index";
@@ -139,6 +140,7 @@ function App() {
           <RouterProvider router={createBrowserRouter(routes)} />
           <Toaster />
           <VercelAnalytics />
+          <SpeedInsights />
         </UserProvider>
       </AuthProvider>
     </QueryClientProvider>
