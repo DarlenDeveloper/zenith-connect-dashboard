@@ -11,6 +11,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Area,
+  ReferenceArea,
 } from "recharts";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -27,7 +29,11 @@ import {
   User,
   CheckCircle,
   ArrowRight,
-  BarChart2
+  BarChart2,
+  TrendingUp,
+  TrendingDown,
+  ZoomIn,
+  ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -51,6 +57,8 @@ interface AnalyticsOverview {
 interface DailyCallCount {
   call_day: string;
   call_count: number;
+  date_obj?: Date; // For sorting and calculations
+  trend?: number; // For tracking day-to-day changes
 }
 
 interface RecentCall {
@@ -61,6 +69,34 @@ interface RecentCall {
   notes: string | null;
 }
 
+// Custom tooltip for the line chart on dashboard
+const CustomLineTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const callCount = data.call_count;
+    const dateStr = data.call_day;
+    const isIncreasing = payload[0].payload.trend > 0;
+    const trendPercent = Math.abs(payload[0].payload.trend || 0);
+    const showTrend = payload[0].payload.trend !== undefined;
+    
+    return (
+      <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200 min-w-[200px] animate-in fade-in duration-200">
+        <p className="font-medium text-gray-900 mb-2">{dateStr}</p>
+        <div className="text-2xl font-bold text-gray-900 flex items-center gap-2 mb-1">
+          {callCount} {callCount === 1 ? 'call' : 'calls'}
+        </div>
+        {showTrend && (
+          <div className={`flex items-center text-sm gap-1 ${isIncreasing ? 'text-green-600' : 'text-red-600'}`}>
+            {isIncreasing ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            <span>{trendPercent}% {isIncreasing ? 'more' : 'fewer'} than previous</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+  return null;
+};
+
 const Dashboard = () => {
   const { user } = useAuth();
   const { selectedUser, userRequired } = useUser();
@@ -70,7 +106,22 @@ const Dashboard = () => {
   const [dailyData, setDailyData] = useState<DailyCallCount[]>([]);
   const [recentCalls, setRecentCalls] = useState<RecentCall[]>([]);
   const [avgDuration, setAvgDuration] = useState<number | null>(null);
+  const [focusBar, setFocusBar] = useState<number | null>(null);
+  const [lineChartZoomed, setLineChartZoomed] = useState(false);
+  const [expandedCall, setExpandedCall] = useState<string | null>(null);
   const subscriptionStatus = searchParams.get('subscription');
+  
+  const onLineChartBarClick = (data: any, index: number) => {
+    setFocusBar(index === focusBar ? null : index);
+  };
+  
+  const toggleLineChartZoom = () => {
+    setLineChartZoomed(!lineChartZoomed);
+  };
+  
+  const toggleCallDetails = (callId: string) => {
+    setExpandedCall(expandedCall === callId ? null : callId);
+  };
   
   if (userRequired && !selectedUser) {
     return <NoUserSelected />;
@@ -102,10 +153,36 @@ const Dashboard = () => {
         setOverviewData(overviewResult.data?.[0] || { total_calls: 0, resolved_calls: 0, resolution_rate: 0 });
 
         if (dailyResult.error) throw dailyResult.error;
-        const formattedDailyData = (dailyResult.data || []).map(d => ({
-          call_day: new Date(d.call_day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          call_count: d.call_count
-        }));
+        // Format daily data for the chart with trend calculation
+        const sortedData = [...(dailyResult.data || [])].sort((a, b) => 
+          new Date(a.call_day).getTime() - new Date(b.call_day).getTime()
+        );
+        
+        const formattedDailyData = sortedData.map((d, index) => {
+          const dateObj = new Date(d.call_day);
+          const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          
+          // Calculate trend compared to previous day if available
+          let trend;
+          if (index > 0) {
+            const prev = sortedData[index-1].call_count;
+            const current = d.call_count;
+            if (prev > 0) {
+              trend = Math.round(((current - prev) / prev) * 100);
+            } else if (current > 0) {
+              trend = 100; // If previous was 0 and current is > 0, 100% increase
+            } else {
+              trend = 0;
+            }
+          }
+          
+          return {
+            call_day: formattedDate,
+            call_count: d.call_count,
+            date_obj: dateObj,
+            trend
+          };
+        });
         setDailyData(formattedDailyData);
 
         if (recentCallsResult.error) throw recentCallsResult.error;
@@ -257,10 +334,30 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 mb-6">
             <Card className="col-span-1 lg:col-span-2 shadow-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-semibold">Call Activity</CardTitle>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle className="text-lg font-semibold">Call Activity</CardTitle>
+                    <p className="text-sm text-gray-500">Call volume over the past 7 days</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={toggleLineChartZoom}
+                      className="p-1.5 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors"
+                      title={lineChartZoomed ? "Reset view" : "Enhance view"}
+                    >
+                      <ZoomIn className="h-4 w-4 text-blue-600" />
+                    </button>
+                    <div className="p-1.5 bg-blue-50 rounded-full cursor-help group relative">
+                      <Info className="h-4 w-4 text-blue-600" />
+                      <div className="absolute right-0 mt-2 w-64 p-3 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 text-xs text-gray-600">
+                        Click on any point to focus on it. The chart shows day-to-day call volume with percentage changes.
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px] w-full">
+                <div className={`${lineChartZoomed ? 'h-[380px]' : 'h-[300px]'} w-full transition-all duration-300`}>
                   {loading ? (
                     <div className="flex items-center justify-center h-full">
                       <Loading />
@@ -269,12 +366,33 @@ const Dashboard = () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart
                         data={dailyData}
-                        margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                        margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+                        onClick={(data) => data && data.activeTooltipIndex !== undefined && onLineChartBarClick(data, data.activeTooltipIndex)}
                       >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <defs>
+                          <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#1a56db" stopOpacity={0.2}/>
+                            <stop offset="95%" stopColor="#1a56db" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" opacity={0.6} />
                         <XAxis 
                           dataKey="call_day" 
-                          tick={{ fontSize: 12 }} 
+                          tick={({ x, y, payload, index }) => {
+                            const isFocused = index === focusBar;
+                            return (
+                              <text 
+                                x={x} 
+                                y={y + 10} 
+                                textAnchor="middle" 
+                                fill={isFocused ? "#1a56db" : "#6b7280"}
+                                fontSize={isFocused ? 13 : 12}
+                                fontWeight={isFocused ? "bold" : "normal"}
+                              >
+                                {payload.value}
+                              </text>
+                            );
+                          }}
                           tickLine={false}
                           axisLine={{ stroke: '#e0e0e0' }}
                         />
@@ -285,20 +403,46 @@ const Dashboard = () => {
                           tickFormatter={(value) => value.toFixed(0)}
                         />
                         <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'white', 
-                            borderRadius: '6px',
-                            border: '1px solid #e0e0e0',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                          content={<CustomLineTooltip />}
+                          cursor={{ 
+                            stroke: '#1a56db', 
+                            strokeWidth: 1, 
+                            strokeDasharray: '3 3',
+                            fill: 'rgba(219, 234, 254, 0.2)' 
                           }}
+                        />
+                        <Area 
+                          type="monotone" 
+                          dataKey="call_count" 
+                          stroke="none" 
+                          fill="url(#colorCalls)" 
+                          fillOpacity={1}
                         />
                         <Line 
                           type="monotone" 
                           dataKey="call_count" 
                           stroke="#1a56db" 
-                          activeDot={{ r: 6 }} 
-                          dot={{ r: 4 }}
-                          strokeWidth={2}
+                          strokeWidth={3} 
+                          dot={({ cx, cy, index }) => (
+                            <circle 
+                              cx={cx} 
+                              cy={cy} 
+                              r={index === focusBar ? 6 : 4} 
+                              stroke={index === focusBar ? "#1E3A8A" : "#1a56db"} 
+                              strokeWidth={index === focusBar ? 3 : 2} 
+                              fill={index === focusBar ? "#1a56db" : "white"} 
+                              className="transition-all duration-300"
+                              cursor="pointer"
+                            />
+                          )} 
+                          activeDot={{ 
+                            stroke: '#1E3A8A', 
+                            strokeWidth: 3, 
+                            r: 7, 
+                            fill: '#1a56db' 
+                          }}
+                          animationDuration={1000}
+                          animationEasing="ease-out"
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -309,12 +453,57 @@ const Dashboard = () => {
                     </div>
                   )}
                 </div>
+                
+                {dailyData.length > 0 && !loading && !lineChartZoomed && (
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                    <div className="border border-gray-100 rounded-lg p-3 bg-gray-50">
+                      <p className="text-xs text-gray-500 mb-1">Average Calls/Day</p>
+                      <p className="text-lg font-medium">
+                        {(dailyData.reduce((acc, day) => acc + day.call_count, 0) / dailyData.length).toFixed(1)}
+                      </p>
+                    </div>
+                    <div className="border border-gray-100 rounded-lg p-3 bg-gray-50">
+                      <p className="text-xs text-gray-500 mb-1">Highest Volume</p>
+                      <p className="text-lg font-medium">
+                        {Math.max(...dailyData.map(day => day.call_count))}
+                      </p>
+                    </div>
+                    <div className="border border-gray-100 rounded-lg p-3 bg-gray-50">
+                      <p className="text-xs text-gray-500 mb-1">Recent Trend</p>
+                      {dailyData.length >= 2 && (
+                        <div className="flex items-center gap-1">
+                          {dailyData[dailyData.length-1].call_count > dailyData[dailyData.length-2].call_count ? (
+                            <>
+                              <TrendingUp className="h-4 w-4 text-green-600" />
+                              <p className="text-lg font-medium text-green-600">Up</p>
+                            </>
+                          ) : dailyData[dailyData.length-1].call_count < dailyData[dailyData.length-2].call_count ? (
+                            <>
+                              <TrendingDown className="h-4 w-4 text-red-600" />
+                              <p className="text-lg font-medium text-red-600">Down</p>
+                            </>
+                          ) : (
+                            <p className="text-lg font-medium text-gray-600">Steady</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
             
             <Card className="shadow-sm">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-semibold">Recent Calls</CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg font-semibold">Recent Calls</CardTitle>
+                  <div className="p-1.5 bg-blue-50 rounded-full cursor-help group relative">
+                    <Info className="h-4 w-4 text-blue-600" />
+                    <div className="absolute right-0 mt-2 w-64 p-3 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity z-10 text-xs text-gray-600">
+                      Click on any call to view more details. Shows your most recent calls with status indicators.
+                    </div>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="px-0">
                 <div className="overflow-hidden">
@@ -331,32 +520,69 @@ const Dashboard = () => {
                   ) : recentCalls.length > 0 ? (
                     <div className="space-y-1">
                       {recentCalls.map((call) => (
-                        <div key={call.id} className="flex items-center px-6 py-3 hover:bg-gray-50">
-                          <div className="flex-shrink-0 mr-3">
-                            <Avatar className="h-9 w-9 bg-blue-100">
-                              <AvatarFallback className="text-blue-700 font-medium">
-                                {call.caller_number ? call.caller_number.substring(0, 2) : 'NA'}
-                              </AvatarFallback>
-                            </Avatar>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {call.caller_number || 'Unknown Number'}
-                            </p>
-                            <p className="text-xs text-gray-500 flex items-center gap-1">
-                              <Clock4 className="h-3 w-3" />
-                              {formatDate(call.call_datetime)}
-                            </p>
-                          </div>
-                          <Badge 
-                            className={`${
-                              call.status === 'completed' ? 'bg-green-100 text-green-800 hover:bg-green-100' :
-                              call.status === 'missed' ? 'bg-red-100 text-red-800 hover:bg-red-100' : 
-                              'bg-blue-100 text-blue-800 hover:bg-blue-100'
-                            } text-xs font-medium h-6`}
+                        <div key={call.id}>
+                          <div 
+                            onClick={() => toggleCallDetails(call.id)}
+                            className="flex items-center px-6 py-3 hover:bg-blue-50 cursor-pointer transition-colors"
                           >
-                            {call.status}
-                          </Badge>
+                            <div className="flex-shrink-0 mr-3">
+                              <Avatar className={`h-9 w-9 ${call.status === 'Resolved' ? 'bg-green-100' : call.status === 'Pending' ? 'bg-yellow-100' : 'bg-blue-100'}`}>
+                                <AvatarFallback className={`${call.status === 'Resolved' ? 'text-green-700' : call.status === 'Pending' ? 'text-yellow-700' : 'text-blue-700'} font-medium`}>
+                                  {call.caller_number ? call.caller_number.substring(0, 2) : 'NA'}
+                                </AvatarFallback>
+                              </Avatar>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {call.caller_number || 'Unknown Number'}
+                              </p>
+                              <p className="text-xs text-gray-500 flex items-center gap-1">
+                                <Clock4 className="h-3 w-3" />
+                                {formatDate(call.call_datetime)}
+                              </p>
+                            </div>
+                            <Badge 
+                              className={`${call.status === 'Resolved' ? 'bg-green-100 text-green-800 hover:bg-green-200' :
+                                call.status === 'Pending' ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 
+                                'bg-blue-100 text-blue-800 hover:bg-blue-200'} text-xs font-medium h-6`}
+                            >
+                              {call.status}
+                            </Badge>
+                          </div>
+                          
+                          {/* Expanded call details */}
+                          {expandedCall === call.id && (
+                            <div className="px-6 py-3 bg-blue-50 border-y border-blue-100 animate-in fade-in duration-200">
+                              <div className="flex flex-col space-y-2">
+                                <div className="flex justify-between">
+                                  <span className="text-xs font-medium text-gray-500">Call Date:</span>
+                                  <span className="text-xs text-gray-700">{new Date(call.call_datetime).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-xs font-medium text-gray-500">Call Time:</span>
+                                  <span className="text-xs text-gray-700">{new Date(call.call_datetime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-xs font-medium text-gray-500">Status:</span>
+                                  <span className="text-xs text-gray-700">{call.status}</span>
+                                </div>
+                                {call.notes && (
+                                  <div className="mt-2">
+                                    <span className="text-xs font-medium text-gray-500 block mb-1">Notes:</span>
+                                    <div className="text-xs text-gray-700 bg-white p-2 rounded border border-gray-200 max-h-20 overflow-y-auto">
+                                      {call.notes}
+                                    </div>
+                                  </div>
+                                )}
+                                <div className="pt-2">
+                                  <Link to={`/call-history?call=${call.id}`} className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 w-fit">
+                                    View full details
+                                    <ExternalLink className="h-3 w-3" />
+                                  </Link>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -371,7 +597,7 @@ const Dashboard = () => {
                   <Link to="/call-history">
                     <Button 
                       variant="outline" 
-                      className="w-full text-[#1a56db] border-[#1a56db] hover:bg-[#1a56db] hover:text-white"
+                      className="w-full text-[#1a56db] border-[#1a56db] hover:bg-[#1a56db] hover:text-white transition-colors"
                     >
                       View All Call History
                       <ArrowRight className="h-4 w-4 ml-2" />
