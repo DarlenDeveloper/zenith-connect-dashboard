@@ -9,6 +9,35 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      ai_voice_training: {
+        Row: {
+          id: string
+          training_ref_id: string
+          training_text: string
+          voice_gender: 'male' | 'female'
+          notes: string | null
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          training_ref_id: string
+          training_text: string
+          voice_gender: 'male' | 'female'
+          notes?: string | null
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          training_ref_id?: string
+          training_text?: string
+          voice_gender?: 'male' | 'female'
+          notes?: string | null
+          user_id?: string
+          created_at?: string
+        }
+      }
       users: {
         Row: {
           id: string
@@ -70,6 +99,10 @@ export interface Database {
     }
     Functions: {
       get_next_user_sequence: {
+        Args: Record<string, never>
+        Returns: number
+      }
+      get_next_ai_training_sequence: {
         Args: Record<string, never>
         Returns: number
       }

@@ -5,7 +5,7 @@ import {
   Settings, LogOut, InboxIcon, Menu, 
   PhoneCall, BarChart2, PlusCircle, MicIcon,
   FileText, Headphones, Bell, Calendar, Users, 
-  Activity, AlertTriangle, UserCheck, Lightbulb, BellRing
+  Activity, AlertTriangle, UserCheck, Lightbulb, BellRing, Mic
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUser } from "@/contexts/UserContext";
@@ -135,6 +135,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Technical", path: "/technical", icon: <AlertTriangle size={18} />, active: location.pathname === "/technical" },
     { name: "Feature Requests", path: "/feature-requests", icon: <Lightbulb size={18} />, active: location.pathname === "/feature-requests" },
     { name: "Status & Updates", path: "/status-updates", icon: <Bell size={18} />, active: location.pathname === "/status-updates" },
+    { name: "AI Agents", path: "/ai-agents", icon: <Mic size={18} />, active: location.pathname === "/ai-agents" },
     { name: "Users", path: "/users", icon: <Users size={18} />, active: location.pathname === "/users" },
     { name: "Activity", path: "/activity", icon: <Activity size={18} />, active: location.pathname === "/activity" },
     { name: "Subscription", path: "/subscription", icon: <CreditCard size={18} />, active: location.pathname === "/subscription" },
