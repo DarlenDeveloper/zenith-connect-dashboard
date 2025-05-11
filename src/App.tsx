@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
 import LoadingScreen from "@/components/LoadingScreen";
+import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
 
 // Pages
 import Index from "./pages/Index";
@@ -137,6 +138,7 @@ function App() {
         <UserProvider>
           <RouterProvider router={createBrowserRouter(routes)} />
           <Toaster />
+          <VercelAnalytics />
         </UserProvider>
       </AuthProvider>
     </QueryClientProvider>
