@@ -47,11 +47,13 @@ const Technical = () => {
   const fetchTechnicalIssues = async () => {
     setLoading(true);
     try {
+      // Filter technical issues by the current user's ID
       const { data, error } = await supabase
         .from('technical_issues')
         .select(`
           *
         `)
+        .eq('user_id', user?.id) // Only show technical issues for the current user
         .order('created_at', { ascending: false });
 
       if (error) throw error;
