@@ -135,7 +135,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { name: "Technical", path: "/technical", icon: <AlertTriangle size={18} />, active: location.pathname === "/technical" },
     { name: "Feature Requests", path: "/feature-requests", icon: <Lightbulb size={18} />, active: location.pathname === "/feature-requests" },
     { name: "Status & Updates", path: "/status-updates", icon: <Bell size={18} />, active: location.pathname === "/status-updates" },
-    { name: "AI Agents", path: "/ai-agents", icon: <Mic size={18} />, active: location.pathname === "/ai-agents" },
+    { name: "Modal Training", path: "/modal-training", icon: <Mic size={18} />, active: location.pathname === "/modal-training" },
     { name: "Users", path: "/users", icon: <Users size={18} />, active: location.pathname === "/users" },
     { name: "Activity", path: "/activity", icon: <Activity size={18} />, active: location.pathname === "/activity" },
     { name: "Subscription", path: "/subscription", icon: <CreditCard size={18} />, active: location.pathname === "/subscription" },

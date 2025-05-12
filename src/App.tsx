@@ -29,7 +29,7 @@ import ContactSales from "./pages/ContactSales";
 import Users from "./pages/Users";
 import Activity from "./pages/Activity";
 import NotificationDemo from "./pages/NotificationDemo";
-import AIAgents from "./pages/AIAgents";
+import ModalTraining from "./pages/ModalTraining";
 
 // Components
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -129,8 +129,8 @@ function App() {
       element: <ProtectedRoute><RequireUser><NotificationDemo /></RequireUser></ProtectedRoute>,
     },
     {
-      path: "/ai-agents",
-      element: <ProtectedRoute><RequireUser><AIAgents /></RequireUser></ProtectedRoute>,
+      path: "/modal-training",
+      element: <ProtectedRoute><RequireUser><ModalTraining /></RequireUser></ProtectedRoute>,
     },
     {
       path: "*",

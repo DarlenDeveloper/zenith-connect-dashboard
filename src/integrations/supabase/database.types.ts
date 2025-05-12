@@ -96,6 +96,53 @@ export interface Database {
           has_subscription?: boolean
         }
       }
+      model_training: {
+        Row: {
+          id: string
+          model_ref_id: string
+          model_name: string
+          provider: string
+          model_type: string
+          system_prompt: string
+          first_message: string
+          temperature: number
+          max_tokens: number
+          files: string[] | null
+          user_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          model_ref_id: string
+          model_name: string
+          provider: string
+          model_type: string
+          system_prompt: string
+          first_message: string
+          temperature: number
+          max_tokens: number
+          files?: string[] | null
+          user_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          model_ref_id?: string
+          model_name?: string
+          provider?: string
+          model_type?: string
+          system_prompt?: string
+          first_message?: string
+          temperature?: number
+          max_tokens?: number
+          files?: string[] | null
+          user_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Functions: {
       get_next_user_sequence: {
@@ -103,6 +150,10 @@ export interface Database {
         Returns: number
       }
       get_next_ai_training_sequence: {
+        Args: Record<string, never>
+        Returns: number
+      }
+      get_next_model_training_sequence: {
         Args: Record<string, never>
         Returns: number
       }
