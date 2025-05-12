@@ -175,54 +175,95 @@ const AIAgents = () => {
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Training Data
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[550px]">
+            <DialogContent className="sm:max-w-[750px]">
               <DialogHeader>
                 <DialogTitle>Add Voice Training Data</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit(handleAddTrainingData)}>
-                <div className="space-y-4 py-2">
+                <div className="space-y-6 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="training_text">Training Text</Label>
-                    <Textarea 
-                      id="training_text" 
-                      placeholder="Enter text for voice training..." 
-                      {...register('training_text')} 
-                      className="h-32"
-                    />
-                    {errors.training_text && <p className="text-xs text-red-600">{errors.training_text.message}</p>}
+                    <Label htmlFor="training_text" className="text-lg font-semibold flex items-center">
+                      <Mic className="mr-2 h-5 w-5 text-blue-600" /> Training Text
+                    </Label>
+                    <div className="relative">
+                      <Textarea 
+                        id="training_text" 
+                        placeholder="Enter text for voice training..." 
+                        {...register('training_text')} 
+                        className="h-40 text-lg p-4 border-2 border-blue-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg shadow-sm"
+                      />
+                      <div className="absolute right-3 bottom-3 text-sm text-gray-500 bg-white px-2 rounded-md border border-gray-200">
+                        Min 10 chars
+                      </div>
+                    </div>
+                    {errors.training_text && <p className="text-sm text-red-600 mt-1">{errors.training_text.message}</p>}
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label>Voice Gender</Label>
-                    <RadioGroup defaultValue="male" {...register('voice_gender')}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="male" id="male" />
-                        <Label htmlFor="male" className="cursor-pointer">Male</Label>
+                  <div className="space-y-3">
+                    <Label className="text-lg font-semibold">Voice Gender</Label>
+                    <RadioGroup defaultValue="male" {...register('voice_gender')} className="flex space-x-6 mt-2">
+                      <div className="flex-1 bg-blue-50 hover:bg-blue-100 transition-colors rounded-lg p-4 border-2 border-transparent data-[state=checked]:border-blue-500">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="male" id="male" className="text-blue-600" />
+                          <Label htmlFor="male" className="cursor-pointer text-lg font-medium">Male</Label>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1 ml-6">Male voice training data</p>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="female" id="female" />
-                        <Label htmlFor="female" className="cursor-pointer">Female</Label>
+                      <div className="flex-1 bg-purple-50 hover:bg-purple-100 transition-colors rounded-lg p-4 border-2 border-transparent data-[state=checked]:border-purple-500">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="female" id="female" className="text-purple-600" />
+                          <Label htmlFor="female" className="cursor-pointer text-lg font-medium">Female</Label>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1 ml-6">Female voice training data</p>
                       </div>
                     </RadioGroup>
-                    {errors.voice_gender && <p className="text-xs text-red-600">{errors.voice_gender.message}</p>}
+                    {errors.voice_gender && <p className="text-sm text-red-600 mt-1">{errors.voice_gender.message}</p>}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="notes">Notes (Optional)</Label>
-                    <Textarea 
-                      id="notes" 
-                      placeholder="Any additional notes about this training data..." 
-                      {...register('notes')} 
-                    />
+                    <Label htmlFor="notes" className="text-lg font-semibold flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Notes (Optional)
+                    </Label>
+                    <div className="relative">
+                      <Textarea 
+                        id="notes" 
+                        placeholder="Any additional notes about this training data..." 
+                        {...register('notes')} 
+                        className="h-24 p-4 border-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg shadow-sm"
+                      />
+                      <div className="absolute right-3 bottom-3 text-sm text-gray-500 bg-white px-2 rounded-md border border-gray-200">
+                        Optional
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
-                <DialogFooter className="mt-6">
+                <div className="bg-gray-50 p-4 rounded-lg mt-6 mb-2">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Training Data Information</h3>
+                  <p className="text-xs text-gray-600">Your training data helps improve AI voice models. Each entry receives a unique ID for tracking purposes.</p>
+                </div>
+                
+                <DialogFooter className="mt-4">
                   <Button variant="outline" type="button" onClick={() => setIsAddTrainingDialogOpen(false)} className="mr-2">
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700">
-                    {isSubmitting ? 'Adding...' : 'Add Training Data'}
+                  <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md shadow-md hover:shadow-lg transition-all">
+                    {isSubmitting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Adding...
+                      </>
+                    ) : (
+                      <>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add Training Data
+                      </>
+                    )}
                   </Button>
                 </DialogFooter>
               </form>

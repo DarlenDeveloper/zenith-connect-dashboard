@@ -25,8 +25,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Define plan prices
 const PLANS = {
-  starter: { price: 297300 }, // 297kk UGX
-  pro: { price: 597300 },     // 597k UGX
+  starter: { price: 477000 }, // 477k UGX
+  pro: { price: 677000 },     // 677k UGX
   enterprise: { price: 1500000 } // 1.5M UGX (though this will redirect to contact form)
 };
 

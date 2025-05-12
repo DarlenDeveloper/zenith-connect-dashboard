@@ -134,10 +134,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error("Error getting user profile:", error);
-      toast({
-        variant: "destructive",
-        title: "Error loading profile",
-        description: "We couldn't load your user profile. Please try logging in again.",
+      toast.error("Error loading profile", {
+        description: "We couldn't load your user profile. Please try logging in again."
       });
     } finally {
       setLoading(false);
@@ -277,15 +275,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out",
+      toast.success("Logged Out", {
+        description: "You have been successfully logged out"
       });
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Logout Failed",
-        description: error.message || "An unknown error occurred",
+      toast.error("Logout Failed", {
+        description: error.message || "An unknown error occurred"
       });
     }
   };
