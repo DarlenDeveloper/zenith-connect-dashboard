@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 
 // Define plan prices
 const PLANS = {
-  starter: { price: 477000 }, // Updated price
+  starter: { price: 50000 }, // Updated price
   pro: { price: 677000 }, // Updated price
   enterprise: { price: 1500000 } // Price ignored as it redirects to sales
 };
