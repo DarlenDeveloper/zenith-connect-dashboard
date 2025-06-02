@@ -30,6 +30,7 @@ import Users from "./pages/Users";
 import Activity from "./pages/Activity";
 import NotificationDemo from "./pages/NotificationDemo";
 import ModalTraining from "./pages/ModalTraining";
+import CustomerCallSetup from "./pages/CustomerCallSetup";
 
 // Components
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -131,6 +132,10 @@ function App() {
     {
       path: "/modal-training",
       element: <ProtectedRoute><RequireUser><ModalTraining /></RequireUser></ProtectedRoute>,
+    },
+    {
+      path: "/customer-call-setup",
+      element: <ProtectedRoute><RequireUser><CustomerCallSetup /></RequireUser></ProtectedRoute>,
     },
     {
       path: "*",

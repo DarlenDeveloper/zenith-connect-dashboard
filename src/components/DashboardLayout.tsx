@@ -5,7 +5,8 @@ import {
   Settings, LogOut, InboxIcon, Menu, 
   PhoneCall, BarChart2, PlusCircle, MicIcon,
   FileText, Headphones, Bell, Calendar, Users, 
-  Activity, AlertTriangle, UserCheck, Lightbulb, BellRing, Mic
+  Activity, AlertTriangle, UserCheck, Lightbulb, BellRing, Mic,
+  Phone
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUser } from "@/contexts/UserContext";
@@ -131,6 +132,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navItems: NavItem[] = [
     { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={18} />, active: location.pathname === "/dashboard" },
     { name: "Call History", path: "/call-history", icon: <PhoneCall size={18} />, active: location.pathname === "/call-history" },
+    { name: "Setup Call", path: "/customer-call-setup", icon: <Phone size={18} />, active: location.pathname === "/customer-call-setup" },
     { name: "Analytics", path: "/analytics", icon: <BarChart2 size={18} />, active: location.pathname === "/analytics" },
     { name: "Technical", path: "/technical", icon: <AlertTriangle size={18} />, active: location.pathname === "/technical" },
     { name: "Feature Requests", path: "/feature-requests", icon: <Lightbulb size={18} />, active: location.pathname === "/feature-requests" },
