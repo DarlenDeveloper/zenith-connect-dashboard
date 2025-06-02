@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 
 // Define plan prices
 const PLANS = {
-  starter: { price: 477000 }, // Updated price
+  starter: { price: 50000 }, // Updated price
   pro: { price: 677000 }, // Updated price
   enterprise: { price: 1500000 } // Price ignored as it redirects to sales
 };
@@ -66,7 +66,7 @@ const PlansSection = ({ currentPlan = "" }: PlansSectionProps) => {
         {/* Starter Plan */}
         <PlanCard
           title="Starter"
-          price={<>477,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
+          price={<>50,000<span className="text-sm font-normal text-gray-500"> UGX/month</span></>}
           features={[
             { text: "Up to 200 client calls" },
             { text: "Up to 5 AI conversations" },
